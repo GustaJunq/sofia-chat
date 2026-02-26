@@ -5,7 +5,7 @@ import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import LoginScreen from "@/components/LoginScreen";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const Index = () => {
   const [token, setToken] = useState<string | null>(
