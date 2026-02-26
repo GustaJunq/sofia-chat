@@ -10,7 +10,7 @@ const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const Index = () => {
   const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem("sof_token")
+    () => sessionStorage.getItem("sof_token")
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -160,3 +160,4 @@ const Index = () => {
 };
 
 export default Index;
+                    
