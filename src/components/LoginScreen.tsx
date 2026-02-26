@@ -1,5 +1,7 @@
 import { useState, FormEvent } from "react";
 
+const API_URL = "https://sofia-api-z8nr.onrender.com";
+
 interface LoginScreenProps {
   onLogin: (token: string) => void;
   onSwitchToRegister: () => void;
@@ -18,23 +20,24 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
     setError("");
 
     try {
-      const apiUrl = "https://sofia-api-z8nr.onrender.com";
-      const res = await fetch(`${apiUrl}/login`, {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
+      // Mensagem generica para nao vazar detalhes do backend
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Credenciais inválidas");
+        setError("Email ou senha incorretos");
+        return;
       }
 
       const data = await res.json();
-      localStorage.setItem("sof_token", data.token);
+      // Armazena em sessionStorage em vez de localStorage (limpa ao fechar o browser)
+      sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
-    } catch (err: any) {
-      setError(err.message || "Erro ao fazer login");
+    } catch {
+      setError("Erro de conexao. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -50,6 +53,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          autoComplete="email"
           className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
         />
 
@@ -58,6 +62,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
+          autoComplete="current-password"
           className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
         />
 
@@ -72,7 +77,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
         </button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Não tem conta?{" "}
+          Nao tem conta?{" "}
           <button type="button" onClick={onSwitchToRegister} className="text-foreground underline">
             Criar conta
           </button>
