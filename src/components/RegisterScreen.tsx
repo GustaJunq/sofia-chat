@@ -14,16 +14,22 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const validatePassword = (pwd: string): string | null => {
+    if (pwd.length < 8) return "A senha deve ter no minimo 8 caracteres";
+    if (!/[A-Z]/.test(pwd)) return "A senha deve ter ao menos uma letra maiuscula";
+    if (!/[0-9]/.test(pwd)) return "A senha deve ter ao menos um numero";
+    return null;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password || !confirmPassword) return;
 
-    if (password.length < 6) {
-      setError("A senha deve ter no mínimo 6 caracteres");
-      return;
-    }
+    const pwdError = validatePassword(password);
+    if (pwdError) { setError(pwdError); return; }
+
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem");
+      setError("As senhas nao coincidem");
       return;
     }
 
@@ -37,16 +43,21 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
         body: JSON.stringify({ email, password }),
       });
 
+      if (res.status === 409) {
+        setError("Este email ja esta em uso");
+        return;
+      }
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Erro ao criar conta");
+        setError("Erro ao criar conta. Tente novamente.");
+        return;
       }
 
       const data = await res.json();
-      localStorage.setItem("sof_token", data.token);
+      sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
-    } catch (err: any) {
-      setError(err.message || "Erro ao criar conta");
+    } catch {
+      setError("Erro de conexao. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +73,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          autoComplete="email"
           className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
         />
 
@@ -70,6 +82,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
+          autoComplete="new-password"
           className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
         />
 
@@ -78,8 +91,13 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirmar senha"
+          autoComplete="new-password"
           className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
         />
+
+        <p className="text-xs text-muted-foreground text-center -mt-2">
+          Minimo 8 caracteres, uma maiuscula e um numero
+        </p>
 
         {error && <p className="text-destructive text-sm text-center">{error}</p>}
 
@@ -92,7 +110,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
         </button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Já tem conta?{" "}
+          Ja tem conta?{" "}
           <button type="button" onClick={onSwitchToLogin} className="text-foreground underline">
             Entrar
           </button>
