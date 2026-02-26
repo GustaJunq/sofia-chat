@@ -13,9 +13,10 @@ interface HeaderProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   remainingMessages?: number | null;
+  onLogout: () => void;
 }
 
-const Header = ({ selectedModel, onModelChange, remainingMessages }: HeaderProps) => {
+const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: HeaderProps) => {
   const [open, setOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
@@ -55,6 +56,12 @@ const Header = ({ selectedModel, onModelChange, remainingMessages }: HeaderProps
 
     onModelChange(modelId);
     setOpen(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("sof_token");
+    setOpen(false);
+    onLogout();
   };
 
   const plan = getUserPlan();
@@ -105,6 +112,14 @@ const Header = ({ selectedModel, onModelChange, remainingMessages }: HeaderProps
                 {checkoutError}
               </div>
             )}
+            <div className="border-t border-border mt-1">
+              <button
+                onClick={handleLogout}
+                className="w-full px-4 py-2.5 text-left text-sm text-foreground/50 hover:bg-accent transition-colors"
+              >
+                Sair
+              </button>
+            </div>
           </div>
         )}
       </div>
