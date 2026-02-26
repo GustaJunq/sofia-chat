@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "@/components/Header";
 import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import LoginScreen from "@/components/LoginScreen";
+import RegisterScreen from "@/components/RegisterScreen";
 
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
@@ -15,6 +16,17 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
+  const [authScreen, setAuthScreen] = useState<"login" | "register">("login");
+  const [upgradeBanner, setUpgradeBanner] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgraded") === "true") {
+      setUpgradeBanner(true);
+      window.history.replaceState({}, "", window.location.pathname);
+      setTimeout(() => setUpgradeBanner(false), 4000);
+    }
+  }, []);
 
   const handleLogin = useCallback((t: string) => setToken(t), []);
 
@@ -62,13 +74,25 @@ const Index = () => {
   );
 
   if (!token) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return authScreen === "login" ? (
+      <LoginScreen onLogin={handleLogin} onSwitchToRegister={() => setAuthScreen("register")} />
+    ) : (
+      <RegisterScreen onLogin={handleLogin} onSwitchToLogin={() => setAuthScreen("login")} />
+    );
   }
 
   const hasMessages = messages.length > 0;
 
   return (
     <div className="h-[100dvh] flex flex-col relative overflow-hidden">
+      {upgradeBanner && (
+        <div className="fixed top-0 left-0 right-0 z-[60] flex justify-center pt-3 px-4">
+          <div className="input-surface rounded-xl px-4 py-2.5 text-sm text-foreground">
+            Plano pro ativado! Faça login novamente para atualizar.
+          </div>
+        </div>
+      )}
+
       <Header
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
