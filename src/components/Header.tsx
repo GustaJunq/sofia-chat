@@ -35,7 +35,7 @@ const Header = ({ selectedModel, onModelChange, remainingMessages }: HeaderProps
     if (modelId === "sof-v1-pro" && getUserPlan() === "free") {
       setCheckoutLoading(true);
       try {
-        const token = localStorage.getItem("sof_token");
+        const token = sessionStorage.getItem("sof_token");
         const res = await fetch(`${API_URL}/create-checkout-session`, {
           method: "POST",
           headers: {
