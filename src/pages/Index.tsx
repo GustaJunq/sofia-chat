@@ -18,6 +18,12 @@ const Index = () => {
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
   const [authScreen, setAuthScreen] = useState<"login" | "register">("login");
   const [upgradeBanner, setUpgradeBanner] = useState(false);
+
+  const handleLogout = () => {
+    setToken(null);
+    setMessages([]);
+    setRemainingMessages(null);
+  };
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -147,6 +153,7 @@ const Index = () => {
       <Header
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
+        onLogout={handleLogout}
         remainingMessages={remainingMessages}
       />
 
@@ -160,4 +167,3 @@ const Index = () => {
 };
 
 export default Index;
-                    
