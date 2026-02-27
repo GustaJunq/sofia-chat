@@ -22,8 +22,15 @@ const Index = () => {
   const [token, setToken] = useState<string | null>(
     () => sessionStorage.getItem("sof_token")
   );
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    try {
+      const saved = localStorage.getItem("sof_conversations");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [activeConvId, setActiveConvId] = useState<string | null>(() =>
+    localStorage.getItem("sof_activeConvId")
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
@@ -42,6 +49,15 @@ const Index = () => {
   };
 
   const handleLogin = useCallback((t: string) => setToken(t), []);
+
+  useEffect(() => {
+    localStorage.setItem("sof_conversations", JSON.stringify(conversations));
+  }, [conversations]);
+
+  useEffect(() => {
+    if (activeConvId) localStorage.setItem("sof_activeConvId", activeConvId);
+    else localStorage.removeItem("sof_activeConvId");
+  }, [activeConvId]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
