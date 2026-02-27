@@ -1,5 +1,4 @@
 import StarLogo from "./StarLogo";
-import handImg from "@/assets/hand.png";
 
 interface HeroViewProps {
   visible: boolean;
@@ -16,11 +15,6 @@ const HeroView = ({ visible }: HeroViewProps) => {
     >
       <div className="relative flex flex-col items-center -mt-16">
         <StarLogo className="w-[100px] h-[100px] animate-star-pulse relative z-10" />
-        <img
-          src={handImg}
-          alt=""
-          className="w-[75vw] max-w-[360px] -mt-10 relative z-0 opacity-90 mix-blend-screen"
-        />
       </div>
     </div>
   );
