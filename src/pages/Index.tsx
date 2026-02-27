@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "@/components/Header";
 import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
@@ -24,17 +24,6 @@ const Index = () => {
     setMessages([]);
     setRemainingMessages(null);
   };
-  const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("upgraded") === "true") {
-      setUpgradeBanner(true);
-      window.history.replaceState({}, "", window.location.pathname);
-      setTimeout(() => setUpgradeBanner(false), 4000);
-    }
-  }, []);
-
   const handleLogin = useCallback((t: string) => setToken(t), []);
 
   const sendMessage = useCallback(
@@ -43,15 +32,10 @@ const Index = () => {
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
 
-      // Placeholder para a resposta do assistente (streaming)
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
       const history = [...messages, userMsg].map(({ role, content }) => ({
         role,
         content,
       }));
-
-      abortRef.current = new AbortController();
 
       try {
         const res = await fetch(`${API_URL}/chat`, {
@@ -61,70 +45,25 @@ const Index = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ message: text, history }),
-          signal: abortRef.current.signal,
         });
 
         if (!res.ok) throw new Error("Erro na resposta");
 
-        const reader = res.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
+        const data = await res.json();
+        const reply = data.reply ?? "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const json = line.slice(6).trim();
-            if (!json || json === "[DONE]") continue;
-
-            try {
-              const parsed = JSON.parse(json);
-
-              if (parsed.error) {
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." };
-                  return updated;
-                });
-                break;
-              }
-
-              if (parsed.token) {
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: "assistant",
-                    content: updated[updated.length - 1].content + parsed.token,
-                  };
-                  return updated;
-                });
-              }
-
-              if (parsed.done && parsed.remaining_messages !== undefined) {
-                setRemainingMessages(parsed.remaining_messages);
-              }
-            } catch {
-              continue;
-            }
-          }
+        if (data.remaining_messages !== undefined) {
+          setRemainingMessages(data.remaining_messages);
         }
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." };
-            return updated;
-          });
-        }
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." },
+        ]);
       } finally {
         setIsLoading(false);
-        abortRef.current = null;
       }
     },
     [messages, token]

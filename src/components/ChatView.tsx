@@ -19,9 +19,7 @@ const ChatView = ({ messages, isLoading }: ChatViewProps) => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Mostra o TypingIndicator apenas se a ultima mensagem do assistente ainda estiver vazia
-  const lastMsg = messages[messages.length - 1];
-  const showTyping = isLoading && lastMsg?.role === "assistant" && lastMsg?.content === "";
+  const showTyping = isLoading;
 
   return (
     <div className="flex-1 overflow-y-auto pt-24 pb-40 px-5">
