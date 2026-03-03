@@ -8,7 +8,6 @@ import RegisterScreen from "@/components/RegisterScreen";
 import ChatHistory from "@/components/ChatHistory";
 import { Menu } from "lucide-react";
 import {
-  API_URL,
   fetchConversations,
   fetchConversation,
   sendChatMessage,
@@ -117,21 +116,14 @@ const Index = () => {
       setIsLoading(true);
 
       if (isGuest) {
-        try {
-          const res = await fetch(`${API_URL}/chat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text }),
-          });
-          if (!res.ok) throw new Error();
-          const data = await res.json();
-          setMessages((prev) => [...prev, { role: "assistant", content: data.reply ?? "" }]);
-          if (data.remaining_messages !== undefined) setRemainingMessages(data.remaining_messages);
-        } catch {
-          setMessages((prev) => [...prev, { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." }]);
-        } finally {
+        // Guest mode — no API, just echo
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." },
+          ]);
           setIsLoading(false);
-        }
+        }, 600);
         return;
       }
 
