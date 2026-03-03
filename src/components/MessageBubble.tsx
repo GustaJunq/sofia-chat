@@ -1,6 +1,12 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Volume2, Pause, Loader2 } from "lucide-react";
 import { fetchTTS, getToken } from "@/lib/api";
+
+declare global {
+  interface Window {
+    renderMathInElement?: (el: HTMLElement, opts: unknown) => void;
+  }
+}
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -12,6 +18,7 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -21,14 +28,12 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
   const play = useCallback(async () => {
     const token = getToken();
     if (!token) return;
-
     setTtsState("loading");
     try {
       const blob = await fetchTTS(token, content);
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       const url = URL.createObjectURL(blob);
       urlRef.current = url;
-
       const audio = new Audio(url);
       audioRef.current = audio;
       audio.onended = () => setTtsState("idle");
@@ -40,11 +45,36 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
     }
   }, [content]);
 
-  const handleTTSClick = () => {
-    if (ttsState === "playing") {
-      pause();
-      return;
+  useEffect(() => {
+    if (role !== "assistant" || !contentRef.current) return;
+    const tryRender = () => {
+      if (window.renderMathInElement && contentRef.current) {
+        window.renderMathInElement(contentRef.current, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true },
+          ],
+          throwOnError: false,
+        });
+      }
+    };
+    if (window.renderMathInElement) {
+      tryRender();
+    } else {
+      const timer = setInterval(() => {
+        if (window.renderMathInElement) {
+          clearInterval(timer);
+          tryRender();
+        }
+      }, 100);
+      return () => clearInterval(timer);
     }
+  }, [content, role]);
+
+  const handleTTSClick = () => {
+    if (ttsState === "playing") { pause(); return; }
     if (ttsState === "loading") return;
     onPlayRequest?.(play, pause);
   };
@@ -61,7 +91,10 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
 
   return (
     <div className="group flex justify-start mb-3 gap-1.5 items-start">
-      <div className="text-foreground max-w-[90%] text-[15px] leading-[1.7] whitespace-pre-wrap">
+      <div
+        ref={contentRef}
+        className="text-foreground max-w-[90%] text-[15px] leading-[1.7] whitespace-pre-wrap"
+      >
         {content}
       </div>
       <button
