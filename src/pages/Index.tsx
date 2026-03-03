@@ -5,59 +5,58 @@ import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import LoginScreen from "@/components/LoginScreen";
 import RegisterScreen from "@/components/RegisterScreen";
-import ChatHistory, { type Conversation } from "@/components/ChatHistory";
+import ChatHistory from "@/components/ChatHistory";
 import { Menu } from "lucide-react";
-
-const API_URL = "https://sofia-api-z8nr.onrender.com";
-
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
-function titleFromMessage(msg: string) {
-  return msg.length > 40 ? msg.slice(0, 40) + "…" : msg;
-}
+import {
+  fetchConversations,
+  fetchConversation,
+  sendChatMessage,
+  deleteConversation,
+  deleteAllConversations,
+  type ConversationSummary,
+} from "@/lib/api";
 
 const Index = () => {
   const [token, setToken] = useState<string | null>(
     () => sessionStorage.getItem("sof_token")
   );
-  const [conversations, setConversations] = useState<Conversation[]>(() => {
-    try {
-      const saved = localStorage.getItem("sof_conversations");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-  const [activeConvId, setActiveConvId] = useState<string | null>(() =>
-    localStorage.getItem("sof_activeConvId")
-  );
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
   const [authScreen, setAuthScreen] = useState<"login" | "register">("login");
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
-  const activeConv = conversations.find((c) => c.id === activeConvId) ?? null;
-  const messages = activeConv?.messages ?? [];
+  // Load conversation list when logged in
+  useEffect(() => {
+    if (!token) return;
+    fetchConversations(token)
+      .then(setConversations)
+      .catch(() => {});
+  }, [token]);
 
   const handleLogout = () => {
+    sessionStorage.removeItem("sof_token");
     setToken(null);
     setConversations([]);
     setActiveConvId(null);
+    setMessages([]);
     setRemainingMessages(null);
+    setIsGuest(false);
   };
 
-  const handleLogin = useCallback((t: string) => setToken(t), []);
+  const handleLogin = useCallback((t: string) => {
+    setIsGuest(false);
+    setToken(t);
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("sof_conversations", JSON.stringify(conversations));
-  }, [conversations]);
-
-  useEffect(() => {
-    if (activeConvId) localStorage.setItem("sof_activeConvId", activeConvId);
-    else localStorage.removeItem("sof_activeConvId");
-  }, [activeConvId]);
+  const handleSkipAuth = useCallback(() => {
+    setIsGuest(true);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -70,95 +69,104 @@ const Index = () => {
 
   const handleNewConversation = () => {
     setActiveConvId(null);
+    setMessages([]);
     setSidebarOpen(false);
   };
 
-  const handleSelectConversation = (id: string) => {
+  const handleSelectConversation = async (id: string) => {
+    if (!token) return;
     setActiveConvId(id);
     setSidebarOpen(false);
+    try {
+      const data = await fetchConversation(token, id);
+      setMessages(
+        data.messages.map((m) => ({ role: m.role, content: m.content }))
+      );
+    } catch {
+      setMessages([]);
+    }
   };
 
-  const handleDeleteConversation = (id: string) => {
-    setConversations((prev) => prev.filter((c) => c.id !== id));
-    if (activeConvId === id) setActiveConvId(null);
+  const handleDeleteConversation = async (id: string) => {
+    if (!token) return;
+    try {
+      await deleteConversation(token, id);
+      setConversations((prev) => prev.filter((c) => c.id !== id));
+      if (activeConvId === id) {
+        setActiveConvId(null);
+        setMessages([]);
+      }
+    } catch {}
+  };
+
+  const handleDeleteAll = async () => {
+    if (!token) return;
+    try {
+      await deleteAllConversations(token);
+      setConversations([]);
+      setActiveConvId(null);
+      setMessages([]);
+    } catch {}
   };
 
   const sendMessage = useCallback(
     async (text: string) => {
       const userMsg: Message = { role: "user", content: text };
+      setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
 
-      let convId = activeConvId;
-
-      if (!convId) {
-        // Create new conversation
-        convId = generateId();
-        const newConv: Conversation = {
-          id: convId,
-          title: titleFromMessage(text),
-          messages: [userMsg],
-        };
-        setConversations((prev) => [newConv, ...prev]);
-        setActiveConvId(convId);
-      } else {
-        // Add to existing
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.id === convId ? { ...c, messages: [...c.messages, userMsg] } : c
-          )
-        );
+      if (isGuest) {
+        // Guest mode — no API, just echo
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." },
+          ]);
+          setIsLoading(false);
+        }, 600);
+        return;
       }
 
-      const currentMessages = activeConv ? [...activeConv.messages, userMsg] : [userMsg];
-      const history = currentMessages.map(({ role, content }) => ({ role, content }));
-
       try {
-        const res = await fetch(`${API_URL}/chat`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ message: text, history }),
-        });
+        const data = await sendChatMessage(token!, text, activeConvId);
+        const assistantMsg: Message = { role: "assistant", content: data.reply ?? "" };
+        setMessages((prev) => [...prev, assistantMsg]);
 
-        if (!res.ok) throw new Error("Erro na resposta");
-
-        const data = await res.json();
-        const reply = data.reply ?? "";
-        const assistantMsg: Message = { role: "assistant", content: reply };
-
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.id === convId ? { ...c, messages: [...c.messages, assistantMsg] } : c
-          )
-        );
+        // If new conversation was created, update state
+        if (!activeConvId && data.conversation_id) {
+          setActiveConvId(data.conversation_id);
+          // Refresh conversation list
+          fetchConversations(token!).then(setConversations).catch(() => {});
+        }
 
         if (data.remaining_messages !== undefined) {
           setRemainingMessages(data.remaining_messages);
         }
       } catch {
-        const errorMsg: Message = {
-          role: "assistant",
-          content: "Desculpe, ocorreu um erro. Tente novamente.",
-        };
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.id === convId ? { ...c, messages: [...c.messages, errorMsg] } : c
-          )
-        );
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." },
+        ]);
       } finally {
         setIsLoading(false);
       }
     },
-    [activeConvId, activeConv, token]
+    [activeConvId, token, isGuest]
   );
 
-  if (!token) {
+  if (!token && !isGuest) {
     return authScreen === "login" ? (
-      <LoginScreen onLogin={handleLogin} onSwitchToRegister={() => setAuthScreen("register")} />
+      <LoginScreen
+        onLogin={handleLogin}
+        onSwitchToRegister={() => setAuthScreen("register")}
+        onSkip={handleSkipAuth}
+      />
     ) : (
-      <RegisterScreen onLogin={handleLogin} onSwitchToLogin={() => setAuthScreen("login")} />
+      <RegisterScreen
+        onLogin={handleLogin}
+        onSwitchToLogin={() => setAuthScreen("login")}
+        onSkip={handleSkipAuth}
+      />
     );
   }
 
@@ -169,33 +177,37 @@ const Index = () => {
       {upgradeBanner && (
         <div className="fixed top-0 left-0 right-0 z-[60] flex justify-center pt-3 px-4">
           <div className="input-surface rounded-xl px-4 py-2.5 text-sm text-foreground">
-            Plano pro ativado! Faca login novamente para atualizar.
+            Plano pro ativado! Faça login novamente para atualizar.
           </div>
         </div>
       )}
 
-      <ChatHistory
-        conversations={conversations}
-        activeId={activeConvId}
-        onSelect={handleSelectConversation}
-        onNew={handleNewConversation}
-        onDelete={handleDeleteConversation}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      {!isGuest && (
+        <ChatHistory
+          conversations={conversations}
+          activeId={activeConvId}
+          onSelect={handleSelectConversation}
+          onNew={handleNewConversation}
+          onDelete={handleDeleteConversation}
+          onDeleteAll={handleDeleteAll}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Sidebar toggle */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-12 left-5 z-30 p-2 rounded-xl hover:bg-accent transition-colors text-foreground/60 hover:text-foreground"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {!isGuest && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed top-12 left-5 z-30 p-2 rounded-xl hover:bg-accent transition-colors text-foreground/60 hover:text-foreground"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
 
       <Header
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
-        onLogout={handleLogout}
+        onLogout={isGuest ? handleLogout : handleLogout}
         remainingMessages={remainingMessages}
       />
 

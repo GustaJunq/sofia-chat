@@ -1,13 +1,13 @@
 import { useState, FormEvent } from "react";
-
-const API_URL = "https://sofia-api-z8nr.onrender.com";
+import { API_URL } from "@/lib/api";
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
   onSwitchToRegister: () => void;
+  onSkip: () => void;
 }
 
-const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
+const LoginScreen = ({ onLogin, onSwitchToRegister, onSkip }: LoginScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,18 +26,16 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
         body: JSON.stringify({ email, password }),
       });
 
-      // Mensagem generica para nao vazar detalhes do backend
       if (!res.ok) {
         setError("Email ou senha incorretos");
         return;
       }
 
       const data = await res.json();
-      // Armazena em sessionStorage em vez de localStorage (limpa ao fechar o browser)
       sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
     } catch {
-      setError("Erro de conexao. Tente novamente.");
+      setError("Erro de conexão. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -76,8 +74,16 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
+        <button
+          type="button"
+          onClick={onSkip}
+          className="w-full rounded-[999px] py-3 text-base font-medium text-foreground/50 hover:text-foreground transition-colors"
+        >
+          Pular
+        </button>
+
         <p className="text-center text-sm text-muted-foreground">
-          Nao tem conta?{" "}
+          Não tem conta?{" "}
           <button type="button" onClick={onSwitchToRegister} className="text-foreground underline">
             Criar conta
           </button>
