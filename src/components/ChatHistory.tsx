@@ -1,17 +1,13 @@
-import { MessageSquare, Plus, X } from "lucide-react";
-
-export interface Conversation {
-  id: string;
-  title: string;
-  messages: { role: "user" | "assistant"; content: string }[];
-}
+import { MessageSquare, Plus, X, Trash2 } from "lucide-react";
+import type { ConversationSummary } from "@/lib/api";
 
 interface ChatHistoryProps {
-  conversations: Conversation[];
+  conversations: ConversationSummary[];
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
   onDelete: (id: string) => void;
+  onDeleteAll: () => void;
   open: boolean;
   onClose: () => void;
 }
@@ -22,12 +18,12 @@ const ChatHistory = ({
   onSelect,
   onNew,
   onDelete,
+  onDeleteAll,
   open,
   onClose,
 }: ChatHistoryProps) => {
   return (
     <>
-      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm md:hidden"
@@ -93,6 +89,19 @@ const ChatHistory = ({
             </div>
           ))}
         </div>
+
+        {/* Footer */}
+        {conversations.length > 0 && (
+          <div className="px-4 py-3 border-t border-sidebar-border">
+            <button
+              onClick={onDeleteAll}
+              className="flex items-center gap-2 text-xs text-sidebar-foreground/40 hover:text-destructive transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Apagar todo o histórico
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

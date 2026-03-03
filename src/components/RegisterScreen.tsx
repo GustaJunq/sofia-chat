@@ -1,13 +1,13 @@
 import { useState, FormEvent } from "react";
-
-const API_URL = "https://sofia-api-z8nr.onrender.com";
+import { API_URL } from "@/lib/api";
 
 interface RegisterScreenProps {
   onLogin: (token: string) => void;
   onSwitchToLogin: () => void;
+  onSkip: () => void;
 }
 
-const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
+const RegisterScreen = ({ onLogin, onSwitchToLogin, onSkip }: RegisterScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,9 +15,9 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const [loading, setLoading] = useState(false);
 
   const validatePassword = (pwd: string): string | null => {
-    if (pwd.length < 8) return "A senha deve ter no minimo 8 caracteres";
-    if (!/[A-Z]/.test(pwd)) return "A senha deve ter ao menos uma letra maiuscula";
-    if (!/[0-9]/.test(pwd)) return "A senha deve ter ao menos um numero";
+    if (pwd.length < 8) return "A senha deve ter no mínimo 8 caracteres";
+    if (!/[A-Z]/.test(pwd)) return "A senha deve ter ao menos uma letra maiúscula";
+    if (!/[0-9]/.test(pwd)) return "A senha deve ter ao menos um número";
     return null;
   };
 
@@ -29,7 +29,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     if (pwdError) { setError(pwdError); return; }
 
     if (password !== confirmPassword) {
-      setError("As senhas nao coincidem");
+      setError("As senhas não coincidem");
       return;
     }
 
@@ -44,7 +44,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
       });
 
       if (res.status === 409) {
-        setError("Este email ja esta em uso");
+        setError("Este email já está em uso");
         return;
       }
 
@@ -57,7 +57,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
       sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
     } catch {
-      setError("Erro de conexao. Tente novamente.");
+      setError("Erro de conexão. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
         />
 
         <p className="text-xs text-muted-foreground text-center -mt-2">
-          Minimo 8 caracteres, uma maiuscula e um numero
+          Mínimo 8 caracteres, uma maiúscula e um número
         </p>
 
         {error && <p className="text-destructive text-sm text-center">{error}</p>}
@@ -109,8 +109,16 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           {loading ? "Criando conta..." : "Criar conta"}
         </button>
 
+        <button
+          type="button"
+          onClick={onSkip}
+          className="w-full rounded-[999px] py-3 text-base font-medium text-foreground/50 hover:text-foreground transition-colors"
+        >
+          Pular
+        </button>
+
         <p className="text-center text-sm text-muted-foreground">
-          Ja tem conta?{" "}
+          Já tem conta?{" "}
           <button type="button" onClick={onSwitchToLogin} className="text-foreground underline">
             Entrar
           </button>
