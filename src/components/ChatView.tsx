@@ -10,9 +10,10 @@ export interface Message {
 interface ChatViewProps {
   messages: Message[];
   isLoading: boolean;
+  typingStatus?: "thinking" | "wikipedia";
 }
 
-const ChatView = ({ messages, isLoading }: ChatViewProps) => {
+const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentPauseRef = useRef<(() => void) | null>(null);
 
@@ -22,7 +23,6 @@ const ChatView = ({ messages, isLoading }: ChatViewProps) => {
 
   const handlePlayRequest = useCallback(
     async (play: () => Promise<void>, pause: () => void) => {
-      // Stop any currently playing audio
       currentPauseRef.current?.();
       currentPauseRef.current = pause;
       await play();
@@ -41,7 +41,7 @@ const ChatView = ({ messages, isLoading }: ChatViewProps) => {
             onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
           />
         ))}
-        {isLoading && <TypingIndicator />}
+        {isLoading && <TypingIndicator status={typingStatus} />}
         <div ref={bottomRef} />
       </div>
     </div>
