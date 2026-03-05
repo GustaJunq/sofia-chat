@@ -16,6 +16,21 @@ import {
   type ConversationSummary,
 } from "@/lib/api";
 
+// Mesma lógica do backend — detecta se a mensagem é factual
+const RAG_TRIGGER_WORDS = [
+  "quem é", "quem foi", "o que é", "o que foi", "qual é", "qual foi",
+  "quando foi", "quando nasceu", "quando morreu", "onde fica", "onde está",
+  "me fala sobre", "me fale sobre", "explica", "explique", "define", "defina",
+  "história de", "história do", "história da", "biografia", "significado de",
+  "who is", "who was", "what is", "what was", "when was", "where is",
+  "tell me about", "explain", "define", "history of",
+];
+
+function isFactualMessage(text: string): boolean {
+  const lower = text.toLowerCase();
+  return RAG_TRIGGER_WORDS.some((trigger) => lower.includes(trigger));
+}
+
 const Index = () => {
   const [token, setToken] = useState<string | null>(
     () => sessionStorage.getItem("sof_token")
@@ -24,6 +39,7 @@ const Index = () => {
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
   const [authScreen, setAuthScreen] = useState<"login" | "register">("login");
@@ -31,7 +47,6 @@ const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
 
-  // Load conversation list when logged in
   useEffect(() => {
     if (!token) return;
     fetchConversations(token)
@@ -113,10 +128,13 @@ const Index = () => {
     async (text: string) => {
       const userMsg: Message = { role: "user", content: text };
       setMessages((prev) => [...prev, userMsg]);
+
+      // Define o status do indicador antes de começar o loading
+      const status = isFactualMessage(text) ? "wikipedia" : "thinking";
+      setTypingStatus(status);
       setIsLoading(true);
 
       if (isGuest) {
-        // Guest mode — no API, just echo
         setTimeout(() => {
           setMessages((prev) => [
             ...prev,
@@ -132,10 +150,8 @@ const Index = () => {
         const assistantMsg: Message = { role: "assistant", content: data.reply ?? "" };
         setMessages((prev) => [...prev, assistantMsg]);
 
-        // If new conversation was created, update state
         if (!activeConvId && data.conversation_id) {
           setActiveConvId(data.conversation_id);
-          // Refresh conversation list
           fetchConversations(token!).then(setConversations).catch(() => {});
         }
 
@@ -149,6 +165,7 @@ const Index = () => {
         ]);
       } finally {
         setIsLoading(false);
+        setTypingStatus("thinking");
       }
     },
     [activeConvId, token, isGuest]
@@ -207,13 +224,19 @@ const Index = () => {
       <Header
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
-        onLogout={isGuest ? handleLogout : handleLogout}
+        onLogout={handleLogout}
         remainingMessages={remainingMessages}
       />
 
       <HeroView visible={!hasMessages} />
 
-      {hasMessages && <ChatView messages={messages} isLoading={isLoading} />}
+      {hasMessages && (
+        <ChatView
+          messages={messages}
+          isLoading={isLoading}
+          typingStatus={typingStatus}
+        />
+      )}
 
       <InputBar onSend={sendMessage} disabled={isLoading} />
     </div>
