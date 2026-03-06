@@ -1,4 +1,4 @@
-export const API_URL = "http://72.60.143.78:5000";
+export const API_URL = "https://foundation-status-either-humor.trycloudflare.com";
 
 export function getToken(): string | null {
   return sessionStorage.getItem("sof_token");
