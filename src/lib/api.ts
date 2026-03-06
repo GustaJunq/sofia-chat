@@ -1,4 +1,4 @@
-export const API_URL = "https://foundation-status-either-humor.trycloudflare.com";
+export const API_URL = "https://recruiting-inspired-water-valued.trycloudflare.com";
 
 export function getToken(): string | null {
   return sessionStorage.getItem("sof_token");
