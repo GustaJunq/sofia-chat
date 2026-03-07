@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Volume2, Pause, Loader2 } from "lucide-react";
+import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp } from "lucide-react";
 import { fetchTTS, getToken } from "@/lib/api";
 
 declare global {
@@ -11,11 +11,13 @@ declare global {
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
+  thinking?: string;
   onPlayRequest?: (play: () => Promise<void>, pause: () => void) => void;
 }
 
-const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => {
+const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubbleProps) => {
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
+  const [showThinking, setShowThinking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
     setTtsState("loading");
     try {
       const blob = await fetchTTS(token, content);
-      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      if (urlRef.current) URL.revokeObjectObject(urlRef.current);
       const url = URL.createObjectURL(blob);
       urlRef.current = url;
       const audio = new Audio(url);
@@ -91,12 +93,36 @@ const MessageBubble = ({ role, content, onPlayRequest }: MessageBubbleProps) => 
 
   return (
     <div className="group flex justify-start mb-3 gap-1.5 items-start">
-      <div
-        ref={contentRef}
-        className="text-foreground max-w-[90%] text-[15px] leading-[1.7] whitespace-pre-wrap"
-      >
-        {content}
+      <div className="max-w-[90%] flex flex-col gap-1.5">
+        {/* Bloco de raciocínio */}
+        {thinking && (
+          <div>
+            <button
+              onClick={() => setShowThinking(!showThinking)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Brain className="w-3 h-3" />
+              {showThinking ? "Ocultar raciocínio" : "Ver raciocínio"}
+              {showThinking ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+
+            {showThinking && (
+              <div className="mt-1.5 p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {thinking}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Conteúdo da mensagem */}
+        <div
+          ref={contentRef}
+          className="text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap"
+        >
+          {content}
+        </div>
       </div>
+
       <button
         onClick={handleTTSClick}
         className="flex-shrink-0 mt-1 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80"
