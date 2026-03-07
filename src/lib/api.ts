@@ -75,6 +75,7 @@ export interface ChatMeta {
 
 export interface ChatResponse {
   reply: string;
+  thinking?: string;
   conversation_id: string;
   remaining_messages?: number;
   model?: string;
@@ -164,7 +165,10 @@ export async function sendChatMessage(
       if (parsed.done && typeof parsed.full_reply === "string") {
         result = {
           reply: parsed.full_reply,
-          conversation_id: parsed.conversation_id as string ?? conversationId ?? "",
+          thinking: typeof parsed.thinking === "string" && parsed.thinking
+            ? parsed.thinking
+            : undefined,
+          conversation_id: (parsed.conversation_id as string) ?? conversationId ?? "",
           remaining_messages: parsed.remaining_messages as number | undefined,
           model: parsed.model as string | undefined,
           plan: parsed.plan as string | undefined,
