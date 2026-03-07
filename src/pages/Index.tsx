@@ -154,7 +154,7 @@ const Index = () => {
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       try {
-        await sendChatMessage(
+        const response = await sendChatMessage(
           token!,
           text,
           activeConvIdRef.current,
@@ -185,6 +185,21 @@ const Index = () => {
             }
           },
         );
+
+        // Ao terminar o stream, anexa o thinking à última mensagem
+        if (response.thinking) {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last?.role === "assistant") {
+              updated[updated.length - 1] = {
+                ...last,
+                thinking: response.thinking,
+              };
+            }
+            return updated;
+          });
+        }
       } catch {
         setMessages((prev) => {
           const updated = [...prev];
@@ -202,7 +217,7 @@ const Index = () => {
         setTypingStatus("thinking");
       }
     },
-    [token, isGuest]  // activeConvId removido — agora usa a ref
+    [token, isGuest]
   );
 
   if (!token && !isGuest) {
