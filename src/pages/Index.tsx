@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
@@ -46,6 +46,12 @@ const Index = () => {
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+
+  // Ref para sempre ter o activeConvId mais atual dentro do useCallback
+  const activeConvIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    activeConvIdRef.current = activeConvId;
+  }, [activeConvId]);
 
   useEffect(() => {
     if (!token) return;
@@ -107,7 +113,7 @@ const Index = () => {
     try {
       await deleteConversation(token, id);
       setConversations((prev) => prev.filter((c) => c.id !== id));
-      if (activeConvId === id) {
+      if (activeConvIdRef.current === id) {
         setActiveConvId(null);
         setMessages([]);
       }
@@ -129,7 +135,6 @@ const Index = () => {
       const userMsg: Message = { role: "user", content: text };
       setMessages((prev) => [...prev, userMsg]);
 
-      // Define o status do indicador antes de começar o loading
       const status = isFactualMessage(text) ? "wikipedia" : "thinking";
       setTypingStatus(status);
       setIsLoading(true);
@@ -145,30 +150,59 @@ const Index = () => {
         return;
       }
 
+      // Adiciona mensagem vazia do assistente que vai sendo preenchida via stream
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
       try {
-        const data = await sendChatMessage(token!, text, activeConvId);
-        const assistantMsg: Message = { role: "assistant", content: data.reply ?? "" };
-        setMessages((prev) => [...prev, assistantMsg]);
+        await sendChatMessage(
+          token!,
+          text,
+          activeConvIdRef.current,
 
-        if (!activeConvId && data.conversation_id) {
-          setActiveConvId(data.conversation_id);
-          fetchConversations(token!).then(setConversations).catch(() => {});
-        }
+          // onDelta — atualiza a última mensagem token a token
+          (delta) => {
+            setMessages((prev) => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last?.role === "assistant") {
+                updated[updated.length - 1] = {
+                  ...last,
+                  content: last.content + delta,
+                };
+              }
+              return updated;
+            });
+          },
 
-        if (data.remaining_messages !== undefined) {
-          setRemainingMessages(data.remaining_messages);
-        }
+          // onMeta — recebe conversation_id logo no início do stream
+          (meta) => {
+            if (meta.conversation_id && !activeConvIdRef.current) {
+              setActiveConvId(meta.conversation_id);
+              fetchConversations(token!).then(setConversations).catch(() => {});
+            }
+            if (meta.remaining_messages !== undefined) {
+              setRemainingMessages(meta.remaining_messages);
+            }
+          },
+        );
       } catch {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: "Desculpe, ocorreu um erro. Tente novamente." },
-        ]);
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === "assistant" && last.content === "") {
+            updated[updated.length - 1] = {
+              ...last,
+              content: "Desculpe, ocorreu um erro. Tente novamente.",
+            };
+          }
+          return updated;
+        });
       } finally {
         setIsLoading(false);
         setTypingStatus("thinking");
       }
     },
-    [activeConvId, token, isGuest]
+    [token, isGuest]  // activeConvId removido — agora usa a ref
   );
 
   if (!token && !isGuest) {
