@@ -1,4 +1,4 @@
-export const API_URL = "https://recruiting-inspired-water-valued.trycloudflare.com";
+export const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 export function getToken(): string | null {
   return sessionStorage.getItem("sof_token");
@@ -64,16 +64,39 @@ export async function deleteAllConversations(token: string): Promise<void> {
   if (!res.ok) throw new Error("Erro ao apagar histórico");
 }
 
+// ================= CHAT COM STREAMING =================
+
+export interface ChatMeta {
+  conversation_id: string;
+  remaining_messages?: number;
+  model?: string;
+  plan?: string;
+}
+
 export interface ChatResponse {
   reply: string;
   conversation_id: string;
   remaining_messages?: number;
+  model?: string;
+  plan?: string;
 }
 
+/**
+ * Envia uma mensagem ao backend com suporte a streaming SSE.
+ *
+ * @param token           JWT do usuário
+ * @param message         Texto enviado pelo usuário
+ * @param conversationId  ID da conversa (null = nova conversa)
+ * @param onDelta         Callback chamado a cada chunk de texto recebido
+ * @param onMeta          Callback chamado com os metadados iniciais (conversation_id, etc.)
+ * @returns               ChatResponse com o reply completo ao final
+ */
 export async function sendChatMessage(
   token: string,
   message: string,
-  conversationId?: string | null
+  conversationId?: string | null,
+  onDelta?: (delta: string) => void,
+  onMeta?: (meta: ChatMeta) => void,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
@@ -83,8 +106,75 @@ export async function sendChatMessage(
     headers: authHeaders(token),
     body: JSON.stringify(body),
   });
+
   if (!res.ok) throw new Error("Erro na resposta");
-  return res.json();
+  if (!res.body) throw new Error("Stream não suportado");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: ChatResponse | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    // Processa todas as linhas completas acumuladas no buffer
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? ""; // última linha pode estar incompleta
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data: ")) continue;
+
+      const jsonStr = trimmed.slice(6).trim();
+      if (!jsonStr) continue;
+
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(jsonStr);
+      } catch {
+        continue;
+      }
+
+      // Erro vindo do backend
+      if (parsed.error) {
+        throw new Error(String(parsed.error));
+      }
+
+      // Metadados iniciais (primeiro evento)
+      if (parsed.conversation_id) {
+        const meta: ChatMeta = {
+          conversation_id: parsed.conversation_id as string,
+          remaining_messages: parsed.remaining_messages as number | undefined,
+          model: parsed.model as string | undefined,
+          plan: parsed.plan as string | undefined,
+        };
+        onMeta?.(meta);
+      }
+
+      // Chunk de texto parcial
+      if (typeof parsed.delta === "string") {
+        onDelta?.(parsed.delta);
+      }
+
+      // Evento final com reply completo
+      if (parsed.done && typeof parsed.full_reply === "string") {
+        result = {
+          reply: parsed.full_reply,
+          conversation_id: parsed.conversation_id as string ?? conversationId ?? "",
+          remaining_messages: parsed.remaining_messages as number | undefined,
+          model: parsed.model as string | undefined,
+          plan: parsed.plan as string | undefined,
+        };
+      }
+    }
+  }
+
+  if (!result) throw new Error("Stream encerrado sem resposta final");
+  return result;
 }
 
 export async function fetchTTS(token: string, text: string): Promise<Blob> {
