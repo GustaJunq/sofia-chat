@@ -6,15 +6,13 @@ const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const models = [
   { id: "sof-v1-free", label: "sof-v1-free", requiredPlan: null },
-  { id: "sof-v1-reasoning", label: "sof-v1-reasoning", requiredPlan: "reasoning" },
   { id: "sof-v1-pro", label: "sof-v1-pro", requiredPlan: "paid" },
 ];
 
 // Planos que têm acesso a cada modelo
 const PLAN_ACCESS: Record<string, string[]> = {
-  "sof-v1-free":      ["free", "reasoning", "paid"],
-  "sof-v1-reasoning": ["reasoning", "paid"],
-  "sof-v1-pro":       ["paid"],
+  "sof-v1-free": ["free", "paid"],
+  "sof-v1-pro":  ["paid"],
 };
 
 interface HeaderProps {
@@ -50,8 +48,7 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
       return;
     }
 
-    // Sem acesso → inicia checkout com o plano correto
-    const targetPlan = modelId === "sof-v1-reasoning" ? "reasoning" : "paid";
+    // Sem acesso → inicia checkout com o plano paid
     setCheckoutLoading(true);
     try {
       const token = sessionStorage.getItem("sof_token");
@@ -61,7 +58,7 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ plan: targetPlan }),
+        body: JSON.stringify({ plan: "paid" }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -83,7 +80,6 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
   // Badge exibido ao lado de modelos bloqueados
   const getBadge = (modelId: string) => {
     if (PLAN_ACCESS[modelId]?.includes(plan)) return null;
-    if (modelId === "sof-v1-reasoning") return "REASONING";
     if (modelId === "sof-v1-pro") return "PRO";
     return null;
   };
