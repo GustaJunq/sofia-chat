@@ -5,6 +5,7 @@ import TypingIndicator from "./TypingIndicator";
 export interface Message {
   role: "user" | "assistant";
   content: string;
+  thinking?: string;
 }
 
 interface ChatViewProps {
@@ -38,6 +39,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
             key={i}
             role={msg.role}
             content={msg.content}
+            thinking={msg.thinking}
             onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
           />
         ))}
