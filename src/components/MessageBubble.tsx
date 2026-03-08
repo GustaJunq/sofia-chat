@@ -90,7 +90,7 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
   }
 
   return (
-    <div className="msg-assistant-row">
+    <div className="group msg-assistant-row">
       <div className="msg-assistant-content">
         {thinking && (
           <div>

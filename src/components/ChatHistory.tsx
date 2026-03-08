@@ -36,7 +36,7 @@ const ChatHistory = ({ conversations, activeId, onSelect, onNew, onDelete, onDel
           )}
           {conversations.map((conv) => (
             <div key={conv.id} onClick={() => onSelect(conv.id)}
-              className={`sidebar-item ${activeId === conv.id ? "sidebar-item--active" : "sidebar-item--inactive"}`}
+              className={`group sidebar-item ${activeId === conv.id ? "sidebar-item--active" : "sidebar-item--inactive"}`}
             >
               <MessageSquare className="sidebar-item-icon" />
               <span className="sidebar-item-title">{conv.title}</span>
