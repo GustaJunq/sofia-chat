@@ -98,9 +98,13 @@ export async function sendChatMessage(
   conversationId?: string | null,
   onDelta?: (delta: string) => void,
   onMeta?: (meta: ChatMeta) => void,
+  imageBase64?: string,
+  imageMediaType?: string,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
+  if (imageBase64) body.image_base64 = imageBase64;
+  if (imageMediaType) body.image_media_type = imageMediaType;
 
   const res = await fetch(`${API_URL}/chat`, {
     method: "POST",
