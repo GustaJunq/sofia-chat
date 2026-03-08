@@ -150,10 +150,10 @@
 
   /* Sidebar / Chat History */
   .sidebar-backdrop {
-    @apply fixed inset-0 z-40 bg-background/60 backdrop-blur-sm md:hidden;
+    @apply fixed inset-0 z-[60] bg-background/60 backdrop-blur-sm md:hidden;
   }
   .sidebar {
-    @apply fixed top-0 left-0 z-50 h-full w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300;
+    @apply fixed top-0 left-0 z-[70] h-full w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300;
   }
   .sidebar--open {
     @apply translate-x-0;
