@@ -10,10 +10,11 @@ interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
   thinking?: string;
+  imagePreview?: string;
   onPlayRequest?: (play: () => Promise<void>, pause: () => void) => void;
 }
 
-const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubbleProps) => {
+const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }: MessageBubbleProps) => {
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
   const [showThinking, setShowThinking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -53,7 +54,12 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
   if (role === "user") {
     return (
       <div className="msg-user-row">
-        <div className="msg-user-bubble">{content}</div>
+        <div className="msg-user-bubble">
+          {imagePreview && (
+            <img src={imagePreview} alt="Imagem enviada" className="msg-user-image" />
+          )}
+          {content && <span>{content}</span>}
+        </div>
       </div>
     );
   }
