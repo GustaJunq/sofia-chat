@@ -9,7 +9,6 @@ const models = [
   { id: "sof-v1-pro", label: "sof-v1-pro", requiredPlan: "paid" },
 ];
 
-// Planos que têm acesso a cada modelo
 const PLAN_ACCESS: Record<string, string[]> = {
   "sof-v1-free": ["free", "paid"],
   "sof-v1-pro":  ["paid"],
@@ -41,23 +40,18 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
     const plan = getUserPlan();
     const allowed = PLAN_ACCESS[modelId] ?? [];
 
-    // Usuário já tem acesso → só troca o modelo
     if (allowed.includes(plan)) {
       onModelChange(modelId);
       setOpen(false);
       return;
     }
 
-    // Sem acesso → inicia checkout com o plano paid
     setCheckoutLoading(true);
     try {
       const token = sessionStorage.getItem("sof_token");
       const res = await fetch(`${API_URL}/create-checkout-session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan: "paid" }),
       });
       if (!res.ok) throw new Error();
@@ -77,7 +71,6 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
 
   const plan = getUserPlan();
 
-  // Badge exibido ao lado de modelos bloqueados
   const getBadge = (modelId: string) => {
     if (PLAN_ACCESS[modelId]?.includes(plan)) return null;
     if (modelId === "sof-v1-pro") return "PRO";
@@ -85,41 +78,27 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-12">
+    <div className="header-bar">
       <div ref={ref} className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 text-foreground font-bold text-lg tracking-tight"
-        >
+        <button onClick={() => setOpen(!open)} className="header-model-btn">
           {selectedModel}
           <ChevronDown className="w-4 h-4 opacity-70" />
         </button>
 
         {open && (
-          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-popover rounded-2xl py-2 min-w-[200px] border border-border">
+          <div className="header-dropdown">
             {models.map((m) => {
               const badge = getBadge(m.id);
               const isLoading = checkoutLoading && !PLAN_ACCESS[m.id]?.includes(plan);
 
               return (
-                <button
-                  key={m.id}
-                  onClick={() => handleModelClick(m.id)}
-                  disabled={isLoading}
-                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-accent flex items-center gap-2 disabled:opacity-50 ${
-                    selectedModel === m.id ? "text-foreground font-semibold" : "text-foreground/50"
-                  }`}
+                <button key={m.id} onClick={() => handleModelClick(m.id)} disabled={isLoading}
+                  className={`header-dropdown-item ${selectedModel === m.id ? "text-foreground font-semibold" : "text-foreground/50"}`}
                 >
-                  {isLoading ? (
-                    "Redirecionando..."
-                  ) : (
+                  {isLoading ? "Redirecionando..." : (
                     <>
                       {m.label}
-                      {badge && (
-                        <span className="text-[10px] border border-foreground/40 text-foreground rounded-full px-1.5 py-0.5 leading-none font-semibold">
-                          {badge}
-                        </span>
-                      )}
+                      {badge && <span className="header-badge">{badge}</span>}
                     </>
                   )}
                 </button>
@@ -127,22 +106,13 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
             })}
 
             {remainingMessages !== null && remainingMessages !== undefined && (
-              <div className="px-4 py-2 text-xs text-muted-foreground border-t border-border mt-1">
-                {remainingMessages} mensagens restantes
-              </div>
+              <div className="header-remaining">{remainingMessages} mensagens restantes</div>
             )}
             {checkoutError && (
-              <div className="px-4 py-2 text-xs text-destructive border-t border-border mt-1">
-                {checkoutError}
-              </div>
+              <div className="px-4 py-2 text-xs text-destructive border-t border-border mt-1">{checkoutError}</div>
             )}
             <div className="border-t border-border mt-1">
-              <button
-                onClick={handleLogout}
-                className="w-full px-4 py-2.5 text-left text-sm text-foreground/50 hover:bg-accent transition-colors"
-              >
-                Sair
-              </button>
+              <button onClick={handleLogout} className="header-logout">Sair</button>
             </div>
           </div>
         )}

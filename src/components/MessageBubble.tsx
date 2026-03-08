@@ -83,51 +83,30 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
 
   if (role === "user") {
     return (
-      <div className="flex justify-end mb-3">
-        <div className="bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 max-w-[75%] text-[15px] leading-relaxed">
-          {content}
-        </div>
+      <div className="msg-user-row">
+        <div className="msg-user-bubble">{content}</div>
       </div>
     );
   }
 
   return (
-    <div className="group flex justify-start mb-3 gap-1.5 items-start">
-      <div className="max-w-[90%] flex flex-col gap-1.5">
-        {/* Bloco de raciocínio */}
+    <div className="msg-assistant-row">
+      <div className="msg-assistant-content">
         {thinking && (
           <div>
-            <button
-              onClick={() => setShowThinking(!showThinking)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <button onClick={() => setShowThinking(!showThinking)} className="msg-thinking-btn">
               <Brain className="w-3 h-3" />
               {showThinking ? "Ocultar raciocínio" : "Ver raciocínio"}
               {showThinking ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
-
-            {showThinking && (
-              <div className="mt-1.5 p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {thinking}
-              </div>
-            )}
+            {showThinking && <div className="msg-thinking-block">{thinking}</div>}
           </div>
         )}
 
-        {/* Conteúdo da mensagem */}
-        <div
-          ref={contentRef}
-          className="text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap"
-        >
-          {content}
-        </div>
+        <div ref={contentRef} className="msg-assistant-text">{content}</div>
       </div>
 
-      <button
-        onClick={handleTTSClick}
-        className="flex-shrink-0 mt-1 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80"
-        title="Ouvir resposta"
-      >
+      <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
         {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
         {ttsState === "playing" && <Pause className="w-4 h-4" />}
         {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
