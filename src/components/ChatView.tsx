@@ -32,8 +32,8 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
   );
 
   return (
-    <div className="flex-1 overflow-y-auto pt-24 pb-40 px-5">
-      <div className="max-w-[640px] mx-auto">
+    <div className="chat-scroll">
+      <div className="chat-container">
         {messages.map((msg, i) => (
           <MessageBubble
             key={i}

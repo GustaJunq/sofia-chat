@@ -16,7 +16,6 @@ import {
   type ConversationSummary,
 } from "@/lib/api";
 
-// Mesma lógica do backend — detecta se a mensagem é factual
 const RAG_TRIGGER_WORDS = [
   "quem é", "quem foi", "o que é", "o que foi", "qual é", "qual foi",
   "quando foi", "quando nasceu", "quando morreu", "onde fica", "onde está",
@@ -32,9 +31,7 @@ function isFactualMessage(text: string): boolean {
 }
 
 const Index = () => {
-  const [token, setToken] = useState<string | null>(
-    () => sessionStorage.getItem("sof_token")
-  );
+  const [token, setToken] = useState<string | null>(() => sessionStorage.getItem("sof_token"));
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -47,17 +44,12 @@ const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
 
-  // Ref para sempre ter o activeConvId mais atual dentro do useCallback
   const activeConvIdRef = useRef<string | null>(null);
-  useEffect(() => {
-    activeConvIdRef.current = activeConvId;
-  }, [activeConvId]);
+  useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
   useEffect(() => {
     if (!token) return;
-    fetchConversations(token)
-      .then(setConversations)
-      .catch(() => {});
+    fetchConversations(token).then(setConversations).catch(() => {});
   }, [token]);
 
   const handleLogout = () => {
@@ -70,14 +62,8 @@ const Index = () => {
     setIsGuest(false);
   };
 
-  const handleLogin = useCallback((t: string) => {
-    setIsGuest(false);
-    setToken(t);
-  }, []);
-
-  const handleSkipAuth = useCallback(() => {
-    setIsGuest(true);
-  }, []);
+  const handleLogin = useCallback((t: string) => { setIsGuest(false); setToken(t); }, []);
+  const handleSkipAuth = useCallback(() => { setIsGuest(true); }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -88,11 +74,7 @@ const Index = () => {
     }
   }, []);
 
-  const handleNewConversation = () => {
-    setActiveConvId(null);
-    setMessages([]);
-    setSidebarOpen(false);
-  };
+  const handleNewConversation = () => { setActiveConvId(null); setMessages([]); setSidebarOpen(false); };
 
   const handleSelectConversation = async (id: string) => {
     if (!token) return;
@@ -100,12 +82,8 @@ const Index = () => {
     setSidebarOpen(false);
     try {
       const data = await fetchConversation(token, id);
-      setMessages(
-        data.messages.map((m) => ({ role: m.role, content: m.content }))
-      );
-    } catch {
-      setMessages([]);
-    }
+      setMessages(data.messages.map((m) => ({ role: m.role, content: m.content })));
+    } catch { setMessages([]); }
   };
 
   const handleDeleteConversation = async (id: string) => {
@@ -113,10 +91,7 @@ const Index = () => {
     try {
       await deleteConversation(token, id);
       setConversations((prev) => prev.filter((c) => c.id !== id));
-      if (activeConvIdRef.current === id) {
-        setActiveConvId(null);
-        setMessages([]);
-      }
+      if (activeConvIdRef.current === id) { setActiveConvId(null); setMessages([]); }
     } catch {}
   };
 
@@ -130,163 +105,104 @@ const Index = () => {
     } catch {}
   };
 
-  const sendMessage = useCallback(
-    async (text: string) => {
-      const userMsg: Message = { role: "user", content: text };
-      setMessages((prev) => [...prev, userMsg]);
+  const sendMessage = useCallback(async (text: string) => {
+    const userMsg: Message = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
+    setIsLoading(true);
 
-      const status = isFactualMessage(text) ? "wikipedia" : "thinking";
-      setTypingStatus(status);
-      setIsLoading(true);
+    if (isGuest) {
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." }]);
+        setIsLoading(false);
+      }, 600);
+      return;
+    }
 
-      if (isGuest) {
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." },
-          ]);
-          setIsLoading(false);
-        }, 600);
-        return;
-      }
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
-      // Adiciona mensagem vazia do assistente que vai sendo preenchida via stream
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
-      try {
-        const response = await sendChatMessage(
-          token!,
-          text,
-          activeConvIdRef.current,
-
-          // onDelta — atualiza a última mensagem token a token
-          (delta) => {
-            setMessages((prev) => {
-              const updated = [...prev];
-              const last = updated[updated.length - 1];
-              if (last?.role === "assistant") {
-                updated[updated.length - 1] = {
-                  ...last,
-                  content: last.content + delta,
-                };
-              }
-              return updated;
-            });
-          },
-
-          // onMeta — recebe conversation_id logo no início do stream
-          (meta) => {
-            if (meta.conversation_id && !activeConvIdRef.current) {
-              setActiveConvId(meta.conversation_id);
-              fetchConversations(token!).then(setConversations).catch(() => {});
-            }
-            if (meta.remaining_messages !== undefined) {
-              setRemainingMessages(meta.remaining_messages);
-            }
-          },
-        );
-
-        // Ao terminar o stream, anexa o thinking à última mensagem
-        if (response.thinking) {
+    try {
+      const response = await sendChatMessage(token!, text, activeConvIdRef.current,
+        (delta) => {
           setMessages((prev) => {
             const updated = [...prev];
             const last = updated[updated.length - 1];
             if (last?.role === "assistant") {
-              updated[updated.length - 1] = {
-                ...last,
-                thinking: response.thinking,
-              };
+              updated[updated.length - 1] = { ...last, content: last.content + delta };
             }
             return updated;
           });
-        }
-      } catch {
+        },
+        (meta) => {
+          if (meta.conversation_id && !activeConvIdRef.current) {
+            setActiveConvId(meta.conversation_id);
+            fetchConversations(token!).then(setConversations).catch(() => {});
+          }
+          if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
+        },
+      );
+
+      if (response.thinking) {
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
-          if (last?.role === "assistant" && last.content === "") {
-            updated[updated.length - 1] = {
-              ...last,
-              content: "Desculpe, ocorreu um erro. Tente novamente.",
-            };
+          if (last?.role === "assistant") {
+            updated[updated.length - 1] = { ...last, thinking: response.thinking };
           }
           return updated;
         });
-      } finally {
-        setIsLoading(false);
-        setTypingStatus("thinking");
       }
-    },
-    [token, isGuest]
-  );
+    } catch {
+      setMessages((prev) => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last?.role === "assistant" && last.content === "") {
+          updated[updated.length - 1] = { ...last, content: "Desculpe, ocorreu um erro. Tente novamente." };
+        }
+        return updated;
+      });
+    } finally {
+      setIsLoading(false);
+      setTypingStatus("thinking");
+    }
+  }, [token, isGuest]);
 
   if (!token && !isGuest) {
     return authScreen === "login" ? (
-      <LoginScreen
-        onLogin={handleLogin}
-        onSwitchToRegister={() => setAuthScreen("register")}
-        onSkip={handleSkipAuth}
-      />
+      <LoginScreen onLogin={handleLogin} onSwitchToRegister={() => setAuthScreen("register")} onSkip={handleSkipAuth} />
     ) : (
-      <RegisterScreen
-        onLogin={handleLogin}
-        onSwitchToLogin={() => setAuthScreen("login")}
-        onSkip={handleSkipAuth}
-      />
+      <RegisterScreen onLogin={handleLogin} onSwitchToLogin={() => setAuthScreen("login")} onSkip={handleSkipAuth} />
     );
   }
 
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="h-[100dvh] flex flex-col relative overflow-hidden">
+    <div className="app-shell">
       {upgradeBanner && (
-        <div className="fixed top-0 left-0 right-0 z-[60] flex justify-center pt-3 px-4">
-          <div className="input-surface rounded-xl px-4 py-2.5 text-sm text-foreground">
-            Plano pro ativado! Faça login novamente para atualizar.
-          </div>
+        <div className="upgrade-banner">
+          <div className="upgrade-banner-inner">Plano pro ativado! Faça login novamente para atualizar.</div>
         </div>
       )}
 
       {!isGuest && (
-        <ChatHistory
-          conversations={conversations}
-          activeId={activeConvId}
-          onSelect={handleSelectConversation}
-          onNew={handleNewConversation}
-          onDelete={handleDeleteConversation}
-          onDeleteAll={handleDeleteAll}
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+        <ChatHistory conversations={conversations} activeId={activeConvId}
+          onSelect={handleSelectConversation} onNew={handleNewConversation}
+          onDelete={handleDeleteConversation} onDeleteAll={handleDeleteAll}
+          open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       )}
 
       {!isGuest && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="fixed top-12 left-5 z-30 p-2 rounded-xl hover:bg-accent transition-colors text-foreground/60 hover:text-foreground"
-        >
+        <button onClick={() => setSidebarOpen(true)} className="sidebar-toggle">
           <Menu className="w-5 h-5" />
         </button>
       )}
 
-      <Header
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        onLogout={handleLogout}
-        remainingMessages={remainingMessages}
-      />
+      <Header selectedModel={selectedModel} onModelChange={setSelectedModel}
+        onLogout={handleLogout} remainingMessages={remainingMessages} />
 
       <HeroView visible={!hasMessages} />
-
-      {hasMessages && (
-        <ChatView
-          messages={messages}
-          isLoading={isLoading}
-          typingStatus={typingStatus}
-        />
-      )}
-
+      {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
       <InputBar onSend={sendMessage} disabled={isLoading} />
     </div>
   );

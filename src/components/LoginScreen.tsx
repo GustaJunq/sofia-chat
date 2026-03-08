@@ -42,51 +42,27 @@ const LoginScreen = ({ onLogin, onSwitchToRegister, onSkip }: LoginScreenProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-background flex items-center justify-center z-[100] px-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-[360px] flex flex-col gap-4">
-        <h1 className="text-foreground text-2xl font-bold text-center mb-4">sofIA</h1>
+    <div className="auth-screen">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <h1 className="auth-title">sofIA</h1>
 
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          autoComplete="email"
-          className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
-        />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email" autoComplete="email" className="auth-input" />
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Senha"
-          autoComplete="current-password"
-          className="w-full input-surface rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground bg-transparent text-base outline-none"
-        />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+          placeholder="Senha" autoComplete="current-password" className="auth-input" />
 
-        {error && <p className="text-destructive text-sm text-center">{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-primary-foreground rounded-[999px] py-3 text-base font-semibold transition-opacity disabled:opacity-50"
-        >
+        <button type="submit" disabled={loading} className="auth-submit">
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
-        <button
-          type="button"
-          onClick={onSkip}
-          className="w-full rounded-[999px] py-3 text-base font-medium text-foreground/50 hover:text-foreground transition-colors"
-        >
-          Pular
-        </button>
+        <button type="button" onClick={onSkip} className="auth-skip">Pular</button>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="auth-footer">
           Não tem conta?{" "}
-          <button type="button" onClick={onSwitchToRegister} className="text-foreground underline">
-            Criar conta
-          </button>
+          <button type="button" onClick={onSwitchToRegister} className="auth-footer-link">Criar conta</button>
         </p>
       </form>
     </div>
