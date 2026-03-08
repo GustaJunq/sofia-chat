@@ -126,7 +126,8 @@
 
   /* Header */
   .header-bar {
-    @apply fixed top-0 left-0 right-0 z-50 flex justify-center pt-12;
+    @apply fixed top-0 left-0 right-0 z-50 flex justify-center pt-12 md:pt-12;
+    padding-top: max(env(safe-area-inset-top, 0px), 2rem);
   }
   .header-model-btn {
     @apply flex items-center gap-1.5 text-foreground font-bold text-lg tracking-tight;
@@ -225,16 +226,27 @@
     @apply flex justify-end mb-3;
   }
   .msg-user-bubble {
-    @apply bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 max-w-[75%] text-[15px] leading-relaxed;
+    @apply bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 text-[15px] leading-relaxed break-words;
+    max-width: min(75%, calc(100vw - 3rem));
   }
   .msg-assistant-row {
     @apply flex justify-start mb-3 gap-1.5 items-start;
   }
   .msg-assistant-content {
-    @apply max-w-[90%] flex flex-col gap-1.5;
+    @apply flex flex-col gap-1.5;
+    max-width: min(90%, calc(100vw - 4rem));
+    overflow: hidden;
   }
   .msg-assistant-text {
-    @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap;
+    @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap break-words;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .msg-assistant-text .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0;
   }
   .msg-thinking-btn {
     @apply flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors;
@@ -248,7 +260,8 @@
 
   /* Input bar */
   .inputbar-wrapper {
-    @apply fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center pb-5 px-5;
+    @apply fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center px-5;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1.25rem);
   }
   .inputbar-surface {
     @apply w-full max-w-[640px] input-surface rounded-[999px] flex items-end px-4 py-2;
