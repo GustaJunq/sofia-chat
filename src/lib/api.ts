@@ -22,6 +22,7 @@ export interface MessageData {
   id: string;
   role: "user" | "assistant";
   content: string;
+  image_url?: string;
   created_at: string;
 }
 
