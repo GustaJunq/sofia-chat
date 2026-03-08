@@ -82,7 +82,7 @@ const Index = () => {
     setSidebarOpen(false);
     try {
       const data = await fetchConversation(token, id);
-      setMessages(data.messages.map((m) => ({ role: m.role, content: m.content })));
+      setMessages(data.messages.map((m) => ({ role: m.role, content: m.content, imagePreview: m.image_url ?? undefined })));
     } catch { setMessages([]); }
   };
 
