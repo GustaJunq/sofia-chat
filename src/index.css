@@ -225,7 +225,8 @@
     @apply flex justify-end mb-3;
   }
   .msg-user-bubble {
-    @apply bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 max-w-[75%] text-[15px] leading-relaxed;
+    @apply bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 text-[15px] leading-relaxed break-words;
+    max-width: min(75%, calc(100vw - 3rem));
   }
   .msg-assistant-row {
     @apply flex justify-start mb-3 gap-1.5 items-start;
