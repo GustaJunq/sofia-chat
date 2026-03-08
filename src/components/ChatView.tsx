@@ -6,6 +6,7 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   thinking?: string;
+  imagePreview?: string;
 }
 
 interface ChatViewProps {
@@ -40,6 +41,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
             role={msg.role}
             content={msg.content}
             thinking={msg.thinking}
+            imagePreview={msg.imagePreview}
             onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
           />
         ))}
