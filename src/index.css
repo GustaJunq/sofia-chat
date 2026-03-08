@@ -232,7 +232,9 @@
     @apply flex justify-start mb-3 gap-1.5 items-start;
   }
   .msg-assistant-content {
-    @apply max-w-[90%] flex flex-col gap-1.5;
+    @apply flex flex-col gap-1.5;
+    max-width: min(90%, calc(100vw - 4rem));
+    overflow: hidden;
   }
   .msg-assistant-text {
     @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap break-words;
