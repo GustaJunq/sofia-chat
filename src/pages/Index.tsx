@@ -105,8 +105,8 @@ const Index = () => {
     } catch {}
   };
 
-  const sendMessage = useCallback(async (text: string) => {
-    const userMsg: Message = { role: "user", content: text };
+  const sendMessage = useCallback(async (text: string, imageBase64?: string, imageMediaType?: string) => {
+    const userMsg: Message = { role: "user", content: text, imagePreview: imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined };
     setMessages((prev) => [...prev, userMsg]);
     setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
     setIsLoading(true);
@@ -140,6 +140,8 @@ const Index = () => {
           }
           if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
         },
+        imageBase64,
+        imageMediaType,
       );
 
       if (response.thinking) {
