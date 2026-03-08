@@ -234,7 +234,15 @@
     @apply max-w-[90%] flex flex-col gap-1.5;
   }
   .msg-assistant-text {
-    @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap;
+    @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap break-words;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .msg-assistant-text .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0;
   }
   .msg-thinking-btn {
     @apply flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors;
