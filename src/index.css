@@ -126,7 +126,8 @@
 
   /* Header */
   .header-bar {
-    @apply fixed top-0 left-0 right-0 z-50 flex justify-center pt-12;
+    @apply fixed top-0 left-0 right-0 z-50 flex justify-center pt-12 md:pt-12;
+    padding-top: max(env(safe-area-inset-top, 0px), 2rem);
   }
   .header-model-btn {
     @apply flex items-center gap-1.5 text-foreground font-bold text-lg tracking-tight;
