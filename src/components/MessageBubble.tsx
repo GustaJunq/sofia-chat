@@ -33,7 +33,7 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
     setTtsState("loading");
     try {
       const blob = await fetchTTS(token, content);
-      if (urlRef.current) URL.revokeObjectObject(urlRef.current);
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       const url = URL.createObjectURL(blob);
       urlRef.current = url;
       const audio = new Audio(url);
