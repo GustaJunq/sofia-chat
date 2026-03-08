@@ -88,6 +88,66 @@
 }
 
 /* ============================
+   Markdown prose in chat
+   ============================ */
+
+.prose-chat p { margin: 0.4em 0; }
+.prose-chat p:first-child { margin-top: 0; }
+.prose-chat p:last-child { margin-bottom: 0; }
+.prose-chat strong { font-weight: 700; }
+.prose-chat em { font-style: italic; }
+.prose-chat ul, .prose-chat ol { margin: 0.4em 0; padding-left: 1.4em; }
+.prose-chat ul { list-style: disc; }
+.prose-chat ol { list-style: decimal; }
+.prose-chat li { margin: 0.15em 0; }
+.prose-chat code {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-size: 0.88em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.prose-chat pre {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 0.75em 1em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.prose-chat pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+.prose-chat blockquote {
+  border-left: 3px solid hsl(var(--border));
+  padding-left: 0.75em;
+  margin: 0.4em 0;
+  color: hsl(var(--muted-foreground));
+}
+.prose-chat h1, .prose-chat h2, .prose-chat h3, .prose-chat h4 {
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+}
+.prose-chat h1 { font-size: 1.3em; }
+.prose-chat h2 { font-size: 1.15em; }
+.prose-chat h3 { font-size: 1.05em; }
+.prose-chat table { border-collapse: collapse; margin: 0.5em 0; width: 100%; }
+.prose-chat th, .prose-chat td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.35em 0.6em;
+  text-align: left;
+  font-size: 0.9em;
+}
+.prose-chat th { background: hsl(var(--muted)); font-weight: 600; }
+.prose-chat hr { border: none; border-top: 1px solid hsl(var(--border)); margin: 0.6em 0; }
+.prose-chat a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* ============================
    Component styles
    ============================ */
 
