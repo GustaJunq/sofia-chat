@@ -105,7 +105,9 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
           </div>
         )}
 
-        <div ref={contentRef} className="msg-assistant-text">{content}</div>
+        <div ref={contentRef} className="msg-assistant-text prose-chat">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        </div>
       </div>
 
       <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
