@@ -1,14 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { fetchTTS, getToken } from "@/lib/api";
-
-declare global {
-  interface Window {
-    renderMathInElement?: (el: HTMLElement, opts: unknown) => void;
-  }
-}
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -22,7 +18,6 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
   const [showThinking, setShowThinking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -48,34 +43,6 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
       setTtsState("idle");
     }
   }, [content]);
-
-  useEffect(() => {
-    if (role !== "assistant" || !contentRef.current) return;
-    const tryRender = () => {
-      if (window.renderMathInElement && contentRef.current) {
-        window.renderMathInElement(contentRef.current, {
-          delimiters: [
-            { left: "$$", right: "$$", display: true },
-            { left: "$", right: "$", display: false },
-            { left: "\\(", right: "\\)", display: false },
-            { left: "\\[", right: "\\]", display: true },
-          ],
-          throwOnError: false,
-        });
-      }
-    };
-    if (window.renderMathInElement) {
-      tryRender();
-    } else {
-      const timer = setInterval(() => {
-        if (window.renderMathInElement) {
-          clearInterval(timer);
-          tryRender();
-        }
-      }, 100);
-      return () => clearInterval(timer);
-    }
-  }, [content, role]);
 
   const handleTTSClick = () => {
     if (ttsState === "playing") { pause(); return; }
@@ -105,8 +72,13 @@ const MessageBubble = ({ role, content, thinking, onPlayRequest }: MessageBubble
           </div>
         )}
 
-        <div ref={contentRef} className="msg-assistant-text prose-chat">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        <div className="msg-assistant-text prose-chat">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
+            {content}
+          </ReactMarkdown>
         </div>
       </div>
 
