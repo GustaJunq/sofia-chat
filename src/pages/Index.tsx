@@ -205,7 +205,22 @@ const Index = () => {
 
       <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-      <InputBar onSend={sendMessage} disabled={isLoading} />
+      <InputBar
+        onSend={sendMessage}
+        disabled={isLoading}
+        conversationId={activeConvId}
+        onVoiceResponse={(userText, assistantText, convId, _audioBase64) => {
+          setMessages((prev) => [
+            ...prev,
+            { role: "user", content: userText },
+            { role: "assistant", content: assistantText },
+          ]);
+          if (convId && !activeConvIdRef.current) {
+            setActiveConvId(convId);
+            if (token) fetchConversations(token).then(setConversations).catch(() => {});
+          }
+        }}
+      />
     </div>
   );
 };

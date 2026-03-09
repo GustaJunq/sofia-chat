@@ -352,6 +352,25 @@
   .inputbar-send {
     @apply w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 ml-2 transition-opacity disabled:opacity-30;
   }
+  .inputbar-voice {
+    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 rounded-full text-muted-foreground hover:text-foreground transition-all ml-1 select-none;
+  }
+  .inputbar-voice.voice-recording {
+    @apply text-destructive;
+    animation: voice-pulse 1s ease-in-out infinite;
+  }
+  .inputbar-voice.voice-error {
+    animation: voice-shake 0.4s ease-in-out;
+  }
+  @keyframes voice-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+  }
+  @keyframes voice-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
   .inputbar-disclaimer {
     @apply text-xs text-muted-foreground text-center mt-3 leading-snug;
   }
