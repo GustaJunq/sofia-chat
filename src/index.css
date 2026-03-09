@@ -349,6 +349,9 @@
   .inputbar-textarea {
     @apply flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-base resize-none outline-none py-2 max-h-[120px] leading-snug;
   }
+  .inputbar-mic {
+    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30;
+  }
   .inputbar-send {
     @apply w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 ml-2 transition-opacity disabled:opacity-30;
   }
