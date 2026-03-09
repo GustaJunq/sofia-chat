@@ -349,6 +349,9 @@
   .inputbar-textarea {
     @apply flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-base resize-none outline-none py-2 max-h-[120px] leading-snug;
   }
+  .inputbar-mic {
+    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30;
+  }
   .inputbar-send {
     @apply w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 ml-2 transition-opacity disabled:opacity-30;
   }
@@ -369,4 +372,146 @@
   .upgrade-banner-inner {
     @apply input-surface rounded-xl px-4 py-2.5 text-sm text-foreground;
   }
+}
+
+/* ============================
+   Voice Mode
+   ============================ */
+
+@keyframes orb-morph {
+  0%, 100% {
+    border-radius: 42% 58% 55% 45% / 50% 45% 55% 50%;
+    transform: scale(1);
+  }
+  25% {
+    border-radius: 55% 45% 42% 58% / 45% 55% 50% 50%;
+    transform: scale(1.04);
+  }
+  50% {
+    border-radius: 48% 52% 58% 42% / 55% 42% 58% 45%;
+    transform: scale(0.97);
+  }
+  75% {
+    border-radius: 52% 48% 45% 55% / 42% 58% 42% 58%;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes orb-glow-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+@keyframes orb-spin-slow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.voice-mode-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: hsl(var(--background));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.voice-orb-wrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.voice-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, hsl(0 0% 30%), hsl(0 0% 8%));
+  animation: orb-morph 6s ease-in-out infinite;
+  transition: box-shadow 0.4s ease;
+}
+
+.voice-orb::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(0 0% 100% / 0.12), transparent 70%);
+  animation: orb-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.voice-orb--listening {
+  box-shadow: 0 0 60px 20px hsl(0 0% 100% / 0.15);
+}
+.voice-orb--listening::before {
+  animation-duration: 1.5s;
+}
+
+.voice-orb--thinking {
+  animation-duration: 2s;
+  box-shadow: 0 0 40px 10px hsl(0 0% 100% / 0.08);
+}
+
+.voice-orb--speaking {
+  box-shadow: 0 0 80px 30px hsl(0 0% 100% / 0.2);
+  animation-duration: 3s;
+}
+.voice-orb--speaking::before {
+  animation-duration: 1s;
+  opacity: 0.7;
+}
+
+.voice-status {
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+  text-transform: lowercase;
+  font-family: 'Tiempos', serif;
+}
+
+.voice-transcript {
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1.5rem;
+}
+
+.voice-transcript-user {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+.voice-transcript-assistant {
+  font-size: 0.9rem;
+  color: hsl(var(--foreground));
+  line-height: 1.5;
+}
+
+.voice-close-btn {
+  position: absolute;
+  bottom: max(env(safe-area-inset-bottom, 0px), 2.5rem);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.voice-close-btn:hover {
+  background: hsl(var(--accent));
 }
