@@ -1,6 +1,6 @@
 import StarLogo from "./StarLogo";
 
-const APK_URL = "https://storage.appilix.com/uploads/app-apk-69ae336f2a8d1-1773024111.apk";
+const APK_URL = "/sofia.apk";
 
 interface HeroViewProps {
   visible: boolean;
@@ -20,8 +20,7 @@ const HeroView = ({ visible }: HeroViewProps) => {
 
         <a
           href={APK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+          download="SofIA.apk"
           className="mt-8 flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all text-white text-sm font-medium pointer-events-auto"
         >
           <svg
