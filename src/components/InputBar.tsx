@@ -10,58 +10,50 @@ interface VoiceModeProps {
   conversationId: string | null;
 }
 
-type VoiceStatus = "listening" | "thinking" | "speaking";
+type VoiceStatus = "idle" | "recording" | "thinking" | "speaking";
 
 const STATUS_LABELS: Record<VoiceStatus, string> = {
-  listening: "Ouvindo...",
+  idle: "Segure para falar",
+  recording: "Gravando...",
   thinking: "Pensando...",
   speaking: "Falando...",
 };
 
 function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
-  const [status, setStatus] = useState<VoiceStatus>("listening");
+  const [status, setStatus] = useState<VoiceStatus>("idle");
   const [transcript, setTranscript] = useState<{ user: string; assistant: string } | null>(null);
 
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rafRef = useRef<number>(0);
   const activeRef = useRef(false);
-  const closingRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // ── Cleanup total ─────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
     activeRef.current = false;
-    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-    cancelAnimationFrame(rafRef.current);
+    audioRef.current?.pause();
+    audioRef.current = null;
     mediaRecRef.current?.stream?.getTracks().forEach((t) => t.stop());
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    audioCtxRef.current?.close().catch(() => {});
     mediaRecRef.current = null;
-    analyserRef.current = null;
-    audioCtxRef.current = null;
     streamRef.current = null;
   }, []);
 
+  // ── Inicia gravação (push-to-talk: chamado no pointerdown) ────────────────
   const startRecording = useCallback(async () => {
-    if (!activeRef.current) return;
-    setStatus("listening");
-    setTranscript(null);
+    // Bloqueia se já estiver em thinking/speaking
+    if (!activeRef.current || status === "thinking" || status === "speaking") return;
+    // Se estiver falando, interrompe o áudio e permite nova gravação
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       if (!activeRef.current) { stream.getTracks().forEach((t) => t.stop()); return; }
       streamRef.current = stream;
-
-      const audioCtx = new AudioContext();
-      audioCtxRef.current = audioCtx;
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 512;
-      source.connect(analyser);
-      analyserRef.current = analyser;
 
       const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
       mediaRecRef.current = recorder;
@@ -69,55 +61,38 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       recorder.onstop = () => {
-        if (closingRef.current) return;
+        if (!activeRef.current) return;
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        sendVoice(blob);
+        // Só envia se tiver dados reais
+        if (blob.size > 1000) {
+          sendVoice(blob);
+        } else {
+          setStatus("idle");
+        }
       };
 
       recorder.start();
-
-      // Silence detection
-      const dataArr = new Uint8Array(analyser.frequencyBinCount);
-      let silenceStart: number | null = null;
-
-      const checkSilence = () => {
-        if (!activeRef.current) return;
-        analyser.getByteFrequencyData(dataArr);
-        const avg = dataArr.reduce((a, b) => a + b, 0) / dataArr.length;
-
-        if (avg < 8) {
-          if (!silenceStart) silenceStart = Date.now();
-          else if (Date.now() - silenceStart > 1500) {
-            stopRecording();
-            return;
-          }
-        } else {
-          silenceStart = null;
-        }
-        rafRef.current = requestAnimationFrame(checkSilence);
-      };
-      rafRef.current = requestAnimationFrame(checkSilence);
+      setStatus("recording");
     } catch {
-      // Mic permission denied — close
       onClose();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]);
+  }, [status, conversationId]);
 
+  // ── Para gravação (push-to-talk: chamado no pointerup / pointerleave) ─────
   const stopRecording = useCallback(() => {
-    cancelAnimationFrame(rafRef.current);
-    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-    const rec = mediaRecRef.current;
-    if (rec && rec.state === "recording") {
-      rec.stop();
+    if (mediaRecRef.current?.state === "recording") {
+      mediaRecRef.current.stop();
     }
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    audioCtxRef.current?.close().catch(() => {});
+    streamRef.current = null;
   }, []);
 
+  // ── Envia áudio para a API ─────────────────────────────────────────────────
   const sendVoice = useCallback(async (blob: Blob) => {
     if (!activeRef.current) return;
     setStatus("thinking");
+
     const token = getToken();
     if (!token) { onClose(); return; }
 
@@ -133,53 +108,70 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       });
       if (!res.ok) throw new Error("Voice error");
       const data = await res.json();
-
       if (!activeRef.current) return;
+
       setTranscript({ user: data.text_input ?? "", assistant: data.text_response ?? "" });
       setStatus("speaking");
 
-      // Play audio
       if (data.audio_base64) {
         const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`);
-        audio.onended = () => { if (activeRef.current) startRecording(); };
-        audio.onerror = () => { if (activeRef.current) startRecording(); };
+        audioRef.current = audio;
+        audio.onended = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
+        audio.onerror = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
         await audio.play();
       } else {
-        if (activeRef.current) startRecording();
+        setStatus("idle");
       }
     } catch {
-      if (activeRef.current) startRecording();
+      if (activeRef.current) setStatus("idle");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
-  // Open / close lifecycle
+  // ── Ciclo de vida open/close ───────────────────────────────────────────────
   useEffect(() => {
     if (open) {
       activeRef.current = true;
-      closingRef.current = false;
-      startRecording();
+      setStatus("idle");
+      setTranscript(null);
     } else {
-      closingRef.current = true;
       cleanup();
+      setStatus("idle");
+      setTranscript(null);
     }
-    return () => { closingRef.current = true; cleanup(); };
+    return () => { cleanup(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!open) return null;
 
+  const isRecording = status === "recording";
+  const isBusy = status === "thinking" || status === "speaking";
+
   return (
     <div className="voice-mode-overlay">
-      {/* Orb */}
+      {/* Orb — segura para falar */}
       <button
-        className="voice-orb-wrapper"
-        onClick={() => {
-          if (status === "listening") stopRecording();
-        }}
-        aria-label="Parar gravação"
+        className={[
+          "voice-orb-wrapper",
+          isBusy ? "voice-orb-wrapper--disabled" : "",
+        ].join(" ")}
+        onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); startRecording(); }}
+        onPointerUp={stopRecording}
+        onPointerLeave={stopRecording}
+        onPointerCancel={stopRecording}
+        aria-label={isRecording ? "Solte para enviar" : "Segure para falar"}
+        disabled={isBusy}
+        style={{ touchAction: "none", userSelect: "none" }}
       >
-        <div className={`voice-orb ${status === "listening" ? "voice-orb--listening" : ""} ${status === "speaking" ? "voice-orb--speaking" : ""} ${status === "thinking" ? "voice-orb--thinking" : ""}`} />
+        <div
+          className={[
+            "voice-orb",
+            isRecording ? "voice-orb--listening" : "",
+            status === "speaking" ? "voice-orb--speaking" : "",
+            status === "thinking" ? "voice-orb--thinking" : "",
+          ].join(" ")}
+        />
       </button>
 
       {/* Status */}
