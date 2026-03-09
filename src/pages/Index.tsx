@@ -205,7 +205,7 @@ const Index = () => {
 
       <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-      <InputBar onSend={sendMessage} disabled={isLoading} />
+      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
     </div>
   );
 };
