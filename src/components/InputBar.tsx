@@ -33,16 +33,40 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const rafRef = useRef<number>(0);
 
+  // ── Volume metering helpers ─────────────────────────────────────────────────
+  const startMeterLoop = useCallback((analyser: AnalyserNode) => {
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      if (!activeRef.current) return;
+      analyser.getByteFrequencyData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) sum += data[i];
+      const avg = sum / data.length / 255; // 0..1
+      setVolume(avg);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const stopMeter = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    setVolume(0);
+  }, []);
+
   // ── Cleanup total ─────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
     activeRef.current = false;
+    stopMeter();
     audioRef.current?.pause();
     audioRef.current = null;
+    if (audioCtxRef.current?.state !== "closed") audioCtxRef.current?.close();
+    audioCtxRef.current = null;
+    analyserRef.current = null;
     mediaRecRef.current?.stream?.getTracks().forEach((t) => t.stop());
     streamRef.current?.getTracks().forEach((t) => t.stop());
     mediaRecRef.current = null;
     streamRef.current = null;
-  }, []);
+  }, [stopMeter]);
 
   // ── Inicia gravação (push-to-talk: chamado no pointerdown) ────────────────
   const startRecording = useCallback(async () => {
