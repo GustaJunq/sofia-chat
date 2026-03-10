@@ -152,8 +152,36 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (data.audio_base64) {
         const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`);
         audioRef.current = audio;
-        audio.onended = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
-        audio.onerror = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
+
+        // Meter TTS audio output
+        try {
+          const ctx = new AudioContext();
+          audioCtxRef.current = ctx;
+          const source = ctx.createMediaElementSource(audio);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          analyser.connect(ctx.destination);
+          analyserRef.current = analyser;
+          startMeterLoop(analyser);
+        } catch { /* fallback: no metering */ }
+
+        audio.onended = () => {
+          if (activeRef.current) {
+            stopMeter();
+            audioRef.current = null;
+            if (audioCtxRef.current?.state !== "closed") audioCtxRef.current?.close();
+            audioCtxRef.current = null;
+            setStatus("idle");
+          }
+        };
+        audio.onerror = () => {
+          if (activeRef.current) {
+            stopMeter();
+            audioRef.current = null;
+            setStatus("idle");
+          }
+        };
         await audio.play();
       } else {
         setStatus("idle");
@@ -162,7 +190,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (activeRef.current) setStatus("idle");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]);
+  }, [conversationId, startMeterLoop, stopMeter]);
 
   // ── Ciclo de vida open/close ───────────────────────────────────────────────
   useEffect(() => {
