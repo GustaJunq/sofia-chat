@@ -70,9 +70,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 
   // ── Inicia gravação (push-to-talk: chamado no pointerdown) ────────────────
   const startRecording = useCallback(async () => {
-    // Bloqueia se já estiver em thinking/speaking
     if (!activeRef.current || status === "thinking" || status === "speaking") return;
-    // Se estiver falando, interrompe o áudio e permite nova gravação
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -83,6 +81,16 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (!activeRef.current) { stream.getTracks().forEach((t) => t.stop()); return; }
       streamRef.current = stream;
 
+      // Set up mic volume metering
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      startMeterLoop(analyser);
+
       const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
       mediaRecRef.current = recorder;
       chunksRef.current = [];
@@ -90,8 +98,8 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       recorder.onstop = () => {
         if (!activeRef.current) return;
+        stopMeter();
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        // Só envia se tiver dados reais
         if (blob.size > 1000) {
           sendVoice(blob);
         } else {
@@ -105,9 +113,9 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       onClose();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, conversationId]);
+  }, [status, conversationId, startMeterLoop, stopMeter]);
 
-  // ── Para gravação (push-to-talk: chamado no pointerup / pointerleave) ─────
+  // ── Para gravação ─────────────────────────────────────────────────────────
   const stopRecording = useCallback(() => {
     if (mediaRecRef.current?.state === "recording") {
       mediaRecRef.current.stop();
