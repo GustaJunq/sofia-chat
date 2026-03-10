@@ -236,6 +236,10 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
             status === "speaking" ? "voice-orb--speaking" : "",
             status === "thinking" ? "voice-orb--thinking" : "",
           ].join(" ")}
+          style={{
+            transform: `scale(${orbScale})`,
+            boxShadow: `0 0 ${40 + volume * 80}px ${10 + volume * 40}px rgba(255,138,61,${0.25 + volume * 0.5})`,
+          }}
         />
       </button>
 

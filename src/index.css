@@ -435,7 +435,7 @@
   border-radius: 50%;
   background: radial-gradient(circle at 40% 40%, #FFE27A, #FF8A3D);
   animation: orb-morph 6s ease-in-out infinite;
-  transition: box-shadow 0.4s ease;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
 }
 
 .voice-orb::before {
