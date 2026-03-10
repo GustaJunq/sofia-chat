@@ -22,29 +22,55 @@ const STATUS_LABELS: Record<VoiceStatus, string> = {
 function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [transcript, setTranscript] = useState<{ user: string; assistant: string } | null>(null);
+  const [volume, setVolume] = useState(0);
 
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const activeRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const rafRef = useRef<number>(0);
+
+  // ── Volume metering helpers ─────────────────────────────────────────────────
+  const startMeterLoop = useCallback((analyser: AnalyserNode) => {
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      if (!activeRef.current) return;
+      analyser.getByteFrequencyData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) sum += data[i];
+      const avg = sum / data.length / 255; // 0..1
+      setVolume(avg);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const stopMeter = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    setVolume(0);
+  }, []);
 
   // ── Cleanup total ─────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
     activeRef.current = false;
+    stopMeter();
     audioRef.current?.pause();
     audioRef.current = null;
+    if (audioCtxRef.current?.state !== "closed") audioCtxRef.current?.close();
+    audioCtxRef.current = null;
+    analyserRef.current = null;
     mediaRecRef.current?.stream?.getTracks().forEach((t) => t.stop());
     streamRef.current?.getTracks().forEach((t) => t.stop());
     mediaRecRef.current = null;
     streamRef.current = null;
-  }, []);
+  }, [stopMeter]);
 
   // ── Inicia gravação (push-to-talk: chamado no pointerdown) ────────────────
   const startRecording = useCallback(async () => {
-    // Bloqueia se já estiver em thinking/speaking
     if (!activeRef.current || status === "thinking" || status === "speaking") return;
-    // Se estiver falando, interrompe o áudio e permite nova gravação
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -55,6 +81,16 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (!activeRef.current) { stream.getTracks().forEach((t) => t.stop()); return; }
       streamRef.current = stream;
 
+      // Set up mic volume metering
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      startMeterLoop(analyser);
+
       const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
       mediaRecRef.current = recorder;
       chunksRef.current = [];
@@ -62,8 +98,8 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       recorder.onstop = () => {
         if (!activeRef.current) return;
+        stopMeter();
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        // Só envia se tiver dados reais
         if (blob.size > 1000) {
           sendVoice(blob);
         } else {
@@ -77,9 +113,9 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       onClose();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, conversationId]);
+  }, [status, conversationId, startMeterLoop, stopMeter]);
 
-  // ── Para gravação (push-to-talk: chamado no pointerup / pointerleave) ─────
+  // ── Para gravação ─────────────────────────────────────────────────────────
   const stopRecording = useCallback(() => {
     if (mediaRecRef.current?.state === "recording") {
       mediaRecRef.current.stop();
@@ -116,8 +152,36 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (data.audio_base64) {
         const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`);
         audioRef.current = audio;
-        audio.onended = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
-        audio.onerror = () => { if (activeRef.current) { audioRef.current = null; setStatus("idle"); } };
+
+        // Meter TTS audio output
+        try {
+          const ctx = new AudioContext();
+          audioCtxRef.current = ctx;
+          const source = ctx.createMediaElementSource(audio);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          analyser.connect(ctx.destination);
+          analyserRef.current = analyser;
+          startMeterLoop(analyser);
+        } catch { /* fallback: no metering */ }
+
+        audio.onended = () => {
+          if (activeRef.current) {
+            stopMeter();
+            audioRef.current = null;
+            if (audioCtxRef.current?.state !== "closed") audioCtxRef.current?.close();
+            audioCtxRef.current = null;
+            setStatus("idle");
+          }
+        };
+        audio.onerror = () => {
+          if (activeRef.current) {
+            stopMeter();
+            audioRef.current = null;
+            setStatus("idle");
+          }
+        };
         await audio.play();
       } else {
         setStatus("idle");
@@ -126,7 +190,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       if (activeRef.current) setStatus("idle");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId]);
+  }, [conversationId, startMeterLoop, stopMeter]);
 
   // ── Ciclo de vida open/close ───────────────────────────────────────────────
   useEffect(() => {
@@ -147,6 +211,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 
   const isRecording = status === "recording";
   const isBusy = status === "thinking" || status === "speaking";
+  const orbScale = 1 + volume * 0.5; // scale 1..1.5 based on volume
 
   return (
     <div className="voice-mode-overlay">
@@ -171,6 +236,10 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
             status === "speaking" ? "voice-orb--speaking" : "",
             status === "thinking" ? "voice-orb--thinking" : "",
           ].join(" ")}
+          style={{
+            transform: `scale(${orbScale})`,
+            boxShadow: `0 0 ${40 + volume * 80}px ${10 + volume * 40}px rgba(255,138,61,${0.25 + volume * 0.5})`,
+          }}
         />
       </button>
 
