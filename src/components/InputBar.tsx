@@ -22,12 +22,16 @@ const STATUS_LABELS: Record<VoiceStatus, string> = {
 function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [transcript, setTranscript] = useState<{ user: string; assistant: string } | null>(null);
+  const [volume, setVolume] = useState(0);
 
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const activeRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const rafRef = useRef<number>(0);
 
   // ── Cleanup total ─────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
