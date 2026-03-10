@@ -211,6 +211,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 
   const isRecording = status === "recording";
   const isBusy = status === "thinking" || status === "speaking";
+  const orbScale = 1 + volume * 0.5; // scale 1..1.5 based on volume
 
   return (
     <div className="voice-mode-overlay">
