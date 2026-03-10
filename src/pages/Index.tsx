@@ -11,7 +11,6 @@ import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
-  sendGuestMessage,
   deleteConversation,
   deleteAllConversations,
   type ConversationSummary,
@@ -113,49 +112,10 @@ const Index = () => {
     setIsLoading(true);
 
     if (isGuest) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-      try {
-        const response = await sendGuestMessage(
-          text,
-          (delta) => {
-            setMessages((prev) => {
-              const updated = [...prev];
-              const last = updated[updated.length - 1];
-              if (last?.role === "assistant") {
-                updated[updated.length - 1] = { ...last, content: last.content + delta };
-              }
-              return updated;
-            });
-          },
-          (meta) => {
-            if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
-          },
-          imageBase64,
-          imageMediaType,
-        );
-        if (response.thinking) {
-          setMessages((prev) => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-            if (last?.role === "assistant") {
-              updated[updated.length - 1] = { ...last, thinking: response.thinking };
-            }
-            return updated;
-          });
-        }
-      } catch {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last?.role === "assistant" && last.content === "") {
-            updated[updated.length - 1] = { ...last, content: "Desculpe, ocorreu um erro. Tente novamente." };
-          }
-          return updated;
-        });
-      } finally {
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." }]);
         setIsLoading(false);
-        setTypingStatus("thinking");
-      }
+      }, 600);
       return;
     }
 

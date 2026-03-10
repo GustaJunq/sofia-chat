@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Settings } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
 
 const API_URL = "https://sofia-api-z8nr.onrender.com";
@@ -79,16 +79,6 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
 
   return (
     <div className="header-bar">
-      {/* Settings button — left side */}
-      <a
-        href="/config.html"
-        className="header-settings-btn"
-        aria-label="Configurações"
-      >
-        <Settings className="w-4 h-4" />
-      </a>
-
-      {/* Model selector — center */}
       <div ref={ref} className="relative">
         <button onClick={() => setOpen(!open)} className="header-model-btn">
           {selectedModel}
