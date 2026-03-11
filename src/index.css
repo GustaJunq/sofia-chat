@@ -271,11 +271,11 @@
 
   /* Hero */
   .hero-container {
-    @apply absolute inset-0 flex items-center justify-center pointer-events-none;
+    @apply absolute inset-0 flex items-start justify-center pointer-events-none overflow-y-auto pt-24 pb-40;
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
   .hero-inner {
-    @apply relative flex flex-col items-center -mt-16 pointer-events-auto;
+    @apply relative flex flex-col items-center pointer-events-auto mt-[15vh];
   }
 
   /* Chat view */
