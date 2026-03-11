@@ -275,7 +275,7 @@
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
   .hero-inner {
-    @apply relative flex flex-col items-center -mt-16;
+    @apply relative flex flex-col items-center -mt-16 pointer-events-auto;
   }
 
   /* Chat view */
