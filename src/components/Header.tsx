@@ -80,6 +80,23 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
   return (
     <div className="header-bar">
       <div ref={ref} className="relative">
+      </div>
+
+      <a
+        href="/sofia.apk"
+        download="SofIA.apk"
+        className="fixed top-0 right-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-secondary hover:bg-accent transition-all text-foreground text-sm font-medium"
+        style={{ top: "max(env(safe-area-inset-top, 0px), 2rem)" }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Baixar APK
+      </a>
+
+      <div ref={ref} className="relative">
         <button onClick={() => setOpen(!open)} className="header-model-btn">
           {selectedModel}
           <ChevronDown className="w-4 h-4 opacity-70" />
