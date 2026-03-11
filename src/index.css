@@ -271,7 +271,7 @@
 
   /* Hero */
   .hero-container {
-    @apply absolute inset-0 flex items-center justify-center pointer-events-none;
+    @apply absolute inset-0 flex items-center justify-center;
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
   .hero-inner {
