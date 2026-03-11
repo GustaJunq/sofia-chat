@@ -79,9 +79,6 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
 
   return (
     <div className="header-bar">
-      <div ref={ref} className="relative">
-      </div>
-
       <a
         href="/sofia.apk"
         download="SofIA.apk"
