@@ -204,7 +204,7 @@ const Index = () => {
       <Header selectedModel={selectedModel} onModelChange={setSelectedModel}
         onLogout={handleLogout} remainingMessages={remainingMessages} />
 
-      <HeroView visible={!hasMessages} />
+      <HeroView visible={!hasMessages} onSelectPrompt={setPromptTemplate} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
       <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
     </div>
