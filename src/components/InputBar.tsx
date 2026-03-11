@@ -289,6 +289,24 @@ const InputBar = ({ onSend, disabled, conversationId, externalText, onExternalTe
     }
   }, [text]);
 
+  useEffect(() => {
+    if (externalText) {
+      setText(externalText);
+      onExternalTextConsumed?.();
+      // Focus and select the placeholder bracket content
+      setTimeout(() => {
+        const el = textareaRef.current;
+        if (el) {
+          el.focus();
+          const match = externalText.match(/\[([^\]]+)\]/);
+          if (match && match.index !== undefined) {
+            el.setSelectionRange(match.index, match.index + match[0].length);
+          }
+        }
+      }, 50);
+    }
+  }, [externalText, onExternalTextConsumed]);
+
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith("image/")) return;
     setImageMediaType(file.type);

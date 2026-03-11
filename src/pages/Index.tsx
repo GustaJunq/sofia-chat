@@ -206,7 +206,8 @@ const Index = () => {
 
       <HeroView visible={!hasMessages} onSelectPrompt={setPromptTemplate} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
+      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId}
+        externalText={promptTemplate} onExternalTextConsumed={() => setPromptTemplate(null)} />
     </div>
   );
 };
