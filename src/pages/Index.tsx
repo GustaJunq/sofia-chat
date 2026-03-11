@@ -43,7 +43,6 @@ const Index = () => {
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  const [promptTemplate, setPromptTemplate] = useState<string | null>(null);
 
   const activeConvIdRef = useRef<string | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
@@ -204,10 +203,9 @@ const Index = () => {
       <Header selectedModel={selectedModel} onModelChange={setSelectedModel}
         onLogout={handleLogout} remainingMessages={remainingMessages} />
 
-      <HeroView visible={!hasMessages} onSelectPrompt={setPromptTemplate} />
+      <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId}
-        externalText={promptTemplate} onExternalTextConsumed={() => setPromptTemplate(null)} />
+      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
     </div>
   );
 };

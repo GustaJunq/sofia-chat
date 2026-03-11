@@ -268,11 +268,9 @@ interface InputBarProps {
   onSend: (message: string, imageBase64?: string, imageMediaType?: string) => void;
   disabled?: boolean;
   conversationId?: string | null;
-  externalText?: string | null;
-  onExternalTextConsumed?: () => void;
 }
 
-const InputBar = ({ onSend, disabled, conversationId, externalText, onExternalTextConsumed }: InputBarProps) => {
+const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -288,24 +286,6 @@ const InputBar = ({ onSend, disabled, conversationId, externalText, onExternalTe
       el.style.height = Math.min(el.scrollHeight, 120) + "px";
     }
   }, [text]);
-
-  useEffect(() => {
-    if (externalText) {
-      setText(externalText);
-      onExternalTextConsumed?.();
-      // Focus and select the placeholder bracket content
-      setTimeout(() => {
-        const el = textareaRef.current;
-        if (el) {
-          el.focus();
-          const match = externalText.match(/\[([^\]]+)\]/);
-          if (match && match.index !== undefined) {
-            el.setSelectionRange(match.index, match.index + match[0].length);
-          }
-        }
-      }, 50);
-    }
-  }, [externalText, onExternalTextConsumed]);
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith("image/")) return;
