@@ -364,6 +364,20 @@
     @apply max-w-[220px] max-h-48 rounded-xl object-cover mb-1 block;
   }
 
+  /* Prompt shortcuts */
+  .prompt-shortcuts {
+    @apply flex flex-wrap justify-center gap-2 mt-6 max-w-[480px] px-4;
+  }
+  .prompt-shortcut-btn {
+    @apply flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-colors;
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+  }
+  .prompt-shortcut-btn:hover {
+    background: hsl(var(--accent));
+  }
+
   /* Main layout */
   .app-shell {
     @apply h-[100dvh] flex flex-col relative overflow-hidden;
