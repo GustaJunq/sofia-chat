@@ -347,6 +347,7 @@
     @apply w-full max-w-[640px] rounded-2xl flex flex-col px-4 py-2;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
+    box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.3);
   }
   .inputbar-row {
     @apply flex items-end w-full;
