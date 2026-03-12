@@ -4,10 +4,9 @@ import { API_URL } from "@/lib/api";
 interface LoginScreenProps {
   onLogin: (token: string) => void;
   onSwitchToRegister: () => void;
-  onSkip: () => void;
 }
 
-const LoginScreen = ({ onLogin, onSwitchToRegister, onSkip }: LoginScreenProps) => {
+const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -58,7 +57,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister, onSkip }: LoginScreenProps) 
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
-        <button type="button" onClick={onSkip} className="auth-skip">Pular</button>
+        
 
         <p className="auth-footer">
           Não tem conta?{" "}

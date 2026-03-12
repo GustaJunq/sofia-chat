@@ -4,10 +4,9 @@ import { API_URL } from "@/lib/api";
 interface RegisterScreenProps {
   onLogin: (token: string) => void;
   onSwitchToLogin: () => void;
-  onSkip: () => void;
 }
 
-const RegisterScreen = ({ onLogin, onSwitchToLogin, onSkip }: RegisterScreenProps) => {
+const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -78,7 +77,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin, onSkip }: RegisterScreenProp
           {loading ? "Criando conta..." : "Criar conta"}
         </button>
 
-        <button type="button" onClick={onSkip} className="auth-skip">Pular</button>
+        
 
         <p className="auth-footer">
           Já tem conta?{" "}
