@@ -6,7 +6,7 @@ interface RegisterScreenProps {
   onSwitchToLogin: () => void;
 }
 
-const RegisterScreen = ({ onLogin, onSwitchToLogin, onSkip }: RegisterScreenProps) => {
+const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
