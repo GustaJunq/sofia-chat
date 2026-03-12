@@ -4,7 +4,6 @@ import { API_URL } from "@/lib/api";
 interface RegisterScreenProps {
   onLogin: (token: string) => void;
   onSwitchToLogin: () => void;
-  onSkip: () => void;
 }
 
 const RegisterScreen = ({ onLogin, onSwitchToLogin, onSkip }: RegisterScreenProps) => {
