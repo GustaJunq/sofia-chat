@@ -61,9 +61,10 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Tiempos', serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
   }
 }
 
