@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import { API_URL } from "@/lib/api";
+import StarLogo from "./StarLogo";
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
@@ -43,7 +44,11 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
   return (
     <div className="auth-screen">
       <form onSubmit={handleSubmit} className="auth-form">
-        <h1 className="auth-title">sofIA</h1>
+        <div className="flex justify-center mb-2">
+          <StarLogo className="w-12 h-12" />
+        </div>
+        <h1 className="auth-title">Bem-vindo de volta</h1>
+        <p className="auth-subtitle">Entre na sua conta para continuar</p>
 
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
           placeholder="Email" autoComplete="email" className="auth-input" />
@@ -56,8 +61,6 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
         <button type="submit" disabled={loading} className="auth-submit">
           {loading ? "Entrando..." : "Entrar"}
         </button>
-
-        
 
         <p className="auth-footer">
           Não tem conta?{" "}
