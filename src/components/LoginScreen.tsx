@@ -57,7 +57,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
-        <button type="button" onClick={onSkip} className="auth-skip">Pular</button>
+        
 
         <p className="auth-footer">
           Não tem conta?{" "}

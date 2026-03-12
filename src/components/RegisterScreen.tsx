@@ -77,7 +77,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           {loading ? "Criando conta..." : "Criar conta"}
         </button>
 
-        <button type="button" onClick={onSkip} className="auth-skip">Pular</button>
+        
 
         <p className="auth-footer">
           Já tem conta?{" "}

@@ -13,7 +13,6 @@ const Login = () => {
     <LoginScreen
       onLogin={handleLogin}
       onSwitchToRegister={() => navigate("/register")}
-      onSkip={() => navigate("/chats")}
     />
   );
 };
