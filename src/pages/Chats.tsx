@@ -10,6 +10,7 @@ import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
+  generateImage,
   deleteConversation,
   deleteAllConversations,
   type ConversationSummary,
@@ -23,6 +24,20 @@ const RAG_TRIGGER_WORDS = [
   "who is", "who was", "what is", "what was", "when was", "where is",
   "tell me about", "explain", "define", "history of",
 ];
+
+const IMAGE_TRIGGER_WORDS = [
+  "gera uma imagem", "gera imagem", "gerar imagem", "gerar uma imagem",
+  "cria uma imagem", "cria imagem", "criar imagem", "criar uma imagem",
+  "desenha", "desenhe", "faz uma imagem", "faz uma foto",
+  "generate image", "generate a image", "generate an image",
+  "create image", "draw", "make an image", "make a picture",
+  "ilustra", "ilustre", "imagina", "visualiza",
+];
+
+function isImageRequest(text: string): boolean {
+  const lower = text.toLowerCase();
+  return IMAGE_TRIGGER_WORDS.some((trigger) => lower.includes(trigger));
+}
 
 function isFactualMessage(text: string): boolean {
   const lower = text.toLowerCase();
@@ -100,7 +115,6 @@ const Chats = () => {
   const sendMessage = useCallback(async (text: string, imageBase64?: string, imageMediaType?: string) => {
     const userMsg: Message = { role: "user", content: text, imagePreview: imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined };
     setMessages((prev) => [...prev, userMsg]);
-    setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
     setIsLoading(true);
 
     if (isGuest) {
@@ -111,6 +125,37 @@ const Chats = () => {
       return;
     }
 
+    // ── Fluxo de geração de imagem ─────────────────────────────────────────
+    if (!imageBase64 && isImageRequest(text)) {
+      setMessages((prev) => [...prev, { role: "assistant", content: "Gerando sua imagem..." }]);
+      try {
+        const result = await generateImage(token!, text);
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: `✦ Prompt refinado: *${result.prompt_refined}*`,
+            imageGenerated: result.image_url,
+          };
+          return updated;
+        });
+        if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Erro ao gerar imagem";
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: `Desculpe, não consegui gerar a imagem. ${msg}` };
+          return updated;
+        });
+      } finally {
+        setIsLoading(false);
+        setTypingStatus("thinking");
+      }
+      return;
+    }
+
+    // ── Fluxo de chat normal ───────────────────────────────────────────────
+    setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     try {
