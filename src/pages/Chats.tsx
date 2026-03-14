@@ -5,7 +5,7 @@ import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import {
   fetchConversations,
   fetchConversation,
@@ -53,6 +53,7 @@ const Chats = () => {
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageGenerating, setIsImageGenerating] = useState(false);
   const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
@@ -60,6 +61,7 @@ const Chats = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeConvIdRef = useRef<string | null>(null);
+  const imageAbortRef = useRef<AbortController | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
   useEffect(() => {
@@ -128,8 +130,14 @@ const Chats = () => {
     // ── Fluxo de geração de imagem ─────────────────────────────────────────
     if (!imageBase64 && isImageRequest(text)) {
       setMessages((prev) => [...prev, { role: "assistant", content: "Gerando sua imagem..." }]);
+      setIsLoading(false); // libera o chat normal
+      setIsImageGenerating(true);
+
+      const abort = new AbortController();
+      imageAbortRef.current = abort;
+
       try {
-        const result = await generateImage(token!, text);
+        const result = await generateImage(token!, text, abort.signal);
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = {
@@ -141,14 +149,23 @@ const Chats = () => {
         });
         if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Erro ao gerar imagem";
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: `Desculpe, não consegui gerar a imagem. ${msg}` };
-          return updated;
-        });
+        if ((err as Error)?.name === "AbortError") {
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada." };
+            return updated;
+          });
+        } else {
+          const msg = err instanceof Error ? err.message : "Erro ao gerar imagem";
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "assistant", content: `Desculpe, não consegui gerar a imagem. ${msg}` };
+            return updated;
+          });
+        }
       } finally {
-        setIsLoading(false);
+        setIsImageGenerating(false);
+        imageAbortRef.current = null;
         setTypingStatus("thinking");
       }
       return;
@@ -234,7 +251,21 @@ const Chats = () => {
 
       <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
+
+      {isImageGenerating && (
+        <div className="image-gen-banner">
+          <span>Gerando imagem...</span>
+          <button
+            onClick={() => { imageAbortRef.current?.abort(); }}
+            className="image-gen-cancel"
+          >
+            <X className="w-4 h-4" />
+            Cancelar
+          </button>
+        </div>
+      )}
+
+      <InputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
     </div>
   );
 };
