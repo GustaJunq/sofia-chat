@@ -1,10 +1,34 @@
 import { useState, useRef, useCallback } from "react";
-import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp } from "lucide-react";
+import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp, Copy, Check, ClipboardCopy } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { fetchTTS, getToken } from "@/lib/api";
+
+const CodeBlock = ({ children, className }: { children: string; className?: string }) => {
+  const [copied, setCopied] = useState(false);
+  const lang = className?.replace("language-", "") || "";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(children.replace(/\n$/, ""));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="code-block-wrapper">
+      <div className="code-block-header">
+        <span className="code-block-lang">{lang}</span>
+        <button onClick={handleCopy} className="code-copy-btn">
+          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "Copiado" : "Copiar"}
+        </button>
+      </div>
+      <pre><code className={className}>{children}</code></pre>
+    </div>
+  );
+};
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -17,6 +41,7 @@ interface MessageBubbleProps {
 const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }: MessageBubbleProps) => {
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
   const [showThinking, setShowThinking] = useState(false);
+  const [copiedResponse, setCopiedResponse] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
 
@@ -82,17 +107,35 @@ const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }:
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex]}
+            components={{
+              code({ className, children, ...props }) {
+                const text = String(children);
+                const isBlock = className || text.includes("\n");
+                if (isBlock) {
+                  return <CodeBlock className={className}>{text}</CodeBlock>;
+                }
+                return <code className={className} {...props}>{children}</code>;
+              },
+              pre({ children }) {
+                return <>{children}</>;
+              },
+            }}
           >
             {content}
           </ReactMarkdown>
         </div>
       </div>
 
-      <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
-        {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
-        {ttsState === "playing" && <Pause className="w-4 h-4" />}
-        {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
-      </button>
+      <div className="msg-action-buttons">
+        <button onClick={() => { navigator.clipboard.writeText(content); setCopiedResponse(true); setTimeout(() => setCopiedResponse(false), 2000); }} className="msg-tts-btn" title="Copiar resposta">
+          {copiedResponse ? <Check className="w-4 h-4" /> : <ClipboardCopy className="w-4 h-4" />}
+        </button>
+        <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
+          {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
+          {ttsState === "playing" && <Pause className="w-4 h-4" />}
+          {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
+        </button>
+      </div>
     </div>
   );
 };

@@ -116,6 +116,55 @@
   font-size: 0.88em;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
+.code-block-wrapper {
+  margin: 0.5em 0;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35em 0.75em;
+  background: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+  font-size: 0.75em;
+}
+.code-block-lang {
+  color: hsl(var(--muted-foreground));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: lowercase;
+}
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.15s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1em;
+}
+.code-copy-btn:hover {
+  color: hsl(var(--foreground));
+}
+.code-block-wrapper pre {
+  background: hsl(var(--muted) / 0.5);
+  padding: 0.75em 1em;
+  margin: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0;
+  border: none;
+}
+.code-block-wrapper pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
 .prose-chat pre {
   background: hsl(var(--muted));
   border: 1px solid hsl(var(--border));
@@ -334,8 +383,11 @@
   .msg-thinking-block {
     @apply mt-1.5 p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed;
   }
+  .msg-action-buttons {
+    @apply flex flex-col gap-0.5 flex-shrink-0 mt-1;
+  }
   .msg-tts-btn {
-    @apply flex-shrink-0 mt-1 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80;
+    @apply p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80;
   }
 
   /* Input bar */
