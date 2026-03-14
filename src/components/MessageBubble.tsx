@@ -1,10 +1,34 @@
 import { useState, useRef, useCallback } from "react";
-import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp } from "lucide-react";
+import { Volume2, Pause, Loader2, Brain, ChevronDown, ChevronUp, Copy, Check, ClipboardCopy } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { fetchTTS, getToken } from "@/lib/api";
+
+const CodeBlock = ({ children, className }: { children: string; className?: string }) => {
+  const [copied, setCopied] = useState(false);
+  const lang = className?.replace("language-", "") || "";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(children.replace(/\n$/, ""));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="code-block-wrapper">
+      <div className="code-block-header">
+        <span className="code-block-lang">{lang}</span>
+        <button onClick={handleCopy} className="code-copy-btn">
+          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "Copiado" : "Copiar"}
+        </button>
+      </div>
+      <pre><code className={className}>{children}</code></pre>
+    </div>
+  );
+};
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
