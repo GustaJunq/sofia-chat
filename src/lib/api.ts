@@ -197,11 +197,13 @@ export interface ImageGenResponse {
 export async function generateImage(
   token: string,
   message: string,
+  signal?: AbortSignal,
 ): Promise<ImageGenResponse> {
   const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify({ message }),
+    signal,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
