@@ -206,8 +206,12 @@ export async function generateImage(
     signal,
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? "Erro ao gerar imagem");
+    let errMsg = `Erro ${res.status}`;
+    try {
+      const err = await res.json();
+      errMsg = err.error ?? errMsg;
+    } catch { /* ignora */ }
+    throw new Error(errMsg);
   }
   return res.json();
 }
