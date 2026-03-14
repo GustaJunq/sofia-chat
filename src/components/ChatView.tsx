@@ -7,6 +7,7 @@ export interface Message {
   content: string;
   thinking?: string;
   imagePreview?: string;
+  imageGenerated?: string; // URL da imagem gerada por IA
 }
 
 interface ChatViewProps {
@@ -42,6 +43,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
             content={msg.content}
             thinking={msg.thinking}
             imagePreview={msg.imagePreview}
+            imageGenerated={msg.imageGenerated}
             onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
           />
         ))}
