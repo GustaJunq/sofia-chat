@@ -437,7 +437,11 @@
   }
 
   .msg-generated-image {
-    @apply rounded-xl max-w-full w-full max-h-[480px] object-contain border border-white/10;
+    @apply rounded-2xl object-cover border border-white/10;
+    max-width: 280px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: block;
   }
 
   .msg-generated-image-download {
@@ -596,4 +600,4 @@
 }
 .voice-close-btn:hover {
   background: hsl(var(--accent));
-  }
+}
