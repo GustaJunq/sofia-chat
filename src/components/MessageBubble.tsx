@@ -41,6 +41,7 @@ interface MessageBubbleProps {
 const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }: MessageBubbleProps) => {
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
   const [showThinking, setShowThinking] = useState(false);
+  const [copiedResponse, setCopiedResponse] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
 
