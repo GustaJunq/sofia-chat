@@ -129,8 +129,8 @@ const Chats = () => {
 
     // ── Fluxo de geração de imagem ─────────────────────────────────────────
     if (!imageBase64 && isImageRequest(text)) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Gerando sua imagem..." }]);
-      setIsLoading(false); // libera o chat normal
+      setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde..." }]);
+      setIsLoading(false);
       setIsImageGenerating(true);
 
       const abort = new AbortController();
@@ -156,10 +156,13 @@ const Chats = () => {
             return updated;
           });
         } else {
-          const msg = err instanceof Error ? err.message : "Erro ao gerar imagem";
+          const msg = err instanceof Error ? err.message : "Erro desconhecido";
           setMessages((prev) => {
             const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: `Desculpe, não consegui gerar a imagem. ${msg}` };
+            updated[updated.length - 1] = {
+              role: "assistant",
+              content: `Não consegui gerar a imagem. ${msg}`,
+            };
             return updated;
           });
         }
