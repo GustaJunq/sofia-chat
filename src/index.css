@@ -383,8 +383,11 @@
   .msg-thinking-block {
     @apply mt-1.5 p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed;
   }
+  .msg-action-buttons {
+    @apply flex flex-col gap-0.5 flex-shrink-0 mt-1;
+  }
   .msg-tts-btn {
-    @apply flex-shrink-0 mt-1 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80;
+    @apply p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80;
   }
 
   /* Input bar */

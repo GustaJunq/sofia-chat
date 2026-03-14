@@ -107,17 +107,35 @@ const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }:
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex]}
+            components={{
+              code({ className, children, ...props }) {
+                const text = String(children);
+                const isBlock = className || text.includes("\n");
+                if (isBlock) {
+                  return <CodeBlock className={className}>{text}</CodeBlock>;
+                }
+                return <code className={className} {...props}>{children}</code>;
+              },
+              pre({ children }) {
+                return <>{children}</>;
+              },
+            }}
           >
             {content}
           </ReactMarkdown>
         </div>
       </div>
 
-      <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
-        {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
-        {ttsState === "playing" && <Pause className="w-4 h-4" />}
-        {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
-      </button>
+      <div className="msg-action-buttons">
+        <button onClick={() => { navigator.clipboard.writeText(content); setCopiedResponse(true); setTimeout(() => setCopiedResponse(false), 2000); }} className="msg-tts-btn" title="Copiar resposta">
+          {copiedResponse ? <Check className="w-4 h-4" /> : <ClipboardCopy className="w-4 h-4" />}
+        </button>
+        <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
+          {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
+          {ttsState === "playing" && <Pause className="w-4 h-4" />}
+          {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
+        </button>
+      </div>
     </div>
   );
 };
