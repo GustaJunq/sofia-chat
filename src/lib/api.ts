@@ -186,6 +186,30 @@ export async function sendChatMessage(
   return result;
 }
 
+// ================= IMAGE GENERATION =================
+
+export interface ImageGenResponse {
+  prompt_refined: string;
+  image_url: string;
+  remaining_messages?: number;
+}
+
+export async function generateImage(
+  token: string,
+  message: string,
+): Promise<ImageGenResponse> {
+  const res = await fetch(`${API_URL}/generate-image`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error ?? "Erro ao gerar imagem");
+  }
+  return res.json();
+}
+
 export async function fetchTTS(token: string, text: string): Promise<Blob> {
   const res = await fetch(`${API_URL}/tts`, {
     method: "POST",
