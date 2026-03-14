@@ -35,10 +35,11 @@ interface MessageBubbleProps {
   content: string;
   thinking?: string;
   imagePreview?: string;
+  imageGenerated?: string;
   onPlayRequest?: (play: () => Promise<void>, pause: () => void) => void;
 }
 
-const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }: MessageBubbleProps) => {
+const MessageBubble = ({ role, content, thinking, imagePreview, imageGenerated, onPlayRequest }: MessageBubbleProps) => {
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
   const [showThinking, setShowThinking] = useState(false);
   const [copiedResponse, setCopiedResponse] = useState(false);
@@ -123,6 +124,26 @@ const MessageBubble = ({ role, content, thinking, imagePreview, onPlayRequest }:
           >
             {content}
           </ReactMarkdown>
+          {imageGenerated && (
+            <div className="msg-generated-image-wrapper">
+              <img
+                src={imageGenerated}
+                alt="Imagem gerada"
+                className="msg-generated-image"
+                loading="lazy"
+              />
+              <a
+                href={imageGenerated}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="msg-generated-image-download"
+                title="Baixar imagem"
+              >
+                ↓ Baixar
+              </a>
+            </div>
+          )}
         </div>
       </div>
 
