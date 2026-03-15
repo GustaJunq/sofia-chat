@@ -186,6 +186,50 @@ export async function sendChatMessage(
   return result;
 }
 
+// ================= OPENROUTER KEY =================
+
+export function getOpenRouterKey(): string | null {
+  return localStorage.getItem("sof_openrouter_key");
+}
+
+export function saveOpenRouterKey(key: string): void {
+  localStorage.setItem("sof_openrouter_key", key.trim());
+}
+
+export function clearOpenRouterKey(): void {
+  localStorage.removeItem("sof_openrouter_key");
+}
+
+// ================= IMAGE GENERATION =================
+
+export interface ImageGenResponse {
+  prompt_refined: string;
+  image_url: string;
+  conversation_id?: string;
+  remaining_messages?: number;
+}
+
+export async function generateImage(
+  token: string,
+  message: string,
+  openRouterKey: string,
+  signal?: AbortSignal,
+  conversationId?: string | null,
+): Promise<ImageGenResponse> {
+  const body: Record<string, string> = { message, openrouter_key: openRouterKey };
+  if (conversationId) body.conversation_id = conversationId;
+  const res = await fetch(`${API_URL}/generate-image`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok) {
+    let errMsg = `Erro ${res.status}`;
+    try {
+      const err = await res.json();
+      errMsg = err.error ?? errMsg;
+    } catch { /* ignora */ }
     throw new Error(errMsg);
   }
   return res.json();
