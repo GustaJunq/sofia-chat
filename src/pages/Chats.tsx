@@ -31,7 +31,7 @@ const IMAGE_TRIGGER_WORDS = [
   "desenha", "desenhe", "faz uma imagem", "faz uma foto",
   "generate image", "generate a image", "generate an image",
   "create image", "draw", "make an image", "make a picture",
-  "ilustra", "ilustre", "imagina", "visualiza",
+  "ilustra", "ilustre", "imagina", "visualiza", "/imagine",
 ];
 
 function isImageRequest(text: string): boolean {
