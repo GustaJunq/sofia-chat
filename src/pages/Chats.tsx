@@ -5,12 +5,11 @@ import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
-  generateImage,
   deleteConversation,
   deleteAllConversations,
   type ConversationSummary,
@@ -25,19 +24,6 @@ const RAG_TRIGGER_WORDS = [
   "tell me about", "explain", "define", "history of",
 ];
 
-const IMAGE_TRIGGER_WORDS = [
-  "gera uma imagem", "gera imagem", "gerar imagem", "gerar uma imagem",
-  "cria uma imagem", "cria imagem", "criar imagem", "criar uma imagem",
-  "desenha", "desenhe", "faz uma imagem", "faz uma foto",
-  "generate image", "generate a image", "generate an image",
-  "create image", "draw", "make an image", "make a picture",
-  "ilustra", "ilustre", "imagina", "visualiza", "/imagine",
-];
-
-function isImageRequest(text: string): boolean {
-  const lower = text.toLowerCase();
-  return IMAGE_TRIGGER_WORDS.some((trigger) => lower.includes(trigger));
-}
 
 function isFactualMessage(text: string): boolean {
   const lower = text.toLowerCase();
@@ -53,7 +39,6 @@ const Chats = () => {
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isImageGenerating, setIsImageGenerating] = useState(false);
   const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
   const [selectedModel, setSelectedModel] = useState("sof-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
@@ -61,7 +46,6 @@ const Chats = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeConvIdRef = useRef<string | null>(null);
-  const imageAbortRef = useRef<AbortController | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
   useEffect(() => {
@@ -131,60 +115,6 @@ const Chats = () => {
         setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." }]);
         setIsLoading(false);
       }, 600);
-      return;
-    }
-
-    // ── Fluxo de geração de imagem ─────────────────────────────────────────
-    if (!imageBase64 && isImageRequest(text)) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde..." }]);
-      setIsLoading(false);
-      setIsImageGenerating(true);
-
-      const abort = new AbortController();
-      imageAbortRef.current = abort;
-
-      try {
-        const result = await generateImage(token!, text, abort.signal, activeConvIdRef.current);
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            role: "assistant",
-            content: `✦ Prompt refinado: *${result.prompt_refined}*`,
-            imageGenerated: result.image_url,
-          };
-          return updated;
-        });
-        // Atualiza conversa ativa e histórico lateral
-        if (result.conversation_id) {
-          if (!activeConvIdRef.current) {
-            setActiveConvId(result.conversation_id);
-          }
-          fetchConversations(token!).then(setConversations).catch(() => {});
-        }
-        if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
-      } catch (err: unknown) {
-        if ((err as Error)?.name === "AbortError") {
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada." };
-            return updated;
-          });
-        } else {
-          const msg = err instanceof Error ? err.message : "Erro desconhecido";
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              role: "assistant",
-              content: `Não consegui gerar a imagem. ${msg}`,
-            };
-            return updated;
-          });
-        }
-      } finally {
-        setIsImageGenerating(false);
-        imageAbortRef.current = null;
-        setTypingStatus("thinking");
-      }
       return;
     }
 
@@ -269,20 +199,8 @@ const Chats = () => {
       <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
 
-      {isImageGenerating && (
-        <div className="image-gen-banner">
-          <span>Gerando imagem...</span>
-          <button
-            onClick={() => { imageAbortRef.current?.abort(); }}
-            className="image-gen-cancel"
-          >
-            <X className="w-4 h-4" />
-            Cancelar
-          </button>
-        </div>
-      )}
 
-      <InputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
+      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
     </div>
   );
 };
