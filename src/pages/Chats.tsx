@@ -137,7 +137,7 @@ const Chats = () => {
       imageAbortRef.current = abort;
 
       try {
-        const result = await generateImage(token!, text, abort.signal);
+        const result = await generateImage(token!, text, abort.signal, activeConvIdRef.current);
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = {
@@ -147,6 +147,13 @@ const Chats = () => {
           };
           return updated;
         });
+        // Atualiza conversa ativa e histórico lateral
+        if (result.conversation_id) {
+          if (!activeConvIdRef.current) {
+            setActiveConvId(result.conversation_id);
+          }
+          fetchConversations(token!).then(setConversations).catch(() => {});
+        }
         if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
       } catch (err: unknown) {
         if ((err as Error)?.name === "AbortError") {
