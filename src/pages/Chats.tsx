@@ -5,11 +5,14 @@ import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
-import { Menu } from "lucide-react";
+import { Menu, X, Key } from "lucide-react";
 import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
+  generateImage,
+  getOpenRouterKey,
+  saveOpenRouterKey,
   deleteConversation,
   deleteAllConversations,
   type ConversationSummary,
@@ -24,6 +27,21 @@ const RAG_TRIGGER_WORDS = [
   "tell me about", "explain", "define", "history of",
 ];
 
+
+const IMAGE_TRIGGER_WORDS = [
+  "gera uma imagem", "gera imagem", "gerar imagem", "gerar uma imagem",
+  "gere uma imagem", "gere imagem",
+  "cria uma imagem", "cria imagem", "criar imagem", "criar uma imagem",
+  "desenha", "desenhe", "faz uma imagem", "faz uma foto",
+  "generate image", "generate a image", "generate an image",
+  "create image", "draw", "make an image", "make a picture",
+  "ilustra", "ilustre", "imagina", "visualiza", "/imagine",
+];
+
+function isImageRequest(text: string): boolean {
+  const lower = text.toLowerCase();
+  return IMAGE_TRIGGER_WORDS.some((trigger) => lower.includes(trigger));
+}
 
 function isFactualMessage(text: string): boolean {
   const lower = text.toLowerCase();
@@ -44,6 +62,11 @@ const Chats = () => {
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isImageGenerating, setIsImageGenerating] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [keyInput, setKeyInput] = useState("");
+  const [pendingImageText, setPendingImageText] = useState<string | null>(null);
+  const imageAbortRef = useRef<AbortController | null>(null);
 
   const activeConvIdRef = useRef<string | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
@@ -105,6 +128,55 @@ const Chats = () => {
     } catch {}
   };
 
+
+  const startImageGeneration = useCallback(async (text: string, orKey: string) => {
+    setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde..." }]);
+    setIsImageGenerating(true);
+
+    const abort = new AbortController();
+    imageAbortRef.current = abort;
+
+    try {
+      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: `✦ Prompt refinado: *${result.prompt_refined}*`,
+          imageGenerated: result.image_url,
+        };
+        return updated;
+      });
+      if (result.conversation_id) {
+        if (!activeConvIdRef.current) setActiveConvId(result.conversation_id);
+        fetchConversations(token!).then(setConversations).catch(() => {});
+      }
+      if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
+    } catch (err: unknown) {
+      if ((err as Error)?.name === "AbortError") {
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada." };
+          return updated;
+        });
+      } else {
+        const msg = err instanceof Error ? err.message : "Erro desconhecido";
+        // Se a chave for inválida, remove do localStorage
+        if (msg.includes("401") || msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("unauthorized")) {
+          localStorage.removeItem("sof_openrouter_key");
+        }
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: `Não consegui gerar a imagem. ${msg}` };
+          return updated;
+        });
+      }
+    } finally {
+      setIsImageGenerating(false);
+      imageAbortRef.current = null;
+    }
+  }, [token]);
+
   const sendMessage = useCallback(async (text: string, imageBase64?: string, imageMediaType?: string) => {
     const userMsg: Message = { role: "user", content: text, imagePreview: imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined };
     setMessages((prev) => [...prev, userMsg]);
@@ -115,6 +187,20 @@ const Chats = () => {
         setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." }]);
         setIsLoading(false);
       }, 600);
+      return;
+    }
+
+    // ── Fluxo de geração de imagem ─────────────────────────────────────────
+    if (!imageBase64 && isImageRequest(text)) {
+      setIsLoading(false);
+      const orKey = getOpenRouterKey();
+      if (!orKey) {
+        // Não tem chave — pede pro usuário
+        setPendingImageText(text);
+        setShowKeyModal(true);
+        return;
+      }
+      await startImageGeneration(text, orKey);
       return;
     }
 
@@ -200,7 +286,76 @@ const Chats = () => {
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
 
 
-      <InputBar onSend={sendMessage} disabled={isLoading} conversationId={activeConvId} />
+      {isImageGenerating && (
+        <div className="image-gen-banner">
+          <span>Gerando imagem...</span>
+          <button onClick={() => { imageAbortRef.current?.abort(); }} className="image-gen-cancel">
+            <X className="w-4 h-4" />
+            Cancelar
+          </button>
+        </div>
+      )}
+
+      {showKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-white font-semibold text-lg">
+              <Key className="w-5 h-5 text-orange-400" />
+              Chave do OpenRouter
+            </div>
+            <p className="text-white/60 text-sm">
+              Para gerar imagens, cole sua chave da API do{" "}
+              <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">
+                OpenRouter
+              </a>
+              . Ela fica salva só no seu navegador.
+            </p>
+            <input
+              type="password"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && keyInput.trim()) {
+                  saveOpenRouterKey(keyInput);
+                  setShowKeyModal(false);
+                  if (pendingImageText) {
+                    startImageGeneration(pendingImageText, keyInput.trim());
+                    setPendingImageText(null);
+                  }
+                  setKeyInput("");
+                }
+              }}
+              placeholder="sk-or-..."
+              className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-orange-400"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowKeyModal(false); setPendingImageText(null); setKeyInput(""); }}
+                className="flex-1 py-2 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/5"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (!keyInput.trim()) return;
+                  saveOpenRouterKey(keyInput);
+                  setShowKeyModal(false);
+                  if (pendingImageText) {
+                    startImageGeneration(pendingImageText, keyInput.trim());
+                    setPendingImageText(null);
+                  }
+                  setKeyInput("");
+                }}
+                className="flex-1 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600"
+              >
+                Salvar e gerar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <InputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
     </div>
   );
 };
