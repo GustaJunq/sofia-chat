@@ -191,6 +191,7 @@ export async function sendChatMessage(
 export interface ImageGenResponse {
   prompt_refined: string;
   image_url: string;
+  conversation_id?: string;
   remaining_messages?: number;
 }
 
@@ -198,11 +199,14 @@ export async function generateImage(
   token: string,
   message: string,
   signal?: AbortSignal,
+  conversationId?: string | null,
 ): Promise<ImageGenResponse> {
+  const body: Record<string, string> = { message };
+  if (conversationId) body.conversation_id = conversationId;
   const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
     headers: authHeaders(token),
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(body),
     signal,
   });
   if (!res.ok) {
