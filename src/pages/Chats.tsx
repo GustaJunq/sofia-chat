@@ -91,7 +91,14 @@ const Chats = () => {
     setSidebarOpen(false);
     try {
       const data = await fetchConversation(token, id);
-      setMessages(data.messages.map((m) => ({ role: m.role, content: m.content, imagePreview: m.image_url ?? undefined })));
+      setMessages(data.messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+        // Imagens enviadas pelo usuário ficam em imagePreview
+        // Imagens geradas pela IA (FLUX) ficam em imageGenerated
+        imagePreview: m.role === 'user' ? (m.image_url ?? undefined) : undefined,
+        imageGenerated: m.role === 'assistant' ? (m.image_url ?? undefined) : undefined,
+      })));
     } catch { setMessages([]); }
   };
 
