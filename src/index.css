@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @font-face {
   font-family: 'Tiempos';
@@ -13,43 +14,45 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 93%;
+    --background: 0 0% 2%;
+    --foreground: 0 0% 90%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 93%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 90%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 93%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 90%;
 
     --primary: 0 0% 100%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 93%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 0 0% 9%;
-    --muted-foreground: 0 0% 100% / 0.4;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
 
     --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 93%;
+    --accent-foreground: 0 0% 90%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 100% / 0.08;
-    --input: 0 0% 100% / 0.06;
-    --ring: 0 0% 100% / 0.2;
+    --border: 0 0% 100% / 0.06;
+    --input: 0 0% 100% / 0.04;
+    --ring: 0 0% 100% / 0.15;
 
     --radius: 0.75rem;
 
+    --glow-color: 220 60% 70%;
+
     --sidebar-background: 0 0% 3%;
-    --sidebar-foreground: 0 0% 93%;
+    --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 93%;
-    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 100% / 0.06;
     --sidebar-ring: 0 0% 100%;
   }
 }
@@ -69,9 +72,17 @@
 }
 
 @layer utilities {
+  .font-mono-ui {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
   .input-surface {
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: hsl(0 0% 8%);
+    border: 1px solid hsl(0 0% 100% / 0.06);
   }
 
   @keyframes pulse-dot {
@@ -82,6 +93,11 @@
   @keyframes star-pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.02); }
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
   }
 
   .animate-star-pulse {
@@ -114,11 +130,11 @@
   border-radius: 4px;
   padding: 0.15em 0.35em;
   font-size: 0.88em;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 .code-block-wrapper {
   margin: 0.5em 0;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid hsl(var(--border));
   overflow: hidden;
 }
@@ -133,7 +149,7 @@
 }
 .code-block-lang {
   color: hsl(var(--muted-foreground));
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: lowercase;
 }
 .code-copy-btn {
@@ -146,6 +162,7 @@
   background: none;
   border: none;
   font-size: 1em;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 .code-copy-btn:hover {
   color: hsl(var(--foreground));
@@ -168,7 +185,7 @@
 .prose-chat pre {
   background: hsl(var(--muted));
   border: 1px solid hsl(var(--border));
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0.75em 1em;
   margin: 0.5em 0;
   overflow-x: auto;
@@ -211,16 +228,18 @@
 @layer components {
   /* Auth screens (Login / Register) */
   .auth-screen {
-    @apply fixed inset-0 bg-background flex items-center justify-center z-[100] px-6;
+    @apply fixed inset-0 flex items-center justify-center z-[100] px-6;
+    background: radial-gradient(ellipse at 50% 0%, hsl(220 40% 12% / 0.4), hsl(var(--background)) 70%);
   }
   .auth-form {
     @apply w-full max-w-[380px] flex flex-col gap-3;
   }
   .auth-title {
-    @apply text-foreground text-3xl font-semibold text-center mb-2 tracking-tight;
+    @apply text-foreground text-3xl font-semibold text-center mb-1 tracking-tight;
   }
   .auth-subtitle {
-    @apply text-muted-foreground text-sm text-center mb-4;
+    @apply text-sm text-center mb-5;
+    color: hsl(var(--muted-foreground));
   }
   .auth-input {
     @apply w-full rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-[15px] outline-none transition-all duration-200;
@@ -228,19 +247,20 @@
     border: 1px solid hsl(var(--border));
   }
   .auth-input:focus {
-    border-color: hsl(0 0% 100% / 0.2);
-    box-shadow: 0 0 0 3px hsl(0 0% 100% / 0.05);
+    border-color: hsl(0 0% 100% / 0.15);
+    box-shadow: 0 0 0 3px hsl(220 60% 70% / 0.08);
   }
   .auth-submit {
-    @apply w-full bg-primary text-primary-foreground rounded-xl py-3 text-[15px] font-medium transition-all duration-200 disabled:opacity-40 mt-1;
+    @apply w-full bg-primary text-primary-foreground rounded-xl py-3 text-[15px] font-medium transition-all duration-200 disabled:opacity-40 mt-2;
   }
   .auth-submit:hover:not(:disabled) {
     opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px hsl(0 0% 100% / 0.1);
+    box-shadow: 0 4px 20px hsl(220 60% 70% / 0.12);
   }
   .auth-footer {
-    @apply text-center text-sm text-muted-foreground mt-2;
+    @apply text-center text-sm mt-3;
+    color: hsl(var(--muted-foreground));
   }
   .auth-footer-link {
     @apply text-foreground underline underline-offset-2 hover:opacity-80 transition-opacity;
@@ -249,7 +269,11 @@
     @apply text-destructive text-sm text-center;
   }
   .auth-hint {
-    @apply text-xs text-muted-foreground text-center -mt-1;
+    @apply text-xs text-center -mt-1;
+    color: hsl(var(--muted-foreground));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
   }
 
   /* Header */
@@ -258,31 +282,60 @@
     padding-top: max(env(safe-area-inset-top, 0px), 2rem);
   }
   .header-model-btn {
-    @apply flex items-center gap-1.5 text-foreground font-semibold text-base tracking-tight;
+    @apply flex items-center gap-1.5 font-medium text-sm tracking-wide;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: hsl(var(--foreground));
   }
   .header-dropdown {
-    @apply absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-popover rounded-xl py-1.5 min-w-[200px] border border-border;
-    box-shadow: 0 8px 30px hsl(0 0% 0% / 0.5);
+    @apply absolute top-full mt-2 left-1/2 -translate-x-1/2 rounded-xl py-1.5 min-w-[200px];
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 12px 40px hsl(0 0% 0% / 0.6);
   }
   .header-dropdown-item {
-    @apply w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-accent flex items-center gap-2 disabled:opacity-50;
+    @apply w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center gap-2 disabled:opacity-50;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+  .header-dropdown-item:hover {
+    background: hsl(var(--accent));
   }
   .header-badge {
-    @apply text-[10px] border border-foreground/30 text-foreground/70 rounded-full px-1.5 py-0.5 leading-none font-semibold;
+    @apply text-[9px] border rounded-full px-1.5 py-0.5 leading-none font-semibold;
+    border-color: hsl(var(--foreground) / 0.3);
+    color: hsl(var(--foreground) / 0.7);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
   }
   .header-remaining {
-    @apply px-4 py-2 text-xs text-muted-foreground border-t border-border mt-1;
+    @apply px-4 py-2 text-xs border-t mt-1;
+    color: hsl(var(--muted-foreground));
+    border-color: hsl(var(--border));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
   }
   .header-logout {
-    @apply w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors;
+    @apply w-full px-4 py-2.5 text-left text-sm transition-colors;
+    color: hsl(var(--muted-foreground));
+  }
+  .header-logout:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--foreground));
   }
 
   /* Sidebar / Chat History */
   .sidebar-backdrop {
-    @apply fixed inset-0 z-[60] bg-background/60 backdrop-blur-sm md:hidden;
+    @apply fixed inset-0 z-[60] md:hidden;
+    background: hsl(var(--background) / 0.7);
+    backdrop-filter: blur(8px);
   }
   .sidebar {
-    @apply fixed top-0 left-0 z-[70] h-full w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300;
+    @apply fixed top-0 left-0 z-[70] h-full w-[260px] flex flex-col transition-transform duration-300;
+    background: hsl(var(--sidebar-background));
+    border-right: 1px solid hsl(var(--sidebar-border));
   }
   .sidebar--open {
     @apply translate-x-0;
@@ -294,25 +347,41 @@
     @apply flex items-center justify-between px-4 pt-5 pb-3;
   }
   .sidebar-title {
-    @apply text-sm font-semibold text-sidebar-foreground tracking-tight;
+    @apply text-sm font-semibold tracking-tight;
+    color: hsl(var(--sidebar-foreground));
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
   }
   .sidebar-icon-btn {
-    @apply p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground;
+    @apply p-1.5 rounded-lg transition-colors;
+    color: hsl(var(--sidebar-foreground) / 0.5);
+  }
+  .sidebar-icon-btn:hover {
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
   }
   .sidebar-list {
     @apply flex-1 overflow-y-auto px-2 pb-4;
   }
   .sidebar-empty {
-    @apply text-xs text-muted-foreground px-2 pt-2;
+    @apply text-xs px-2 pt-2;
+    color: hsl(var(--muted-foreground));
   }
   .sidebar-item {
     @apply flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-colors mb-0.5;
   }
   .sidebar-item--active {
-    @apply bg-sidebar-accent text-sidebar-foreground;
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
   }
   .sidebar-item--inactive {
-    @apply text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/80;
+    color: hsl(var(--sidebar-foreground) / 0.4);
+  }
+  .sidebar-item--inactive:hover {
+    background: hsl(var(--sidebar-accent) / 0.5);
+    color: hsl(var(--sidebar-foreground) / 0.7);
   }
   .sidebar-item-icon {
     @apply w-3.5 h-3.5 flex-shrink-0;
@@ -321,16 +390,31 @@
     @apply text-sm truncate flex-1;
   }
   .sidebar-item-delete {
-    @apply opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-sidebar-accent transition-all text-sidebar-foreground/40 hover:text-sidebar-foreground;
+    @apply opacity-0 group-hover:opacity-100 p-0.5 rounded transition-all;
+    color: hsl(var(--sidebar-foreground) / 0.3);
+  }
+  .sidebar-item-delete:hover {
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
   }
   .sidebar-footer {
-    @apply px-4 py-3 border-t border-sidebar-border;
+    @apply px-4 py-3;
+    border-top: 1px solid hsl(var(--sidebar-border));
   }
   .sidebar-delete-all {
-    @apply flex items-center gap-2 text-xs text-sidebar-foreground/40 hover:text-destructive transition-colors;
+    @apply flex items-center gap-2 text-xs transition-colors;
+    color: hsl(var(--sidebar-foreground) / 0.3);
+  }
+  .sidebar-delete-all:hover {
+    color: hsl(var(--destructive));
   }
   .sidebar-toggle {
-    @apply fixed top-12 left-5 z-30 p-2 rounded-xl hover:bg-accent transition-colors text-foreground/60 hover:text-foreground;
+    @apply fixed top-12 left-5 z-30 p-2 rounded-xl transition-colors;
+    color: hsl(var(--foreground) / 0.5);
+  }
+  .sidebar-toggle:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--foreground));
   }
 
   /* Hero */
@@ -340,6 +424,18 @@
   }
   .hero-inner {
     @apply relative flex flex-col items-center -mt-16;
+  }
+  .hero-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(220 60% 70% / 0.12), transparent 70%);
+    animation: glow-breathe 4s ease-in-out infinite;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   /* Chat view */
@@ -355,7 +451,9 @@
     @apply flex justify-end mb-3;
   }
   .msg-user-bubble {
-    @apply bg-primary text-primary-foreground rounded-[18px_18px_4px_18px] px-3.5 py-2.5 text-[15px] leading-relaxed break-words;
+    @apply rounded-[18px_18px_4px_18px] px-3.5 py-2.5 text-[15px] leading-relaxed break-words;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
     max-width: min(75%, calc(100vw - 3rem));
   }
   .msg-assistant-row {
@@ -367,7 +465,8 @@
     overflow: hidden;
   }
   .msg-assistant-text {
-    @apply text-foreground text-[15px] leading-[1.7] whitespace-pre-wrap break-words;
+    @apply text-[15px] leading-[1.7] whitespace-pre-wrap break-words;
+    color: hsl(var(--foreground));
     overflow-x: auto;
     max-width: 100%;
   }
@@ -378,16 +477,30 @@
     padding: 4px 0;
   }
   .msg-thinking-btn {
-    @apply flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors;
+    @apply flex items-center gap-1.5 text-xs transition-colors;
+    color: hsl(var(--muted-foreground));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+  .msg-thinking-btn:hover {
+    color: hsl(var(--foreground));
   }
   .msg-thinking-block {
-    @apply mt-1.5 p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed;
+    @apply mt-1.5 p-3 rounded-xl text-xs whitespace-pre-wrap leading-relaxed;
+    background: hsl(var(--muted) / 0.5);
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--muted-foreground));
   }
   .msg-action-buttons {
     @apply flex flex-col gap-0.5 flex-shrink-0 mt-1;
   }
   .msg-tts-btn {
-    @apply p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-foreground/80;
+    @apply p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity;
+    color: hsl(var(--foreground) / 0.3);
+  }
+  .msg-tts-btn:hover {
+    color: hsl(var(--foreground) / 0.7);
   }
 
   /* Input bar */
@@ -399,34 +512,55 @@
     @apply w-full max-w-[640px] rounded-2xl flex flex-col px-4 py-2;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.3);
+    box-shadow: 0 -8px 40px hsl(0 0% 0% / 0.4);
   }
   .inputbar-row {
     @apply flex items-end w-full;
   }
   .inputbar-attach {
-    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 mr-1;
+    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-30 mr-1;
+    color: hsl(var(--muted-foreground));
+  }
+  .inputbar-attach:hover {
+    color: hsl(var(--foreground));
   }
   .inputbar-image-preview {
     @apply relative w-fit mb-2;
   }
   .inputbar-image-thumb {
-    @apply max-h-32 max-w-[200px] rounded-xl object-cover border border-border;
+    @apply max-h-32 max-w-[200px] rounded-xl object-cover;
+    border: 1px solid hsl(var(--border));
   }
   .inputbar-image-remove {
-    @apply absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-foreground text-background flex items-center justify-center;
+    @apply absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center;
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
   }
   .inputbar-textarea {
-    @apply flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-base resize-none outline-none py-2 max-h-[120px] leading-snug;
+    @apply flex-1 bg-transparent placeholder:text-muted-foreground text-base resize-none outline-none py-2 max-h-[120px] leading-snug;
+    color: hsl(var(--foreground));
   }
   .inputbar-mic {
-    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30;
+    @apply w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-30;
+    color: hsl(var(--muted-foreground));
+  }
+  .inputbar-mic:hover {
+    color: hsl(var(--foreground));
   }
   .inputbar-send {
-    @apply w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 ml-2 transition-opacity disabled:opacity-30;
+    @apply w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ml-2 transition-all disabled:opacity-30;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  .inputbar-send:hover:not(:disabled) {
+    box-shadow: 0 0 20px hsl(220 60% 70% / 0.15);
   }
   .inputbar-disclaimer {
-    @apply text-xs text-muted-foreground text-center mt-3 leading-snug;
+    @apply text-center mt-3 leading-snug;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
   }
   .msg-user-image {
     @apply max-w-[220px] max-h-48 rounded-xl object-cover mb-1 block;
@@ -437,7 +571,8 @@
   }
 
   .msg-generated-image {
-    @apply rounded-2xl object-cover border border-white/10;
+    @apply rounded-2xl object-cover;
+    border: 1px solid hsl(0 0% 100% / 0.06);
     max-width: 280px;
     width: 100%;
     aspect-ratio: 4 / 3;
@@ -445,7 +580,11 @@
   }
 
   .msg-generated-image-download {
-    @apply self-start text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2;
+    @apply self-start text-xs underline underline-offset-2 transition-colors;
+    color: hsl(var(--muted-foreground));
+  }
+  .msg-generated-image-download:hover {
+    color: hsl(var(--foreground));
   }
 
   /* Main layout */
@@ -456,15 +595,22 @@
     @apply fixed top-0 left-0 right-0 z-[60] flex justify-center pt-3 px-4;
   }
   .upgrade-banner-inner {
-    @apply input-surface rounded-xl px-4 py-2.5 text-sm text-foreground;
+    @apply input-surface rounded-xl px-4 py-2.5 text-sm;
+    color: hsl(var(--foreground));
   }
 
   .image-gen-banner {
-    @apply flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-muted-foreground border-t border-white/10;
+    @apply flex items-center justify-between gap-3 px-4 py-2.5 text-sm;
+    color: hsl(var(--muted-foreground));
+    border-top: 1px solid hsl(0 0% 100% / 0.06);
   }
 
   .image-gen-cancel {
-    @apply flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors;
+    @apply flex items-center gap-1.5 text-xs transition-colors;
+    color: hsl(var(--destructive));
+  }
+  .image-gen-cancel:hover {
+    color: hsl(var(--destructive) / 0.8);
   }
 }
 
@@ -496,11 +642,6 @@
   50% { opacity: 0.6; transform: scale(1.15); }
 }
 
-@keyframes orb-spin-slow {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-
 .voice-mode-overlay {
   position: fixed;
   inset: 0;
@@ -527,7 +668,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #FFE27A, #FF8A3D);
+  background: radial-gradient(circle at 40% 40%, hsl(220 70% 80%), hsl(220 60% 50%));
   animation: orb-morph 6s ease-in-out infinite;
   transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
 }
@@ -537,13 +678,13 @@
   position: absolute;
   inset: -20px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,138,61,0.35), transparent 70%);
+  background: radial-gradient(circle, hsl(220 60% 60% / 0.35), transparent 70%);
   animation: orb-glow-pulse 3s ease-in-out infinite;
   pointer-events: none;
 }
 
 .voice-orb--listening {
-  box-shadow: 0 0 60px 20px rgba(255,138,61,0.55);
+  box-shadow: 0 0 60px 20px hsl(220 60% 60% / 0.55);
 }
 .voice-orb--listening::before {
   animation-duration: 1.5s;
@@ -551,11 +692,11 @@
 
 .voice-orb--thinking {
   animation-duration: 2s;
-  box-shadow: 0 0 40px 10px rgba(255,138,61,0.25);
+  box-shadow: 0 0 40px 10px hsl(220 60% 60% / 0.25);
 }
 
 .voice-orb--speaking {
-  box-shadow: 0 0 80px 30px rgba(255,138,61,0.7);
+  box-shadow: 0 0 80px 30px hsl(220 60% 60% / 0.7);
   animation-duration: 3s;
 }
 .voice-orb--speaking::before {
@@ -564,11 +705,11 @@
 }
 
 .voice-status {
-  font-size: 1rem;
-  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
   color: hsl(var(--muted-foreground));
-  text-transform: lowercase;
-  font-family: 'Tiempos', serif;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .voice-transcript {
