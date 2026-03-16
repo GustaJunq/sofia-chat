@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: 'Tiempos';
-  src: url('/Tiempos.ttf') format('truetype');
+  src: url('./fonts/Tiempos.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
