@@ -218,54 +218,21 @@ export async function generateImage(
 ): Promise<ImageGenResponse> {
   const body: Record<string, string> = { message, openrouter_key: openRouterKey };
   if (conversationId) body.conversation_id = conversationId;
-  
-  // ✅ Criar AbortController com timeout automático se não houver signal
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s
-  
-  // Se o usuário passou um signal (cancel manual), respeitar
-  const finalSignal = signal || controller.signal;
-  
-  try {
-    const res = await fetch(`${API_URL}/generate-image`, {
-      method: "POST",
-      headers: authHeaders(token),
-      body: JSON.stringify(body),
-      signal: finalSignal,
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!res.ok) {
-      let errMsg = `Erro ${res.status}`;
-      try {
-        const err = await res.json();
-        errMsg = err.error ?? errMsg;
-      } catch { /* ignora */ }
-      throw new Error(errMsg);
-    }
-    
-    const data = await res.json();
-    
-    // ✅ Validar resposta
-    if (!data.image_url) {
-      throw new Error("Resposta sem URL da imagem");
-    }
-    
-    return data;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    
-    // ✅ Tratamento melhorado de erros
-    if (error instanceof Error) {
-      if (error.name === "AbortError") {
-        throw new Error("Geração cancelada ou timeout");
-      }
-      throw error;
-    }
-    
-    throw new Error("Erro desconhecido ao gerar imagem");
+  const res = await fetch(`${API_URL}/generate-image`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok) {
+    let errMsg = `Erro ${res.status}`;
+    try {
+      const err = await res.json();
+      errMsg = err.error ?? errMsg;
+    } catch { /* ignora */ }
+    throw new Error(errMsg);
   }
+  return res.json();
 }
 
 export async function fetchTTS(token: string, text: string): Promise<Blob> {
