@@ -345,6 +345,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
       <VoiceMode open={voiceOpen} onClose={() => setVoiceOpen(false)} conversationId={conversationId ?? null} />
 
       <div className="inputbar-wrapper">
+        <div className="inputbar-gradient">
         <div className="inputbar-surface">
           {imagePreview && (
             <div className="inputbar-image-preview">
@@ -398,6 +399,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               <ArrowUp className="w-5 h-5" />
             </button>
           </div>
+        </div>
         </div>
 
         <p className="inputbar-disclaimer">
