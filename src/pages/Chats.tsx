@@ -5,7 +5,7 @@ import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
-import { Menu, X, Key } from "lucide-react";
+import { X, Key } from "lucide-react";
 import {
   fetchConversations,
   fetchConversation,
@@ -273,14 +273,10 @@ const Chats = () => {
           open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       )}
 
-      {!isGuest && (
-        <button onClick={() => setSidebarOpen(true)} className="sidebar-toggle">
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
-
       <Header selectedModel={selectedModel} onModelChange={setSelectedModel}
-        onLogout={handleLogout} remainingMessages={remainingMessages} />
+        onLogout={handleLogout} remainingMessages={remainingMessages}
+        onSidebarToggle={!isGuest ? () => setSidebarOpen(true) : undefined}
+        isGuest={isGuest} />
 
       <HeroView visible={!hasMessages} />
       {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
