@@ -276,16 +276,66 @@
     letter-spacing: 0.02em;
   }
 
-  /* Header */
+  /* Header — x.ai style */
   .header-bar {
-    @apply fixed top-0 left-0 right-0 z-50 flex justify-center pt-12 md:pt-12;
-    padding-top: max(env(safe-area-inset-top, 0px), 2rem);
+    @apply fixed inset-x-0 top-0 z-50;
+  }
+  .header-gradient {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black to-transparent;
+  }
+  .header-inner {
+    @apply relative mx-auto flex items-center justify-between gap-4 px-4 py-4 lg:px-6;
+  }
+  .header-left {
+    @apply flex items-center gap-3;
+  }
+  .header-brand {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: hsl(var(--foreground));
+  }
+  .header-icon-btn {
+    @apply p-2 rounded-full border transition-colors;
+    border-color: hsl(var(--foreground) / 0.2);
+    color: hsl(var(--foreground) / 0.5);
+  }
+  .header-icon-btn:hover {
+    background: hsl(var(--foreground) / 0.08);
+    color: hsl(var(--foreground));
   }
   .header-model-btn {
-    @apply flex items-center gap-1.5 font-medium text-sm tracking-wide;
+    @apply flex items-center gap-1.5 rounded-full border px-4 py-2 transition-colors;
     font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    color: hsl(var(--foreground) / 0.6);
+    border-color: hsl(var(--foreground) / 0.2);
+  }
+  .header-model-btn:hover {
+    background: hsl(var(--foreground) / 0.08);
+    color: hsl(var(--foreground));
+  }
+  .header-actions {
+    @apply flex items-center gap-2;
+  }
+  .header-cta-btn {
+    @apply flex items-center gap-1.5 rounded-full border px-4 py-2 transition-colors;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: hsl(var(--foreground) / 0.6);
+    border-color: hsl(var(--foreground) / 0.2);
+    text-decoration: none;
+  }
+  .header-cta-btn:hover {
+    background: hsl(var(--foreground) / 0.08);
     color: hsl(var(--foreground));
   }
   .header-dropdown {
@@ -440,7 +490,7 @@
 
   /* Chat view */
   .chat-scroll {
-    @apply flex-1 overflow-y-auto pt-24 pb-40 px-5;
+    @apply flex-1 overflow-y-auto pt-20 pb-40 px-5;
   }
   .chat-container {
     @apply max-w-[640px] mx-auto;
@@ -508,11 +558,14 @@
     @apply fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center px-5;
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 1.25rem);
   }
-  .inputbar-surface {
-    @apply w-full max-w-[640px] rounded-2xl flex flex-col px-4 py-2;
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+  .inputbar-gradient {
+    @apply w-full max-w-[640px] rounded-3xl p-px;
+    background: linear-gradient(135deg, hsl(var(--foreground) / 0.06), hsl(var(--foreground) / 0.2));
     box-shadow: 0 -8px 40px hsl(0 0% 0% / 0.4);
+  }
+  .inputbar-surface {
+    @apply w-full rounded-3xl flex flex-col px-4 py-2;
+    background: hsl(var(--card));
   }
   .inputbar-row {
     @apply flex items-end w-full;
