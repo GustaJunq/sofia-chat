@@ -348,7 +348,7 @@ const Landing = () => {
               </span>
               <p className="text-[0.68rem] uppercase tracking-[0.12em] mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>Pro</p>
               <p className="font-semibold leading-none" style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", letterSpacing: "-0.03em" }}>
-                R$&nbsp;29 <span className="text-[0.72rem] font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>/ mês</span>
+                R$&nbsp;24,99 <span className="text-[0.72rem] font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>/ mês</span>
               </p>
             </div>
             <p className="text-[0.7rem] leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>Para quem usa de verdade. Sem limites, sem filas.</p>
