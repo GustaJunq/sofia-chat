@@ -1,7 +1,5 @@
 import StarLogo from "./StarLogo";
 
-const APK_URL = "/sofia.apk";
-
 interface HeroViewProps {
   visible: boolean;
 }
@@ -16,6 +14,7 @@ const HeroView = ({ visible }: HeroViewProps) => {
       }}
     >
       <div className="hero-inner">
+        <div className="hero-glow" />
         <StarLogo className="w-[100px] h-[100px] animate-star-pulse relative z-10" />
       </div>
     </div>

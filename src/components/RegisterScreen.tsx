@@ -59,8 +59,11 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   return (
     <div className="auth-screen">
       <form onSubmit={handleSubmit} className="auth-form">
-        <div className="flex justify-center mb-2">
-          <StarLogo className="w-12 h-12" />
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <div className="hero-glow" style={{ width: 120, height: 120 }} />
+            <StarLogo className="w-14 h-14 relative z-10" />
+          </div>
         </div>
         <h1 className="auth-title">Criar conta</h1>
         <p className="auth-subtitle">Comece a usar a sofIA agora</p>
@@ -74,7 +77,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
         <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirmar senha" autoComplete="new-password" className="auth-input" />
 
-        <p className="auth-hint">Mínimo 8 caracteres, uma maiúscula e um número</p>
+        <p className="auth-hint">min 8 chars · 1 maiúscula · 1 número</p>
 
         {error && <p className="auth-error">{error}</p>}
 
