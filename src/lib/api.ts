@@ -218,12 +218,14 @@ export async function generateImage(
 ): Promise<ImageGenResponse> {
   const body: Record<string, string> = { message, openrouter_key: openRouterKey };
   if (conversationId) body.conversation_id = conversationId;
+
   const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify(body),
     signal,
   });
+
   if (!res.ok) {
     let errMsg = `Erro ${res.status}`;
     try {
@@ -232,7 +234,46 @@ export async function generateImage(
     } catch { /* ignora */ }
     throw new Error(errMsg);
   }
-  return res.json();
+
+  // O endpoint retorna SSE para evitar timeout do Render durante a geração
+  if (!res.body) throw new Error("Stream não suportado");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data: ")) continue;
+      const jsonStr = trimmed.slice(6).trim();
+      if (!jsonStr) continue;
+
+      let parsed: Record<string, unknown>;
+      try { parsed = JSON.parse(jsonStr); } catch { continue; }
+
+      if (parsed.error) throw new Error(String(parsed.error));
+
+      if (parsed.done) {
+        return {
+          prompt_refined: parsed.prompt_refined as string,
+          image_url: parsed.image_url as string,
+          conversation_id: parsed.conversation_id as string | undefined,
+          remaining_messages: parsed.remaining_messages as number | undefined,
+        };
+      }
+      // parsed.status === "generating" → heartbeat, continua aguardando
+    }
+  }
+
+  throw new Error("Stream encerrado sem resposta final");
 }
 
 export async function fetchTTS(token: string, text: string): Promise<Blob> {
