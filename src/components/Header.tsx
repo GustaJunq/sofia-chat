@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Key, Trash2 } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
+import { getOpenRouterKey, clearOpenRouterKey } from "@/lib/api";
 
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
@@ -23,6 +24,9 @@ interface HeaderProps {
 
 const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: HeaderProps) => {
   const [open, setOpen] = useState(false);
+  const [hasOrKey, setHasOrKey] = useState(!!getOpenRouterKey());
+  const [showOrModal, setShowOrModal] = useState(false);
+  const [orKeyInput, setOrKeyInput] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -63,6 +67,21 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
     }
   };
 
+  const handleRemoveOrKey = () => {
+    clearOpenRouterKey();
+    setHasOrKey(false);
+    setOpen(false);
+  };
+
+  const handleSaveOrKey = () => {
+    if (!orKeyInput.trim()) return;
+    localStorage.setItem("sof_openrouter_key", orKeyInput.trim());
+    setHasOrKey(true);
+    setShowOrModal(false);
+    setOrKeyInput("");
+    setOpen(false);
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem("sof_token");
     setOpen(false);
@@ -78,6 +97,46 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
   };
 
   return (
+    <>
+    {showOrModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+        <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+          <div className="flex items-center gap-2 text-white font-semibold text-lg">
+            <Key className="w-5 h-5 text-orange-400" />
+            Chave do OpenRouter
+          </div>
+          <p className="text-white/60 text-sm">
+            Cole sua chave da API do{" "}
+            <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">
+              OpenRouter
+            </a>
+            . Ela fica salva só no seu navegador.
+          </p>
+          <input
+            type="password"
+            value={orKeyInput}
+            onChange={(e) => setOrKeyInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSaveOrKey(); }}
+            placeholder="sk-or-..."
+            className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-orange-400"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setShowOrModal(false); setOrKeyInput(""); }}
+              className="flex-1 py-2 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/5"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSaveOrKey}
+              className="flex-1 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600"
+            >
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div className="header-bar">
       <a
         href="/sofia.apk"
@@ -126,12 +185,30 @@ const Header = ({ selectedModel, onModelChange, remainingMessages, onLogout }: H
               <div className="px-4 py-2 text-xs text-destructive border-t border-border mt-1">{checkoutError}</div>
             )}
             <div className="border-t border-border mt-1">
+              {hasOrKey ? (
+                <button
+                  onClick={handleRemoveOrKey}
+                  className="header-logout flex items-center gap-2 text-red-400 hover:text-red-300"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Remover chave OpenRouter
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setShowOrModal(true); setOpen(false); }}
+                  className="header-logout flex items-center gap-2"
+                >
+                  <Key className="w-3 h-3" />
+                  Adicionar chave OpenRouter
+                </button>
+              )}
               <button onClick={handleLogout} className="header-logout">Sair</button>
             </div>
           </div>
         )}
       </div>
     </div>
+  </>
   );
 };
 
