@@ -215,9 +215,11 @@ export async function generateImage(
   openRouterKey: string,
   signal?: AbortSignal,
   conversationId?: string | null,
+  referenceImage?: string,
 ): Promise<ImageGenResponse> {
   const body: Record<string, string> = { message, openrouter_key: openRouterKey };
   if (conversationId) body.conversation_id = conversationId;
+  if (referenceImage) body.reference_image = referenceImage;
 
   const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
