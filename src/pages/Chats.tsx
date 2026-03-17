@@ -129,7 +129,7 @@ const Chats = () => {
   };
 
 
-  const startImageGeneration = useCallback(async (text: string, orKey: string) => {
+  const startImageGeneration = useCallback(async (text: string, orKey: string, imageBase64?: string, imageMediaType?: string) => {
     setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde..." }]);
     setIsImageGenerating(true);
 
@@ -137,7 +137,8 @@ const Chats = () => {
     imageAbortRef.current = abort;
 
     try {
-      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current);
+      const referenceImage = imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined;
+      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current, referenceImage);
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
@@ -191,7 +192,7 @@ const Chats = () => {
     }
 
     // ── Fluxo de geração de imagem ─────────────────────────────────────────
-    if (!imageBase64 && isImageRequest(text)) {
+    if (isImageRequest(text)) {
       setIsLoading(false);
       const orKey = getOpenRouterKey();
       if (!orKey) {
@@ -200,7 +201,7 @@ const Chats = () => {
         setShowKeyModal(true);
         return;
       }
-      await startImageGeneration(text, orKey);
+      await startImageGeneration(text, orKey, imageBase64, imageMediaType);
       return;
     }
 
