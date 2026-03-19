@@ -58,7 +58,7 @@ const Chats = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
-  const [selectedModel, setSelectedModel] = useState("sof-v1-free");
+  const [selectedModel, setSelectedModel] = useState("syn-v1-free");
   const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -185,7 +185,7 @@ const Chats = () => {
 
     if (isGuest) {
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a sofIA. No modo visitante, o chat não é salvo." }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a SynastrIA. No modo visitante, o chat não é salvo." }]);
         setIsLoading(false);
       }, 600);
       return;
