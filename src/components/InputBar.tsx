@@ -403,7 +403,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
         </div>
 
         <p className="inputbar-disclaimer">
-          sofIA pode "alucinar" nas respostas,<br />então confira bem as respostas.
+          SynastrIA pode "alucinar" nas respostas,<br />então confira bem as respostas.
         </p>
       </div>
     </>
