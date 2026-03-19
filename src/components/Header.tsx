@@ -6,8 +6,8 @@ import { getOpenRouterKey, clearOpenRouterKey } from "@/lib/api";
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const models = [
-  { id: "sof-v1-free", label: "sof-v1-free", requiredPlan: null },
-  { id: "sof-v1-pro", label: "sof-v1-pro", requiredPlan: "paid" },
+  { id: "syn-v1-free", label: "syn-v1-free", requiredPlan: null },
+  { id: "syn-v1-pro", label: "syn-v1-pro", requiredPlan: "paid" },
 ];
 
 const PLAN_ACCESS: Record<string, string[]> = {
@@ -101,7 +101,7 @@ const Header = ({
 
   const getBadge = (modelId: string) => {
     if (PLAN_ACCESS[modelId]?.includes(plan)) return null;
-    if (modelId === "sof-v1-pro") return "PRO";
+    if (modelId === "syn-v1-pro") return "PRO";
     return null;
   };
 
@@ -185,7 +185,7 @@ const Header = ({
                 <Menu className="w-4 h-4" />
               </button>
             )}
-            <span className="header-brand">sofIA</span>
+            <span className="header-brand">SynastrIA</span>
           </div>
 
           {/* ── Center: model selector ── */}
@@ -250,7 +250,7 @@ const Header = ({
 
           {/* ── Right: actions ── */}
           <div className="header-actions">
-            <a href="/sofia.apk" download="SofIA.apk" className="header-cta-btn">
+            <a href="/synastria.apk" download="SynastrIA.apk" className="header-cta-btn">
               <Download className="w-3 h-3" />
               APK
             </a>
