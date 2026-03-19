@@ -66,7 +66,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           </div>
         </div>
         <h1 className="auth-title">Criar conta</h1>
-        <p className="auth-subtitle">Comece a usar a sofIA agora</p>
+        <p className="auth-subtitle">Comece a usar a SynastrIA agora</p>
 
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
           placeholder="Email" autoComplete="email" className="auth-input" />
