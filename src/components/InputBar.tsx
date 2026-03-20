@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
-import { ArrowUp, ImagePlus, X, Mic } from "lucide-react";
+import { ArrowUp, Paperclip, X, Mic } from "lucide-react";
 import { API_URL, getToken } from "@/lib/api";
 
 /* ──────────────────── Voice Mode ──────────────────── */
@@ -361,9 +361,9 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
               className="inputbar-attach"
-              title="Enviar imagem"
+              title="Anexar imagem"
             >
-              <ImagePlus className="w-5 h-5" />
+              <Paperclip className="w-5 h-5" />
             </button>
 
             <input

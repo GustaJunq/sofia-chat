@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Key, Trash2, Menu, Download } from "lucide-react";
+import { ChevronDown, Key, Trash2, Menu } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
 import { getOpenRouterKey, clearOpenRouterKey } from "@/lib/api";
 
@@ -250,10 +250,6 @@ const Header = ({
 
           {/* ── Right: actions ── */}
           <div className="header-actions">
-            <a href="/synastria.apk" download="Synnastria.apk" className="header-cta-btn">
-              <Download className="w-3 h-3" />
-              APK
-            </a>
           </div>
         </div>
       </header>
