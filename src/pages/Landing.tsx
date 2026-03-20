@@ -199,7 +199,7 @@ const faqs=[
   {q:"Preciso de cartão de crédito para começar?",a:"Não. O plano gratuito não exige cartão de crédito. Basta criar uma conta e já começar a usar. O cartão só é necessário para assinar o plano Pro."},
   {q:"Qual a diferença entre syn-v1-free e syn-v1-pro?",a:"O syn-v1-free é ótimo para o dia a dia. O syn-v1-pro possui raciocínio mais avançado — ideal para tarefas complexas como análises, código avançado e respostas mais elaboradas."},
   {q:"Posso cancelar o plano Pro quando quiser?",a:"Sim. O plano Pro é mensal e você pode cancelar a qualquer momento. Sem multas, sem burocracia."},
-  {q:"Tem aplicativo para celular?",a:"Sim! Disponibilizamos um APK para Android para download direto. Sem precisar da Play Store."},
+  {q:"Tem aplicativo para celular?",a:"A versão mobile está em desenvolvimento. Por enquanto, o site funciona muito bem no celular pelo navegador."},
 ];
 
 function FaqItem({q,a}:{q:string;a:string}){
@@ -363,7 +363,6 @@ const Landing=()=>{
             {[{label:"Entrar",to:"/login"},{label:"Cadastrar",to:"/register"}].map(({label,to})=>(
               <Link key={label} to={to} className="text-[0.6rem] uppercase tracking-[0.1em] transition-colors duration-150" style={{color:"rgba(255,255,255,0.18)",textDecoration:"none"}} onMouseEnter={e=>(e.currentTarget.style.color="rgba(255,255,255,0.5)")} onMouseLeave={e=>(e.currentTarget.style.color="rgba(255,255,255,0.18)")}>{label}</Link>
             ))}
-            <a href="/synastria.apk" download className="text-[0.6rem] uppercase tracking-[0.1em] transition-colors duration-150" style={{color:"rgba(255,255,255,0.18)",textDecoration:"none"}} onMouseEnter={e=>(e.currentTarget.style.color="rgba(255,255,255,0.5)")} onMouseLeave={e=>(e.currentTarget.style.color="rgba(255,255,255,0.18)")}>APK</a>
           </div>
         </div>
       </footer>
