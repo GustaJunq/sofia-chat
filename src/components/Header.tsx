@@ -250,7 +250,7 @@ const Header = ({
 
           {/* ── Right: actions ── */}
           <div className="header-actions">
-            <a href="/synastria.apk" download="SynastrIA.apk" className="header-cta-btn">
+            <a href="/synastria.apk" download="Synnastria.apk" className="header-cta-btn">
               <Download className="w-3 h-3" />
               APK
             </a>
