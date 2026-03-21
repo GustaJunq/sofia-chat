@@ -616,7 +616,105 @@
     letter-spacing: 0.02em;
   }
 
-  .slash-menu {
+  .sandbox-progress-wrapper {
+    margin: -8px 0 12px 0;
+    padding: 0 12px;
+  }
+
+  .sandbox-progress {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.82rem;
+  }
+
+  .sandbox-steps {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sandbox-step {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .sandbox-step:last-child {
+    border-bottom: none;
+  }
+
+  .sandbox-step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    color: hsl(var(--foreground));
+    transition: background 0.15s;
+  }
+
+  .sandbox-step-header:hover:not(:disabled) {
+    background: hsl(var(--muted));
+  }
+
+  .sandbox-step-label {
+    flex: 1;
+    font-size: 0.82rem;
+  }
+
+  .sandbox-step-attempt {
+    font-size: 0.7rem;
+    color: hsl(var(--muted-foreground));
+    font-family: 'JetBrains Mono', monospace;
+    background: hsl(var(--muted));
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .sandbox-step-detail {
+    padding: 0 14px 12px;
+    background: hsl(var(--muted) / 0.5);
+  }
+
+  .sandbox-code-block {
+    background: #0d0d0d;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #e2e8f0;
+    white-space: pre;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .sandbox-error-text {
+    color: #f87171;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .sandbox-download-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .sandbox-download-btn:hover {
+    background: hsl(var(--primary) / 0.25);
+  }
     position: absolute;
     bottom: calc(100% + 8px);
     left: 0;
