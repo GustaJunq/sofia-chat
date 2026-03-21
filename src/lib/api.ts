@@ -306,7 +306,11 @@ export interface SandboxResponse {
   remaining_messages?: number;
 }
 
-export type SandboxStatusCallback = (status: string, message?: string) => void;
+export type SandboxStatusCallback = (
+  status: string,
+  message?: string,
+  detail?: { code?: string; error?: string; attempt?: number; retrying?: boolean }
+) => void;
 
 export async function sendSandboxMessage(
   token: string,
@@ -359,7 +363,12 @@ export async function sendSandboxMessage(
       if (parsed.error) throw new Error(String(parsed.error));
 
       if (parsed.status) {
-        onStatus?.(String(parsed.status), parsed.message ? String(parsed.message) : undefined);
+        onStatus?.(String(parsed.status), parsed.message ? String(parsed.message) : undefined, {
+          code: parsed.code as string | undefined,
+          error: parsed.error as string | undefined,
+          attempt: parsed.attempt as number | undefined,
+          retrying: parsed.retrying as boolean | undefined,
+        });
       }
 
       if (parsed.done) {
