@@ -1,13 +1,18 @@
 import { useEffect, useRef, useCallback } from "react";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
+import SandboxProgress, { type SandboxStep } from "./SandboxProgress";
 
 export interface Message {
   role: "user" | "assistant";
   content: string;
   thinking?: string;
   imagePreview?: string;
-  imageGenerated?: string; // URL da imagem gerada por IA
+  imageGenerated?: string;
+  sandboxSteps?: SandboxStep[];
+  sandboxOutputUrl?: string;
+  sandboxOutputType?: string;
+  sandboxTitle?: string;
 }
 
 interface ChatViewProps {
@@ -37,15 +42,26 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
     <div className="chat-scroll">
       <div className="chat-container">
         {messages.map((msg, i) => (
-          <MessageBubble
-            key={i}
-            role={msg.role}
-            content={msg.content}
-            thinking={msg.thinking}
-            imagePreview={msg.imagePreview}
-            imageGenerated={msg.imageGenerated}
-            onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
-          />
+          <div key={i}>
+            <MessageBubble
+              role={msg.role}
+              content={msg.content}
+              thinking={msg.thinking}
+              imagePreview={msg.imagePreview}
+              imageGenerated={msg.imageGenerated}
+              onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
+            />
+            {msg.sandboxSteps && msg.sandboxSteps.length > 0 && (
+              <div className="sandbox-progress-wrapper">
+                <SandboxProgress
+                  steps={msg.sandboxSteps}
+                  outputUrl={msg.sandboxOutputUrl}
+                  outputType={msg.sandboxOutputType}
+                  title={msg.sandboxTitle}
+                />
+              </div>
+            )}
+          </div>
         ))}
         {isLoading && <TypingIndicator status={typingStatus} />}
         <div ref={bottomRef} />
