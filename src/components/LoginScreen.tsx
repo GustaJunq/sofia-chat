@@ -27,7 +27,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
       });
 
       if (!res.ok) {
-        setError("Email ou senha incorretos");
+        setError("Incorrect e-mail/password.");
         return;
       }
 
@@ -35,7 +35,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
       sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      setError("API error. try again.");
     } finally {
       setLoading(false);
     }
@@ -50,23 +50,23 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
             <StarLogo className="w-14 h-14 relative z-10" />
           </div>
         </div>
-        <h1 className="auth-title">Bem-vindo de volta</h1>
-        <p className="auth-subtitle">Entre na sua conta para continuar</p>
+        <h1 className="auth-title">Hello again!</h1>
+        <p className="auth-subtitle">Log in to continue</p>
 
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
           placeholder="Email" autoComplete="email" className="auth-input" />
 
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Senha" autoComplete="current-password" className="auth-input" />
+          placeholder="Password" autoComplete="current-password" className="auth-input" />
 
         {error && <p className="auth-error">{error}</p>}
 
         <button type="submit" disabled={loading} className="auth-submit">
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <p className="auth-footer">
-          Não tem conta?{" "}
+          Want to create an account?{" "}
           <button type="button" onClick={onSwitchToRegister} className="auth-footer-link">Criar conta</button>
         </p>
       </form>
