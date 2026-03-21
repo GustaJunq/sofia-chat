@@ -222,7 +222,30 @@ const Chats = () => {
       const command = text.trim().replace(/^\/file_manager\s*/i, "").trim()
         || `Analise e processe o arquivo: ${fileName}`;
 
-      setMessages((prev) => [...prev, { role: "assistant", content: "🖥️ Rodando no CLI..." }]);
+      // Adiciona mensagem do assistente com steps iniciais
+      const initialSteps = [
+        { id: "classifying", label: "Analisando solicitação", status: "running" as const },
+        { id: "generating",  label: "Gerando código",         status: "pending" as const },
+        { id: "executing",   label: "Executando",             status: "pending" as const },
+        { id: "uploading",   label: "Salvando resultado",     status: "pending" as const },
+      ];
+
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: "🖥️ Rodando no CLI...",
+        sandboxSteps: initialSteps,
+      }]);
+
+      const updateSteps = (updater: (steps: import("./SandboxProgress").SandboxStep[]) => import("./SandboxProgress").SandboxStep[]) => {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === "assistant" && last.sandboxSteps) {
+            updated[updated.length - 1] = { ...last, sandboxSteps: updater(last.sandboxSteps!) };
+          }
+          return updated;
+        });
+      };
 
       try {
         const result = await sendSandboxMessage(
@@ -231,45 +254,62 @@ const Chats = () => {
           fileBase64,
           fileName,
           fileMediaType,
-          (status, msg) => {
-            const labels: Record<string, string> = {
-              classifying: "🔍 Analisando arquivo...",
-              planned: "📋 Planejando...",
-              generating: "⚙️ Gerando código...",
-              executing: "🚀 Executando...",
-              uploading: "☁️ Salvando resultado...",
-            };
-            setMessages((prev) => {
-              const updated = [...prev];
-              const last = updated[updated.length - 1];
-              if (last?.role === "assistant") {
-                updated[updated.length - 1] = { ...last, content: labels[status] ?? msg ?? status };
-              }
-              return updated;
-            });
+          (status, _msg, detail) => {
+            updateSteps((steps) => steps.map((s) => {
+              if (status === "classifying" && s.id === "classifying")
+                return { ...s, status: "running" };
+              if (status === "planned" && s.id === "classifying")
+                return { ...s, status: "done" };
+              if (status === "generating" && s.id === "generating")
+                return { ...s, status: "running", attempt: detail?.attempt };
+              if (status === "code_generated" && s.id === "generating")
+                return { ...s, status: "done", detail: detail?.code, isCode: true, attempt: detail?.attempt };
+              if (status === "executing" && s.id === "executing")
+                return { ...s, status: "running", attempt: detail?.attempt };
+              if (status === "exec_error" && s.id === "executing")
+                return { ...s, status: detail?.retrying ? "retrying" : "error", detail: detail?.error, attempt: detail?.attempt };
+              if (status === "uploading" && s.id === "uploading")
+                return { ...s, status: "running" };
+              return s;
+            }));
           },
         );
 
-        const link = result.output_url.startsWith("data:")
-          ? `[⬇️ Baixar ${result.output_type.toUpperCase()}](${result.output_url})`
-          : `[⬇️ ${result.title}.${result.output_type}](${result.output_url})`;
+        // Sucesso — marca todos como done e adiciona output
+        updateSteps((steps) => steps.map((s) =>
+          s.status === "pending" || s.status === "running"
+            ? { ...s, status: "done" as const }
+            : s
+        ));
 
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
-            updated[updated.length - 1] = { ...last, content: `✅ Pronto!\n\n${link}` };
+            updated[updated.length - 1] = {
+              ...last,
+              content: `✅ Pronto! **${result.title}**`,
+              sandboxOutputUrl: result.output_url,
+              sandboxOutputType: result.output_type,
+              sandboxTitle: result.title,
+            };
           }
           return updated;
         });
 
         if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
       } catch (err) {
+        updateSteps((steps) => steps.map((s) =>
+          s.status === "running" ? { ...s, status: "error" as const } : s
+        ));
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
-            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}` };
+            updated[updated.length - 1] = {
+              ...last,
+              content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}`,
+            };
           }
           return updated;
         });
