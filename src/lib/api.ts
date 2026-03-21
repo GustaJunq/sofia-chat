@@ -287,3 +287,87 @@ export async function fetchTTS(token: string, text: string): Promise<Blob> {
   if (!res.ok) throw new Error("Erro ao gerar áudio");
   return res.blob();
 }
+
+// ================= SANDBOX =================
+
+export interface SandboxResponse {
+  output_url: string;
+  output_type: string;
+  title: string;
+  log_id: string;
+  stdout?: string;
+  conversation_id?: string;
+  remaining_messages?: number;
+}
+
+export type SandboxStatusCallback = (status: string, message?: string) => void;
+
+export async function sendSandboxMessage(
+  token: string,
+  command: string,
+  fileBase64?: string,
+  fileName?: string,
+  fileMediaType?: string,
+  onStatus?: SandboxStatusCallback,
+): Promise<SandboxResponse> {
+  const body: Record<string, string> = { command };
+  if (fileBase64) body.file_base64 = fileBase64;
+  if (fileName) body.file_name = fileName;
+  if (fileMediaType) body.file_media_type = fileMediaType;
+
+  const res = await fetch(`${API_URL}/sandbox`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    let errMsg = `Erro ${res.status}`;
+    try { const err = await res.json(); errMsg = err.error ?? errMsg; } catch { /* ignora */ }
+    throw new Error(errMsg);
+  }
+
+  if (!res.body) throw new Error("Stream não suportado");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data: ")) continue;
+      const jsonStr = trimmed.slice(6).trim();
+      if (!jsonStr) continue;
+
+      let parsed: Record<string, unknown>;
+      try { parsed = JSON.parse(jsonStr); } catch { continue; }
+
+      if (parsed.error) throw new Error(String(parsed.error));
+
+      if (parsed.status) {
+        onStatus?.(String(parsed.status), parsed.message ? String(parsed.message) : undefined);
+      }
+
+      if (parsed.done) {
+        return {
+          output_url: parsed.output_url as string,
+          output_type: parsed.output_type as string,
+          title: parsed.title as string,
+          log_id: parsed.log_id as string,
+          stdout: parsed.stdout as string | undefined,
+          remaining_messages: parsed.remaining_messages as number | undefined,
+        };
+      }
+    }
+  }
+
+  throw new Error("Stream encerrado sem resposta final");
+}
