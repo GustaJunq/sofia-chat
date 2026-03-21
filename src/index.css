@@ -715,6 +715,8 @@
   .sandbox-download-btn:hover {
     background: hsl(var(--primary) / 0.25);
   }
+
+  .slash-menu {
     position: absolute;
     bottom: calc(100% + 8px);
     left: 0;
