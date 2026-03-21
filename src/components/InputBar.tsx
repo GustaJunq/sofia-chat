@@ -2,6 +2,40 @@ import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
 import { ArrowUp, Paperclip, X, Mic, FileText, FileSpreadsheet, File } from "lucide-react";
 import { API_URL, getToken } from "@/lib/api";
 
+/* ──────────────────── Slash Commands ──────────────────── */
+
+const SLASH_COMMANDS = [
+  { command: "/imagine", description: "Gerar uma imagem com IA" },
+  { command: "/file_manager", description: "Processar ou converter um arquivo" },
+];
+
+interface SlashMenuProps {
+  query: string;
+  onSelect: (command: string) => void;
+}
+
+function SlashMenu({ query, onSelect }: SlashMenuProps) {
+  const filtered = SLASH_COMMANDS.filter((c) =>
+    c.command.startsWith(query.toLowerCase())
+  );
+  if (!filtered.length) return null;
+
+  return (
+    <div className="slash-menu">
+      {filtered.map((c) => (
+        <button
+          key={c.command}
+          className="slash-menu-item"
+          onMouseDown={(e) => { e.preventDefault(); onSelect(c.command); }}
+        >
+          <span className="slash-menu-command">{c.command}</span>
+          <span className="slash-menu-desc">{c.description}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ──────────────────── Voice Mode ──────────────────── */
 
 interface VoiceModeProps {
@@ -306,6 +340,7 @@ interface InputBarProps {
 
 const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   const [text, setText] = useState("");
+  const [slashQuery, setSlashQuery] = useState<string | null>(null);
   // imagem
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -327,7 +362,20 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     }
   }, [text]);
 
-  const clearAttachment = () => {
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (val.startsWith("/") && !val.includes(" ")) {
+      setSlashQuery(val);
+    } else {
+      setSlashQuery(null);
+    }
+  };
+
+  const handleSlashSelect = (command: string) => {
+    setText(command + " ");
+    setSlashQuery(null);
+    textareaRef.current?.focus();
+  };
     setImagePreview(null);
     setImageBase64(null);
     setImageMediaType("image/jpeg");
@@ -456,17 +504,23 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               className="hidden"
             />
 
-            <textarea
-              ref={textareaRef}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onPaste={handlePaste}
-              placeholder={placeholder}
-              disabled={disabled}
-              rows={1}
-              className="inputbar-textarea"
-            />
+            <div style={{ position: "relative", flex: 1, display: "flex" }}>
+              {slashQuery && (
+                <SlashMenu query={slashQuery} onSelect={handleSlashSelect} />
+              )}
+              <textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(e) => handleTextChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
+                placeholder={placeholder}
+                disabled={disabled}
+                rows={1}
+                className="inputbar-textarea"
+                style={{ flex: 1 }}
+              />
+            </div>
 
             <button
               onClick={() => setVoiceOpen(true)}
