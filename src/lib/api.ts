@@ -101,11 +101,17 @@ export async function sendChatMessage(
   onMeta?: (meta: ChatMeta) => void,
   imageBase64?: string,
   imageMediaType?: string,
+  fileBase64?: string,
+  fileName?: string,
+  fileMediaType?: string,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
   if (imageBase64) body.image_base64 = imageBase64;
   if (imageMediaType) body.image_media_type = imageMediaType;
+  if (fileBase64) body.file_base64 = fileBase64;
+  if (fileName) body.file_name = fileName;
+  if (fileMediaType) body.file_media_type = fileMediaType;
 
   const res = await fetch(`${API_URL}/chat`, {
     method: "POST",
