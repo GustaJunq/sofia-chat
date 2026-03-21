@@ -376,6 +376,8 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     setSlashQuery(null);
     textareaRef.current?.focus();
   };
+
+  const clearAttachment = () => {
     setImagePreview(null);
     setImageBase64(null);
     setImageMediaType("image/jpeg");
