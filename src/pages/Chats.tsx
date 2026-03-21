@@ -10,7 +10,6 @@ import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
-  sendSandboxMessage,
   generateImage,
   getOpenRouterKey,
   saveOpenRouterKey,
@@ -216,74 +215,13 @@ const Chats = () => {
       return;
     }
 
-    // ── Fluxo de documento via sandbox ────────────────────────────────────
-    if (fileBase64 && fileName) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-      const statusLabels: Record<string, string> = {
-        classifying: "🔍 Analisando o arquivo...",
-        planned: "📋 Planejando o que fazer...",
-        generating: "⚙️ Gerando código...",
-        executing: "🚀 Executando em sandbox...",
-        uploading: "☁️ Salvando o resultado...",
-      };
-      try {
-        const result = await sendSandboxMessage(
-          token!,
-          text || `Analise e faça o que for mais útil com este arquivo: ${fileName}`,
-          fileBase64,
-          fileName,
-          fileMediaType,
-          (status, message) => {
-            const label = statusLabels[status] ?? message ?? status;
-            setMessages((prev) => {
-              const updated = [...prev];
-              const last = updated[updated.length - 1];
-              if (last?.role === "assistant") {
-                updated[updated.length - 1] = { ...last, content: label };
-              }
-              return updated;
-            });
-          },
-        );
-
-        const downloadLink = result.output_url.startsWith("data:")
-          ? `[⬇️ Baixar ${result.output_type.toUpperCase()}](${result.output_url})`
-          : `[⬇️ Baixar ${result.title}.${result.output_type}](${result.output_url})`;
-
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last?.role === "assistant") {
-            updated[updated.length - 1] = {
-              ...last,
-              content: `✅ Pronto! **${result.title}**\n\n${downloadLink}`,
-            };
-          }
-          return updated;
-        });
-
-        if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
-      } catch (err) {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last?.role === "assistant") {
-            updated[updated.length - 1] = { ...last, content: `❌ Erro: ${err instanceof Error ? err.message : "Tente novamente."}` };
-          }
-          return updated;
-        });
-      } finally {
-        setIsLoading(false);
-      }
-      return;
-    }
-
-    // ── Fluxo de chat normal ───────────────────────────────────────────────
+    // ── Fluxo de chat (com ou sem arquivo — o backend decide se usa sandbox) ─
     setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     try {
-      const response = await sendChatMessage(token!, text, activeConvIdRef.current,
+      const response = await sendChatMessage(
+        token!, text, activeConvIdRef.current,
         (delta) => {
           setMessages((prev) => {
             const updated = [...prev];
@@ -303,6 +241,9 @@ const Chats = () => {
         },
         imageBase64,
         imageMediaType,
+        fileBase64,
+        fileName,
+        fileMediaType,
       );
 
       if (response.thinking) {
