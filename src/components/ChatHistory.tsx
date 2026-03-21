@@ -52,7 +52,7 @@ const ChatHistory = ({ conversations, activeId, onSelect, onNew, onDelete, onDel
           <div className="sidebar-footer">
             <button onClick={onDeleteAll} className="sidebar-delete-all">
               <Trash2 className="w-3.5 h-3.5" />
-              Apagar todo o histórico
+              Clear all history
             </button>
           </div>
         )}
