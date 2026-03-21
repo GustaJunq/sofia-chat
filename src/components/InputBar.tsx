@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
-import { ArrowUp, Paperclip, X, Mic } from "lucide-react";
+import { ArrowUp, Paperclip, X, Mic, FileText, FileSpreadsheet, File } from "lucide-react";
 import { API_URL, getToken } from "@/lib/api";
 
 /* ──────────────────── Voice Mode ──────────────────── */
@@ -264,17 +264,57 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 
 /* ──────────────────── Input Bar ──────────────────── */
 
+// Tipos de arquivo aceitos
+const ACCEPTED_IMAGE_TYPES = "image/*";
+const ACCEPTED_DOC_TYPES = ".pdf,.xlsx,.xls,.csv,.docx,.doc,.txt,.json,.html,.py,.js,.ts";
+const ACCEPTED_ALL = `${ACCEPTED_IMAGE_TYPES},${ACCEPTED_DOC_TYPES}`;
+
+const DOC_MEDIA_TYPES: Record<string, string> = {
+  pdf: "application/pdf",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  xls: "application/vnd.ms-excel",
+  csv: "text/csv",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  doc: "application/msword",
+  txt: "text/plain",
+  json: "application/json",
+  html: "text/html",
+  py: "text/x-python",
+  js: "application/javascript",
+  ts: "application/typescript",
+};
+
+function getDocIcon(fileName: string) {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  if (["xlsx", "xls", "csv"].includes(ext)) return <FileSpreadsheet className="w-5 h-5 text-green-400" />;
+  if (["pdf", "docx", "doc"].includes(ext)) return <FileText className="w-5 h-5 text-red-400" />;
+  return <File className="w-5 h-5 text-blue-400" />;
+}
+
 interface InputBarProps {
-  onSend: (message: string, imageBase64?: string, imageMediaType?: string) => void;
+  onSend: (
+    message: string,
+    imageBase64?: string,
+    imageMediaType?: string,
+    fileBase64?: string,
+    fileName?: string,
+    fileMediaType?: string,
+  ) => void;
   disabled?: boolean;
   conversationId?: string | null;
 }
 
 const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   const [text, setText] = useState("");
+  // imagem
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMediaType, setImageMediaType] = useState<string>("image/jpeg");
+  // documento
+  const [docName, setDocName] = useState<string | null>(null);
+  const [docBase64, setDocBase64] = useState<string | null>(null);
+  const [docMediaType, setDocMediaType] = useState<string>("application/octet-stream");
+
   const [voiceOpen, setVoiceOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -287,21 +327,42 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     }
   }, [text]);
 
-  const handleImageSelect = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    setImageMediaType(file.type);
+  const clearAttachment = () => {
+    setImagePreview(null);
+    setImageBase64(null);
+    setImageMediaType("image/jpeg");
+    setDocName(null);
+    setDocBase64(null);
+    setDocMediaType("application/octet-stream");
+  };
+
+  const handleFileSelect = (file: File) => {
+    const isImage = file.type.startsWith("image/");
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
-      setImagePreview(result);
-      setImageBase64(result.split(",", 2)[1]);
+      const base64 = result.split(",", 2)[1];
+
+      if (isImage) {
+        setDocName(null); setDocBase64(null);
+        setImagePreview(result);
+        setImageBase64(base64);
+        setImageMediaType(file.type);
+      } else {
+        setImagePreview(null); setImageBase64(null);
+        const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+        setDocName(file.name);
+        setDocBase64(base64);
+        setDocMediaType(DOC_MEDIA_TYPES[ext] ?? file.type ?? "application/octet-stream");
+      }
     };
     reader.readAsDataURL(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleImageSelect(file);
+    if (file) handleFileSelect(file);
     e.target.value = "";
   };
 
@@ -311,24 +372,25 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     for (const item of Array.from(items)) {
       if (item.type.startsWith("image/")) {
         const file = item.getAsFile();
-        if (file) handleImageSelect(file);
+        if (file) handleFileSelect(file);
         break;
       }
     }
   };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setImageBase64(null);
-    setImageMediaType("image/jpeg");
-  };
-
   const handleSend = () => {
     const trimmed = text.trim();
-    if ((!trimmed && !imageBase64) || disabled) return;
-    onSend(trimmed, imageBase64 ?? undefined, imageBase64 ? imageMediaType : undefined);
+    if ((!trimmed && !imageBase64 && !docBase64) || disabled) return;
+    onSend(
+      trimmed,
+      imageBase64 ?? undefined,
+      imageBase64 ? imageMediaType : undefined,
+      docBase64 ?? undefined,
+      docName ?? undefined,
+      docBase64 ? docMediaType : undefined,
+    );
     setText("");
-    handleRemoveImage();
+    clearAttachment();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -338,7 +400,13 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     }
   };
 
-  const canSend = (text.trim().length > 0 || !!imageBase64) && !disabled;
+  const hasAttachment = !!imageBase64 || !!docBase64;
+  const canSend = (text.trim().length > 0 || hasAttachment) && !disabled;
+  const placeholder = docBase64
+    ? `O que fazer com "${docName}"?`
+    : imageBase64
+    ? "Pergunte sobre a imagem..."
+    : "Faça uma pergunta...";
 
   return (
     <>
@@ -347,10 +415,24 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
       <div className="inputbar-wrapper">
         <div className="inputbar-gradient">
         <div className="inputbar-surface">
+          {/* Preview de imagem */}
           {imagePreview && (
             <div className="inputbar-image-preview">
               <img src={imagePreview} alt="Selected image" className="inputbar-image-thumb" />
-              <button onClick={handleRemoveImage} className="inputbar-image-remove" title="Remover imagem">
+              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remover">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
+          {/* Preview de documento */}
+          {docName && (
+            <div className="inputbar-image-preview" style={{ alignItems: "center", gap: "8px", padding: "6px 10px" }}>
+              {getDocIcon(docName)}
+              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary, #aaa)", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {docName}
+              </span>
+              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remover">
                 <X className="w-3 h-3" />
               </button>
             </div>
@@ -361,7 +443,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
               className="inputbar-attach"
-              title="Attach image"
+              title="Anexar arquivo"
             >
               <Paperclip className="w-5 h-5" />
             </button>
@@ -369,7 +451,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept={ACCEPTED_ALL}
               onChange={handleFileChange}
               className="hidden"
             />
@@ -380,7 +462,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder={imageBase64 ? "Pergunte sobre a imagem..." : "Faça uma pergunta..."}
+              placeholder={placeholder}
               disabled={disabled}
               rows={1}
               className="inputbar-textarea"
