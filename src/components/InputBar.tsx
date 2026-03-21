@@ -13,10 +13,10 @@ interface VoiceModeProps {
 type VoiceStatus = "idle" | "recording" | "thinking" | "speaking";
 
 const STATUS_LABELS: Record<VoiceStatus, string> = {
-  idle: "Segure para falar",
-  recording: "Gravando...",
-  thinking: "Pensando...",
-  speaking: "Falando...",
+  idle: "Hold to speak.",
+  recording: "Recording...",
+  thinking: "Thinking...",
+  speaking: "Speaking...",
 };
 
 function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
@@ -349,7 +349,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
         <div className="inputbar-surface">
           {imagePreview && (
             <div className="inputbar-image-preview">
-              <img src={imagePreview} alt="Imagem selecionada" className="inputbar-image-thumb" />
+              <img src={imagePreview} alt="Selected image" className="inputbar-image-thumb" />
               <button onClick={handleRemoveImage} className="inputbar-image-remove" title="Remover imagem">
                 <X className="w-3 h-3" />
               </button>
@@ -361,7 +361,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
               className="inputbar-attach"
-              title="Anexar imagem"
+              title="Attach image"
             >
               <Paperclip className="w-5 h-5" />
             </button>
@@ -390,7 +390,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onClick={() => setVoiceOpen(true)}
               disabled={disabled}
               className="inputbar-mic"
-              title="Modo voz"
+              title="Voice Mode"
             >
               <Mic className="w-5 h-5" />
             </button>
@@ -403,7 +403,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
         </div>
 
         <p className="inputbar-disclaimer">
-          SynastrIA pode "alucinar" nas respostas,<br />então confira bem as respostas.
+          This AI can "hallucinate",<br />so double-check responses.
         </p>
       </div>
     </>
