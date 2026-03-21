@@ -360,8 +360,7 @@ export async function sendSandboxMessage(
       let parsed: Record<string, unknown>;
       try { parsed = JSON.parse(jsonStr); } catch { continue; }
 
-      if (parsed.error) throw new Error(String(parsed.error));
-
+      // Eventos com status (exec_error, etc.) devem atualizar o callback ANTES de lançar erro
       if (parsed.status) {
         onStatus?.(String(parsed.status), parsed.message ? String(parsed.message) : undefined, {
           code: parsed.code as string | undefined,
@@ -370,6 +369,9 @@ export async function sendSandboxMessage(
           retrying: parsed.retrying as boolean | undefined,
         });
       }
+
+      // Evento de erro final (sem status) — lança exceção
+      if (parsed.error && !parsed.status) throw new Error(String(parsed.error));
 
       if (parsed.done) {
         return {
