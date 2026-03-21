@@ -10,6 +10,7 @@ import {
   fetchConversations,
   fetchConversation,
   sendChatMessage,
+  sendSandboxMessage,
   generateImage,
   getOpenRouterKey,
   saveOpenRouterKey,
@@ -215,7 +216,70 @@ const Chats = () => {
       return;
     }
 
-    // ── Fluxo de chat (com ou sem arquivo — o backend decide se usa sandbox) ─
+    // ── Fluxo do File Manager via /file_manager ────────────────────────────
+    const isFileManager = text.trim().toLowerCase().startsWith("/file_manager");
+    if (isFileManager && fileBase64 && fileName) {
+      const command = text.trim().replace(/^\/file_manager\s*/i, "").trim()
+        || `Analise e processe o arquivo: ${fileName}`;
+
+      setMessages((prev) => [...prev, { role: "assistant", content: "🖥️ Rodando no CLI..." }]);
+
+      try {
+        const result = await sendSandboxMessage(
+          token!,
+          command,
+          fileBase64,
+          fileName,
+          fileMediaType,
+          (status, msg) => {
+            const labels: Record<string, string> = {
+              classifying: "🔍 Analisando arquivo...",
+              planned: "📋 Planejando...",
+              generating: "⚙️ Gerando código...",
+              executing: "🚀 Executando...",
+              uploading: "☁️ Salvando resultado...",
+            };
+            setMessages((prev) => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last?.role === "assistant") {
+                updated[updated.length - 1] = { ...last, content: labels[status] ?? msg ?? status };
+              }
+              return updated;
+            });
+          },
+        );
+
+        const link = result.output_url.startsWith("data:")
+          ? `[⬇️ Baixar ${result.output_type.toUpperCase()}](${result.output_url})`
+          : `[⬇️ ${result.title}.${result.output_type}](${result.output_url})`;
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === "assistant") {
+            updated[updated.length - 1] = { ...last, content: `✅ Pronto!\n\n${link}` };
+          }
+          return updated;
+        });
+
+        if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
+      } catch (err) {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === "assistant") {
+            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}` };
+          }
+          return updated;
+        });
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // ── Fluxo de chat normal ───────────────────────────────────────────────
     setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
@@ -241,9 +305,6 @@ const Chats = () => {
         },
         imageBase64,
         imageMediaType,
-        fileBase64,
-        fileName,
-        fileMediaType,
       );
 
       if (response.thinking) {
