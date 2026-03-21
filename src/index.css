@@ -615,6 +615,49 @@
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.02em;
   }
+
+  .slash-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+  }
+
+  .slash-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+  }
+
+  .slash-menu-item:hover {
+    background: hsl(var(--muted));
+  }
+
+  .slash-menu-command {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: hsl(var(--primary));
+    font-weight: 600;
+    min-width: 130px;
+  }
+
+  .slash-menu-desc {
+    font-size: 0.8rem;
+    color: hsl(var(--muted-foreground));
+  }
   .msg-user-image {
     @apply max-w-[220px] max-h-48 rounded-xl object-cover mb-1 block;
   }
