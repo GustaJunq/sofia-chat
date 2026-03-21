@@ -15,9 +15,9 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const [loading, setLoading] = useState(false);
 
   const validatePassword = (pwd: string): string | null => {
-    if (pwd.length < 8) return "A senha deve ter no mínimo 8 caracteres";
-    if (!/[A-Z]/.test(pwd)) return "A senha deve ter ao menos uma letra maiúscula";
-    if (!/[0-9]/.test(pwd)) return "A senha deve ter ao menos um número";
+    if (pwd.length < 8) return "Password needs to have 8 characters.";
+    if (!/[A-Z]/.test(pwd)) return "Password needs a capital letter.";
+    if (!/[0-9]/.test(pwd)) return "Password needs to have an number.";
     return null;
   };
 
@@ -29,7 +29,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     if (pwdError) { setError(pwdError); return; }
 
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem");
+      setError("Passwords are not the same :/");
       return;
     }
 
@@ -50,7 +50,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
       sessionStorage.setItem("sof_token", data.token);
       onLogin(data.token);
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      setError("API error, try again.");
     } finally {
       setLoading(false);
     }
@@ -72,21 +72,21 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
           placeholder="Email" autoComplete="email" className="auth-input" />
 
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Senha" autoComplete="new-password" className="auth-input" />
+          placeholder="Password" autoComplete="new-password" className="auth-input" />
 
         <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirmar senha" autoComplete="new-password" className="auth-input" />
+          placeholder="Confirm password" autoComplete="new-password" className="auth-input" />
 
         <p className="auth-hint">min 8 chars · 1 maiúscula · 1 número</p>
 
         {error && <p className="auth-error">{error}</p>}
 
         <button type="submit" disabled={loading} className="auth-submit">
-          {loading ? "Criando conta..." : "Criar conta"}
+          {loading ? "Creating account…" : "Create an account"}
         </button>
 
         <p className="auth-footer">
-          Já tem conta?{" "}
+          Already registered?{" "}
           <button type="button" onClick={onSwitchToLogin} className="auth-footer-link">Entrar</button>
         </p>
       </form>
