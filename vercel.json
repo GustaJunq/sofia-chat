@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/auth/github/callback", "destination": "https://sofia-api-z8nr.onrender.com/auth/github/callback" },
     { "source": "/s/:slug", "destination": "/api/s/[slug]" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
