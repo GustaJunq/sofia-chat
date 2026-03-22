@@ -321,11 +321,13 @@ export async function sendSandboxMessage(
   fileName?: string,
   fileMediaType?: string,
   onStatus?: SandboxStatusCallback,
+  conversationId?: string | null,
 ): Promise<SandboxResponse> {
   const body: Record<string, string> = { command };
   if (fileBase64) body.file_base64 = fileBase64;
   if (fileName) body.file_name = fileName;
   if (fileMediaType) body.file_media_type = fileMediaType;
+  if (conversationId) body.conversation_id = conversationId;
 
   const res = await fetch(`${API_URL}/sandbox`, {
     method: "POST",
