@@ -308,6 +308,7 @@ export interface SandboxResponse {
   remaining_messages?: number;
   public_url?: string;
   file_content?: string;
+  github_files?: Record<string, string>;
 }
 
 export type SandboxStatusCallback = (
@@ -389,6 +390,7 @@ export async function sendSandboxMessage(
           remaining_messages: parsed.remaining_messages as number | undefined,
           public_url: parsed.public_url as string | undefined,
           file_content: parsed.file_content as string | undefined,
+          github_files: parsed.github_files as Record<string, string> | undefined,
         };
       }
     }
