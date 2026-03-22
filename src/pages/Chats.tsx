@@ -218,9 +218,9 @@ const Chats = () => {
 
     // ── Fluxo do File Manager via /file_manager ────────────────────────────
     const isFileManager = text.trim().toLowerCase().startsWith("/file_manager");
-    if (isFileManager && fileBase64 && fileName) {
+    if (isFileManager) {
       const command = text.trim().replace(/^\/file_manager\s*/i, "").trim()
-        || `Analise e processe o arquivo: ${fileName}`;
+        || (fileName ? `Analise e processe o arquivo: ${fileName}` : "Crie um script Python útil");
 
       // Adiciona mensagem do assistente com steps iniciais
       const initialSteps = [
@@ -345,6 +345,10 @@ const Chats = () => {
         },
         imageBase64,
         imageMediaType,
+        undefined,
+        undefined,
+        undefined,
+        selectedModel,
       );
 
       if (response.thinking) {
