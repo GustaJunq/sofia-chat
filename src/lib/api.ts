@@ -104,6 +104,7 @@ export async function sendChatMessage(
   fileBase64?: string,
   fileName?: string,
   fileMediaType?: string,
+  selectedModel?: string,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
@@ -112,6 +113,7 @@ export async function sendChatMessage(
   if (fileBase64) body.file_base64 = fileBase64;
   if (fileName) body.file_name = fileName;
   if (fileMediaType) body.file_media_type = fileMediaType;
+  if (selectedModel) body.model_slug = selectedModel;
 
   const res = await fetch(`${API_URL}/chat`, {
     method: "POST",
