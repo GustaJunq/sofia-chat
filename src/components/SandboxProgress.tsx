@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, CheckCircle, XCircle, Loader, AlertTriangle, Terminal, Code2, Upload, Search, Cpu } from "lucide-react";
+import { ChevronDown, ChevronRight, CheckCircle, XCircle, Loader, AlertTriangle, Terminal, Code2, Upload, Search, Cpu, Github } from "lucide-react";
+import { API_URL, getToken } from "@/lib/api";
 
 export interface SandboxStep {
   id: string;
@@ -71,7 +72,43 @@ function StepRow({ step }: { step: SandboxStep }) {
   );
 }
 
-export default function SandboxProgress({ steps, outputUrl, outputType, title, publicUrl }: SandboxProgressProps) {
+interface SandboxProgressProps {
+  steps: SandboxStep[];
+  outputUrl?: string;
+  outputType?: string;
+  title?: string;
+  publicUrl?: string;
+  githubFiles?: Record<string, string>;
+}
+
+export default function SandboxProgress({ steps, outputUrl, outputType, title, publicUrl, githubFiles }: SandboxProgressProps) {
+  const [pushing, setPushing] = useState(false);
+  const [pushResult, setPushResult] = useState<{ repo_url?: string; pages_url?: string; error?: string } | null>(null);
+
+  const handleGitHubPush = async () => {
+    const token = getToken();
+    if (!token || !githubFiles) return;
+    setPushing(true);
+    setPushResult(null);
+    try {
+      const res = await fetch(`${API_URL}/github/push`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title, files: githubFiles }),
+      });
+      const data = await res.json();
+      if (data.needs_auth) {
+        setPushResult({ error: "Conecte seu GitHub primeiro (menu → Conectar GitHub)" });
+      } else {
+        setPushResult(data);
+      }
+    } catch {
+      setPushResult({ error: "Erro ao conectar com o GitHub." });
+    } finally {
+      setPushing(false);
+    }
+  };
+
   return (
     <div className="sandbox-progress">
       <div className="sandbox-steps">
@@ -90,6 +127,46 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title, p
         >
           🌐 Ver site publicado
         </a>
+      )}
+
+      {githubFiles && (
+        <div>
+          <button
+            onClick={handleGitHubPush}
+            disabled={pushing}
+            className="sandbox-download-btn"
+            style={{
+              background: pushing ? "hsl(var(--muted))" : "#24292e",
+              color: "#fff",
+              borderBottom: "1px solid hsl(var(--border))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              width: "100%",
+              cursor: pushing ? "not-allowed" : "pointer",
+              border: "none",
+            }}
+          >
+            <Github className="w-4 h-4" />
+            {pushing ? "Enviando pro GitHub..." : "Publicar no GitHub"}
+          </button>
+          {pushResult?.repo_url && (
+            <div style={{ padding: "10px 14px", fontSize: "0.78rem", display: "flex", flexDirection: "column", gap: "4px" }}>
+              <a href={pushResult.repo_url} target="_blank" rel="noopener noreferrer" style={{ color: "hsl(var(--primary))" }}>
+                📦 Ver repositório
+              </a>
+              {pushResult.pages_url && (
+                <a href={pushResult.pages_url} target="_blank" rel="noopener noreferrer" style={{ color: "hsl(var(--primary))" }}>
+                  🌐 GitHub Pages (pode demorar alguns minutos)
+                </a>
+              )}
+            </div>
+          )}
+          {pushResult?.error && (
+            <p style={{ padding: "8px 14px", fontSize: "0.75rem", color: "#f87171" }}>{pushResult.error}</p>
+          )}
+        </div>
       )}
 
       {outputUrl && (

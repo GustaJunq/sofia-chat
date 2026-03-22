@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Key, Trash2, Menu } from "lucide-react";
+import { ChevronDown, Key, Trash2, Menu, Github } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
-import { getOpenRouterKey, clearOpenRouterKey } from "@/lib/api";
+import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/api";
 
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
@@ -44,7 +44,51 @@ const Header = ({
   const [orKeyInput, setOrKeyInput] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
+  const [githubUsername, setGithubUsername] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Verifica status do GitHub
+    const token = getToken();
+    if (token) {
+      fetch(`${API_URL}/auth/github/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((d) => { if (d.connected) setGithubUsername(d.username); })
+        .catch(() => {});
+    }
+  }, []);
+
+  const handleConnectGitHub = async () => {
+    const token = getToken();
+    if (!token) return;
+    const res = await fetch(`${API_URL}/auth/github`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (data.redirect_url) {
+      const popup = window.open(data.redirect_url, "github-oauth", "width=600,height=700");
+      window.addEventListener("message", (e) => {
+        if (e.data?.github_connected) {
+          setGithubUsername(e.data.username);
+          popup?.close();
+          setOpen(false);
+        }
+      }, { once: true });
+    }
+  };
+
+  const handleDisconnectGitHub = async () => {
+    const token = getToken();
+    if (!token) return;
+    await fetch(`${API_URL}/auth/github/disconnect`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setGithubUsername(null);
+    setOpen(false);
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -248,6 +292,17 @@ const Header = ({
                     <button onClick={() => { setShowOrModal(true); setOpen(false); }} className="header-logout flex items-center gap-2">
                       <Key className="w-3 h-3" />
                       Adicionar chave OpenRouter
+                    </button>
+                  )}
+                  {githubUsername ? (
+                    <button onClick={handleDisconnectGitHub} className="header-logout flex items-center gap-2" style={{ color: "hsl(var(--muted-foreground))" }}>
+                      <Github className="w-3 h-3" />
+                      GitHub: @{githubUsername}
+                    </button>
+                  ) : (
+                    <button onClick={handleConnectGitHub} className="header-logout flex items-center gap-2">
+                      <Github className="w-3 h-3" />
+                      Conectar GitHub
                     </button>
                   )}
                   <button onClick={handleLogout} className="header-logout">Sair</button>

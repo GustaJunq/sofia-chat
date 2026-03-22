@@ -14,6 +14,7 @@ export interface Message {
   sandboxOutputType?: string;
   sandboxTitle?: string;
   sandboxPublicUrl?: string;
+  sandboxGithubFiles?: Record<string, string>;
 }
 
 interface ChatViewProps {
@@ -60,6 +61,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
                   outputType={msg.sandboxOutputType}
                   title={msg.sandboxTitle}
                   publicUrl={msg.sandboxPublicUrl}
+                  githubFiles={msg.sandboxGithubFiles}
                 />
               </div>
             )}
