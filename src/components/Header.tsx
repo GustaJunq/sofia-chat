@@ -6,13 +6,19 @@ import { getOpenRouterKey, clearOpenRouterKey } from "@/lib/api";
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const models = [
-  { id: "syn-v1-free", label: "syn-v1-free", requiredPlan: null },
-  { id: "syn-v1-pro", label: "syn-v1-pro", requiredPlan: "paid" },
+  { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "GPT OSS 20B",   requiredPlan: null },
+  { id: "syn-v1-pro",   label: "SYN-V1-PRO",   sublabel: "GPT OSS 120B",  requiredPlan: "paid" },
+  { id: "syn-v1-qwen",  label: "SYN-V1-QWEN",  sublabel: "Qwen3 32B",     requiredPlan: "paid" },
+  { id: "syn-v1-llama", label: "SYN-V1-LLAMA", sublabel: "Llama 3.3 70B", requiredPlan: "paid" },
+  { id: "syn-v1-kimi",  label: "SYN-V1-KIMI",  sublabel: "Kimi K2",       requiredPlan: "paid" },
 ];
 
 const PLAN_ACCESS: Record<string, string[]> = {
-  "syn-v1-free": ["free", "paid"],
-  "syn-v1-pro":  ["paid"],
+  "syn-v1-free":  ["free", "paid"],
+  "syn-v1-pro":   ["paid"],
+  "syn-v1-qwen":  ["paid"],
+  "syn-v1-llama": ["paid"],
+  "syn-v1-kimi":  ["paid"],
 };
 
 interface HeaderProps {
@@ -101,8 +107,7 @@ const Header = ({
 
   const getBadge = (modelId: string) => {
     if (PLAN_ACCESS[modelId]?.includes(plan)) return null;
-    if (modelId === "syn-v1-pro") return "PRO";
-    return null;
+    return "PRO";
   };
 
   return (
@@ -213,7 +218,10 @@ const Header = ({
                     >
                       {isLoading ? "Redirecionando..." : (
                         <>
-                          {m.label}
+                          <span style={{ display: "flex", flexDirection: "column", gap: "1px", flex: 1, textAlign: "left" }}>
+                            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.78rem" }}>{m.label}</span>
+                            <span style={{ fontSize: "0.68rem", opacity: 0.5 }}>{m.sublabel}</span>
+                          </span>
                           {badge && <span className="header-badge">{badge}</span>}
                         </>
                       )}
