@@ -286,6 +286,13 @@ const Chats = () => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
+            // Monta githubFiles pra tipos de código
+            const codeTypes = ["html", "css", "js", "ts", "py", "md", "sh", "sql", "yaml", "json", "txt"];
+            const fileName = `${result.title.toLowerCase().replace(/\s+/g, "-")}.${result.output_type}`;
+            const githubFiles = codeTypes.includes(result.output_type) && result.output_url
+              ? { [fileName]: result.output_url }
+              : undefined;
+
             updated[updated.length - 1] = {
               ...last,
               content: result.output_type === "html"
@@ -295,6 +302,7 @@ const Chats = () => {
               sandboxOutputType: result.output_type,
               sandboxTitle: result.title,
               sandboxPublicUrl: result.public_url,
+              sandboxGithubFiles: githubFiles,
             };
           }
           return updated;
