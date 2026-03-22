@@ -288,10 +288,13 @@ const Chats = () => {
           if (last?.role === "assistant") {
             updated[updated.length - 1] = {
               ...last,
-              content: `✅ Pronto! **${result.title}**`,
+              content: result.output_type === "html"
+                ? `✅ Pronto! **${result.title}** — publicado em synastria.dev`
+                : `✅ Pronto! **${result.title}**`,
               sandboxOutputUrl: result.output_url,
               sandboxOutputType: result.output_type,
               sandboxTitle: result.title,
+              sandboxPublicUrl: result.public_url,
             };
           }
           return updated;
