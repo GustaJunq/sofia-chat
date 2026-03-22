@@ -290,9 +290,13 @@ const Chats = () => {
             const fileName = result.output_type === "html"
               ? "index.html"
               : `${result.title.toLowerCase().replace(/\s+/g, "-")}.${result.output_type}`;
-            const githubFiles = codeTypes.includes(result.output_type) && result.file_content
-              ? { [fileName]: result.file_content }
-              : undefined;
+
+            // Zip: usa os arquivos extraídos do backend
+            // Single file: usa o conteúdo do arquivo
+            const githubFiles = result.github_files
+              ?? (codeTypes.includes(result.output_type) && result.file_content
+                ? { [fileName]: result.file_content }
+                : undefined);
 
             updated[updated.length - 1] = {
               ...last,
