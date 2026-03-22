@@ -306,6 +306,7 @@ export interface SandboxResponse {
   stdout?: string;
   conversation_id?: string;
   remaining_messages?: number;
+  public_url?: string;
 }
 
 export type SandboxStatusCallback = (
@@ -385,6 +386,7 @@ export async function sendSandboxMessage(
           log_id: parsed.log_id as string,
           stdout: parsed.stdout as string | undefined,
           remaining_messages: parsed.remaining_messages as number | undefined,
+          public_url: parsed.public_url as string | undefined,
         };
       }
     }
