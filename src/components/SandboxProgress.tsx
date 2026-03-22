@@ -15,6 +15,7 @@ interface SandboxProgressProps {
   outputUrl?: string;
   outputType?: string;
   title?: string;
+  publicUrl?: string;
 }
 
 const STEP_ICONS: Record<string, React.ReactNode> = {
@@ -70,7 +71,7 @@ function StepRow({ step }: { step: SandboxStep }) {
   );
 }
 
-export default function SandboxProgress({ steps, outputUrl, outputType, title }: SandboxProgressProps) {
+export default function SandboxProgress({ steps, outputUrl, outputType, title, publicUrl }: SandboxProgressProps) {
   return (
     <div className="sandbox-progress">
       <div className="sandbox-steps">
@@ -78,6 +79,18 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title }:
           <StepRow key={step.id} step={step} />
         ))}
       </div>
+
+      {publicUrl && (
+        <a
+          href={publicUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sandbox-download-btn"
+          style={{ background: "hsl(var(--primary) / 0.2)", borderBottom: "1px solid hsl(var(--border))" }}
+        >
+          🌐 Ver site publicado
+        </a>
+      )}
 
       {outputUrl && (
         <a

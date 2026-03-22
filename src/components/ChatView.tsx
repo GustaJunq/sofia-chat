@@ -13,6 +13,7 @@ export interface Message {
   sandboxOutputUrl?: string;
   sandboxOutputType?: string;
   sandboxTitle?: string;
+  sandboxPublicUrl?: string;
 }
 
 interface ChatViewProps {
@@ -58,6 +59,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
                   outputUrl={msg.sandboxOutputUrl}
                   outputType={msg.sandboxOutputType}
                   title={msg.sandboxTitle}
+                  publicUrl={msg.sandboxPublicUrl}
                 />
               </div>
             )}
