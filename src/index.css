@@ -716,6 +716,60 @@
     background: hsl(var(--primary) / 0.25);
   }
 
+  .file-manager-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 12px 8px;
+    padding: 12px 14px;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    animation: fadeIn 0.2s ease;
+    position: relative;
+  }
+
+  .file-manager-warning-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .file-manager-warning-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-bottom: 2px;
+  }
+
+  .file-manager-warning-desc {
+    font-size: 0.73rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.4;
+  }
+
+  .file-manager-warning-desc strong {
+    color: hsl(var(--foreground));
+  }
+
+  .file-manager-warning-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+
+  .file-manager-warning-close:hover {
+    color: hsl(var(--foreground));
+  }
+
   .slash-menu {
     position: absolute;
     bottom: calc(100% + 8px);
