@@ -371,6 +371,9 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     }
   };
 
+  const showFileManagerWarning = text.trim().toLowerCase().startsWith("/file_manager");
+  const [warningDismissed, setWarningDismissed] = useState(false);
+
   const handleSlashSelect = (command: string) => {
     setText(command + " ");
     setSlashQuery(null);
@@ -461,6 +464,27 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   return (
     <>
       <VoiceMode open={voiceOpen} onClose={() => setVoiceOpen(false)} conversationId={conversationId ?? null} />
+
+      {showFileManagerWarning && !warningDismissed && (
+        <div className="file-manager-warning">
+          <span className="file-manager-warning-icon">⚠️</span>
+          <div>
+            <p className="file-manager-warning-title">ei, sou eu, a SynastrIA!</p>
+            <p className="file-manager-warning-desc">
+              Ainda tô aprendendo a usar esse terminal, então se eu não entregar o tipo de arquivo certo ou tiver algo de TXT, não me culpe — essa função tá em beta :)<br />
+              Mas pode usar mesmo assim e recomende melhorias nesse TikTok ↓<br />
+              <strong>@synastria.dev</strong>
+            </p>
+          </div>
+          <button
+            className="file-manager-warning-close"
+            onClick={() => setWarningDismissed(true)}
+            aria-label="Fechar aviso"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <div className="inputbar-wrapper">
         <div className="inputbar-gradient">
