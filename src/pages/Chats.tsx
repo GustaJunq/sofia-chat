@@ -172,9 +172,8 @@ const Chats = () => {
       .catch(() => {
         navigate("/chats", { replace: true });
       });
-  // Only run once on mount with the URL param
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Re-executa sempre que o ID na URL mudar (ex: navegando via link compartilhado)
+  }, [urlConvId, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = () => {
     sessionStorage.removeItem("sof_token");
