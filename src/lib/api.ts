@@ -83,6 +83,18 @@ export interface ChatResponse {
   plan?: string;
 }
 
+// ================= AGENT TOOL EVENTS =================
+
+export interface AgentToolCallEvent {
+  tool: string;
+  args: Record<string, unknown>;
+}
+
+export interface AgentToolResultEvent {
+  tool: string;
+  summary: string;
+}
+
 /**
  * Envia uma mensagem ao backend com suporte a streaming SSE.
  *
@@ -91,6 +103,8 @@ export interface ChatResponse {
  * @param conversationId  ID da conversa (null = nova conversa)
  * @param onDelta         Callback chamado a cada chunk de texto recebido
  * @param onMeta          Callback chamado com os metadados iniciais (conversation_id, etc.)
+ * @param onAgentToolCall Callback quando o agente inicia uma ferramenta
+ * @param onAgentToolResult Callback quando o resultado de uma ferramenta chega
  * @returns               ChatResponse com o reply completo ao final
  */
 export async function sendChatMessage(
@@ -105,6 +119,8 @@ export async function sendChatMessage(
   fileName?: string,
   fileMediaType?: string,
   selectedModel?: string,
+  onAgentToolCall?: (evt: AgentToolCallEvent) => void,
+  onAgentToolResult?: (evt: AgentToolResultEvent) => void,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
@@ -172,6 +188,22 @@ export async function sendChatMessage(
       // Chunk de texto parcial
       if (typeof parsed.delta === "string") {
         onDelta?.(parsed.delta);
+      }
+
+      // Agente iniciou uma ferramenta
+      if (parsed.agent_tool_call) {
+        onAgentToolCall?.({
+          tool: String(parsed.agent_tool_call),
+          args: (parsed.args ?? {}) as Record<string, unknown>,
+        });
+      }
+
+      // Resultado de ferramenta chegou
+      if (parsed.agent_tool_result) {
+        onAgentToolResult?.({
+          tool: String(parsed.agent_tool_result),
+          summary: String(parsed.summary ?? ""),
+        });
       }
 
       // Evento final com reply completo
