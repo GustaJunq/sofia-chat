@@ -6,6 +6,7 @@ import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
 import { X, Key, Share2, Check } from "lucide-react";
+import { type AgentToolCallEntry } from "@/components/AgentToolCallsBar";
 import {
   fetchConversations,
   fetchConversation,
@@ -454,6 +455,82 @@ const Chats = () => {
         undefined,
         undefined,
         selectedModel,
+        // ── Agent tool call: add badge to last assistant message ──
+        (evt) => {
+          const newCall: AgentToolCallEntry = {
+            tool: evt.tool as AgentToolCallEntry["tool"],
+            args: evt.args,
+            status: "running",
+          };
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last?.role === "assistant") {
+              updated[updated.length - 1] = {
+                ...last,
+                agentToolCalls: [...(last.agentToolCalls ?? []), newCall],
+              };
+            }
+            return updated;
+          });
+        },
+        // ── Agent tool result: mark badge done + parse file/image results ──
+        (evt) => {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (!last || last.role !== "assistant") return prev;
+
+            // Mark the matching running call as done
+            const agentToolCalls = (last.agentToolCalls ?? []).map((tc) =>
+              tc.tool === evt.tool && tc.status === "running"
+                ? { ...tc, status: "done" as const, summary: evt.summary }
+                : tc
+            );
+
+            let agentFileResult = last.agentFileResult;
+            let agentImageUrl = last.agentImageUrl;
+
+            // Parse sandbox file URL from summary text
+            if (evt.tool === "run_sandbox") {
+              const urlMatch = evt.summary.match(/URL para download:\s*(https?:\/\/\S+)/);
+              const publicMatch = evt.summary.match(/URL pública[^:]*:\s*(https?:\/\/\S+)/);
+              const titleMatch = evt.summary.match(/Título:\s*(.+)/);
+              const typeMatch = evt.summary.match(/Tipo:\s*(\S+)/);
+              if (urlMatch) {
+                const codeTypes = ["html", "css", "js", "ts", "py", "md", "sh", "sql", "yaml", "json", "txt"];
+                const outputType = (typeMatch?.[1] ?? "txt").toLowerCase();
+                const fn = outputType === "html"
+                  ? "index.html"
+                  : `${(titleMatch?.[1] ?? "arquivo").toLowerCase().replace(/\s+/g, "-")}.${outputType}`;
+                const githubFiles = codeTypes.includes(outputType)
+                  ? { [fn]: "" } // conteúdo real vem no full_reply se necessário
+                  : undefined;
+                agentFileResult = {
+                  outputUrl: urlMatch[1],
+                  outputType,
+                  title: titleMatch?.[1] ?? "Arquivo",
+                  publicUrl: publicMatch?.[1],
+                  githubFiles,
+                };
+              }
+            }
+
+            // Parse image URL from generate_image summary
+            if (evt.tool === "generate_image") {
+              const urlMatch = evt.summary.match(/URL:\s*(https?:\/\/\S+)/);
+              if (urlMatch) agentImageUrl = urlMatch[1];
+            }
+
+            updated[updated.length - 1] = {
+              ...last,
+              agentToolCalls,
+              agentFileResult,
+              agentImageUrl,
+            };
+            return updated;
+          });
+        },
       );
 
       if (response.thinking) {
