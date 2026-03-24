@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
 import InputBar from "@/components/InputBar";
 import ChatHistory from "@/components/ChatHistory";
-import { X, Key } from "lucide-react";
+import { X, Key, Share2, Check } from "lucide-react";
 import {
   fetchConversations,
   fetchConversation,
@@ -28,7 +28,6 @@ const RAG_TRIGGER_WORDS = [
   "tell me about", "explain", "define", "history of",
 ];
 
-
 const IMAGE_TRIGGER_WORDS = [
   "gera uma imagem", "gera imagem", "gerar imagem", "gerar uma imagem",
   "gere uma imagem", "gere imagem",
@@ -49,13 +48,83 @@ function isFactualMessage(text: string): boolean {
   return RAG_TRIGGER_WORDS.some((trigger) => lower.includes(trigger));
 }
 
+// ─── Share button ──────────────────────────────────────────────────────────────
+
+const ShareButton = ({ conversationId }: { conversationId: string | null }) => {
+  const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  if (!conversationId) return null;
+
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      // The share URL points to our public view page
+      // The backend should expose a public endpoint — here we generate the client-side link.
+      // If your backend has a /share endpoint, call it here to register the conversation as public.
+      const shareUrl = `${window.location.origin}/share/${conversationId}`;
+
+      if (navigator.share) {
+        await navigator.share({ title: "Conversa SynastrIA", url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      }
+    } catch {
+      // User cancelled share dialog — ignore
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleShare}
+      disabled={sharing}
+      title="Compartilhar conversa"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "5px",
+        padding: "5px 10px",
+        borderRadius: 8,
+        border: "1px solid hsl(var(--border))",
+        background: "transparent",
+        color: "hsl(var(--muted-foreground))",
+        fontSize: "0.72rem",
+        fontFamily: "'JetBrains Mono', monospace",
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+        cursor: "pointer",
+        transition: "color 0.15s, border-color 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.color = "hsl(var(--foreground))";
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "hsl(var(--foreground) / 0.3)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.color = "hsl(var(--muted-foreground))";
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "hsl(var(--border))";
+      }}
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
+      {copied ? "Copiado!" : "Compartilhar"}
+    </button>
+  );
+};
+
+// ─── Chats page ────────────────────────────────────────────────────────────────
+
 const Chats = () => {
   const navigate = useNavigate();
+  const { conversationId: urlConvId } = useParams<{ conversationId: string }>();
+
   const token = sessionStorage.getItem("sof_token");
   const isGuest = !token;
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-  const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [activeConvId, setActiveConvId] = useState<string | null>(urlConvId ?? null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
@@ -72,10 +141,40 @@ const Chats = () => {
   const activeConvIdRef = useRef<string | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
+  // ── Sync active conversation with URL ──
+  const setActiveConvAndNav = useCallback((id: string | null) => {
+    setActiveConvId(id);
+    if (id) {
+      navigate(`/chats/${id}`, { replace: true });
+    } else {
+      navigate("/chats", { replace: true });
+    }
+  }, [navigate]);
+
+  // ── On mount: load conversations and, if URL has an ID, load it ──
   useEffect(() => {
     if (!token) return;
     fetchConversations(token).then(setConversations).catch(() => {});
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !urlConvId) return;
+    fetchConversation(token, urlConvId)
+      .then((data) => {
+        setMessages(data.messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+          imagePreview: m.role === "user" ? (m.image_url ?? undefined) : undefined,
+          imageGenerated: m.role === "assistant" ? (m.image_url ?? undefined) : undefined,
+        })));
+        setActiveConvId(urlConvId);
+      })
+      .catch(() => {
+        navigate("/chats", { replace: true });
+      });
+  // Only run once on mount with the URL param
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem("sof_token");
@@ -91,21 +190,23 @@ const Chats = () => {
     }
   }, []);
 
-  const handleNewConversation = () => { setActiveConvId(null); setMessages([]); setSidebarOpen(false); };
+  const handleNewConversation = () => {
+    setActiveConvAndNav(null);
+    setMessages([]);
+    setSidebarOpen(false);
+  };
 
   const handleSelectConversation = async (id: string) => {
     if (!token) return;
-    setActiveConvId(id);
+    setActiveConvAndNav(id);
     setSidebarOpen(false);
     try {
       const data = await fetchConversation(token, id);
       setMessages(data.messages.map((m) => ({
         role: m.role,
         content: m.content,
-        // Imagens enviadas pelo usuário ficam em imagePreview
-        // Imagens geradas pela IA (FLUX) ficam em imageGenerated
-        imagePreview: m.role === 'user' ? (m.image_url ?? undefined) : undefined,
-        imageGenerated: m.role === 'assistant' ? (m.image_url ?? undefined) : undefined,
+        imagePreview: m.role === "user" ? (m.image_url ?? undefined) : undefined,
+        imageGenerated: m.role === "assistant" ? (m.image_url ?? undefined) : undefined,
       })));
     } catch { setMessages([]); }
   };
@@ -115,7 +216,10 @@ const Chats = () => {
     try {
       await deleteConversation(token, id);
       setConversations((prev) => prev.filter((c) => c.id !== id));
-      if (activeConvIdRef.current === id) { setActiveConvId(null); setMessages([]); }
+      if (activeConvIdRef.current === id) {
+        setActiveConvAndNav(null);
+        setMessages([]);
+      }
     } catch {}
   };
 
@@ -124,14 +228,18 @@ const Chats = () => {
     try {
       await deleteAllConversations(token);
       setConversations([]);
-      setActiveConvId(null);
+      setActiveConvAndNav(null);
       setMessages([]);
     } catch {}
   };
 
-
-  const startImageGeneration = useCallback(async (text: string, orKey: string, imageBase64?: string, imageMediaType?: string) => {
-    setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde..." }]);
+  const startImageGeneration = useCallback(async (
+    text: string,
+    orKey: string,
+    imageBase64?: string,
+    imageMediaType?: string,
+  ) => {
+    setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde...", modelSlug: selectedModel }]);
     setIsImageGenerating(true);
 
     const abort = new AbortController();
@@ -146,11 +254,12 @@ const Chats = () => {
           role: "assistant",
           content: `✦ Prompt refinado: *${result.prompt_refined}*`,
           imageGenerated: result.image_url,
+          modelSlug: selectedModel,
         };
         return updated;
       });
       if (result.conversation_id) {
-        if (!activeConvIdRef.current) setActiveConvId(result.conversation_id);
+        if (!activeConvIdRef.current) setActiveConvAndNav(result.conversation_id);
         fetchConversations(token!).then(setConversations).catch(() => {});
       }
       if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
@@ -158,18 +267,17 @@ const Chats = () => {
       if ((err as Error)?.name === "AbortError") {
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada." };
+          updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada.", modelSlug: selectedModel };
           return updated;
         });
       } else {
         const msg = err instanceof Error ? err.message : "Erro desconhecido";
-        // Se a chave for inválida, remove do localStorage
         if (msg.includes("401") || msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("unauthorized")) {
           localStorage.removeItem("sof_openrouter_key");
         }
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: `Não consegui gerar a imagem. ${msg}` };
+          updated[updated.length - 1] = { role: "assistant", content: `Não consegui gerar a imagem. ${msg}`, modelSlug: selectedModel };
           return updated;
         });
       }
@@ -177,7 +285,7 @@ const Chats = () => {
       setIsImageGenerating(false);
       imageAbortRef.current = null;
     }
-  }, [token]);
+  }, [token, selectedModel, setActiveConvAndNav]);
 
   const sendMessage = useCallback(async (
     text: string,
@@ -197,13 +305,13 @@ const Chats = () => {
 
     if (isGuest) {
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a SynastrIA. No modo visitante, o chat não é salvo." }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a SynastrIA. No modo visitante, o chat não é salvo.", modelSlug: selectedModel }]);
         setIsLoading(false);
       }, 600);
       return;
     }
 
-    // ── Fluxo de geração de imagem ─────────────────────────────────────────
+    // ── Image generation ──
     if (isImageRequest(text)) {
       setIsLoading(false);
       const orKey = getOpenRouterKey();
@@ -216,13 +324,12 @@ const Chats = () => {
       return;
     }
 
-    // ── Fluxo do File Manager via /file_manager ────────────────────────────
+    // ── File Manager ──
     const isFileManager = text.trim().toLowerCase().startsWith("/file_manager");
     if (isFileManager) {
       const command = text.trim().replace(/^\/file_manager\s*/i, "").trim()
         || (fileName ? `Analise e processe o arquivo: ${fileName}` : "Crie um script Python útil");
 
-      // Adiciona mensagem do assistente com steps iniciais
       const initialSteps = [
         { id: "classifying", label: "Analisando solicitação", status: "running" as const },
         { id: "generating",  label: "Gerando código",         status: "pending" as const },
@@ -234,6 +341,7 @@ const Chats = () => {
         role: "assistant",
         content: "🖥️ Rodando no CLI...",
         sandboxSteps: initialSteps,
+        modelSlug: selectedModel,
       }]);
 
       const updateSteps = (updater: (steps: import("./SandboxProgress").SandboxStep[]) => import("./SandboxProgress").SandboxStep[]) => {
@@ -256,30 +364,20 @@ const Chats = () => {
           fileMediaType,
           (status, _msg, detail) => {
             updateSteps((steps) => steps.map((s) => {
-              if (status === "classifying" && s.id === "classifying")
-                return { ...s, status: "running" };
-              if (status === "planned" && s.id === "classifying")
-                return { ...s, status: "done" };
-              if (status === "generating" && s.id === "generating")
-                return { ...s, status: "running", attempt: detail?.attempt };
-              if (status === "code_generated" && s.id === "generating")
-                return { ...s, status: "done", detail: detail?.code, isCode: true, attempt: detail?.attempt };
-              if (status === "executing" && s.id === "executing")
-                return { ...s, status: "running", attempt: detail?.attempt };
-              if (status === "exec_error" && s.id === "executing")
-                return { ...s, status: detail?.retrying ? "retrying" : "error", detail: detail?.error, attempt: detail?.attempt };
-              if (status === "uploading" && s.id === "uploading")
-                return { ...s, status: "running" };
+              if (status === "classifying" && s.id === "classifying") return { ...s, status: "running" };
+              if (status === "planned" && s.id === "classifying") return { ...s, status: "done" };
+              if (status === "generating" && s.id === "generating") return { ...s, status: "running", attempt: detail?.attempt };
+              if (status === "code_generated" && s.id === "generating") return { ...s, status: "done", detail: detail?.code, isCode: true, attempt: detail?.attempt };
+              if (status === "executing" && s.id === "executing") return { ...s, status: "running", attempt: detail?.attempt };
+              if (status === "exec_error" && s.id === "executing") return { ...s, status: detail?.retrying ? "retrying" : "error", detail: detail?.error, attempt: detail?.attempt };
+              if (status === "uploading" && s.id === "uploading") return { ...s, status: "running" };
               return s;
             }));
           },
         );
 
-        // Sucesso — marca todos como done e adiciona output
         updateSteps((steps) => steps.map((s) =>
-          s.status === "pending" || s.status === "running"
-            ? { ...s, status: "done" as const }
-            : s
+          s.status === "pending" || s.status === "running" ? { ...s, status: "done" as const } : s
         ));
 
         setMessages((prev) => {
@@ -287,16 +385,11 @@ const Chats = () => {
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
             const codeTypes = ["html", "css", "js", "ts", "py", "md", "sh", "sql", "yaml", "json", "txt"];
-            const fileName = result.output_type === "html"
+            const fn = result.output_type === "html"
               ? "index.html"
               : `${result.title.toLowerCase().replace(/\s+/g, "-")}.${result.output_type}`;
-
-            // Zip: usa os arquivos extraídos do backend
-            // Single file: usa o conteúdo do arquivo
             const githubFiles = result.github_files
-              ?? (codeTypes.includes(result.output_type) && result.file_content
-                ? { [fileName]: result.file_content }
-                : undefined);
+              ?? (codeTypes.includes(result.output_type) && result.file_content ? { [fn]: result.file_content } : undefined);
 
             updated[updated.length - 1] = {
               ...last,
@@ -322,10 +415,7 @@ const Chats = () => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
-            updated[updated.length - 1] = {
-              ...last,
-              content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}`,
-            };
+            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}` };
           }
           return updated;
         });
@@ -335,9 +425,9 @@ const Chats = () => {
       return;
     }
 
-    // ── Fluxo de chat normal ───────────────────────────────────────────────
+    // ── Normal chat ──
     setTypingStatus(isFactualMessage(text) ? "wikipedia" : "thinking");
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    setMessages((prev) => [...prev, { role: "assistant", content: "", modelSlug: selectedModel }]);
 
     try {
       const response = await sendChatMessage(
@@ -354,7 +444,7 @@ const Chats = () => {
         },
         (meta) => {
           if (meta.conversation_id && !activeConvIdRef.current) {
-            setActiveConvId(meta.conversation_id);
+            setActiveConvAndNav(meta.conversation_id);
             fetchConversations(token!).then(setConversations).catch(() => {});
           }
           if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
@@ -390,7 +480,7 @@ const Chats = () => {
       setIsLoading(false);
       setTypingStatus("thinking");
     }
-  }, [token, isGuest]);
+  }, [token, isGuest, selectedModel, startImageGeneration, setActiveConvAndNav]);
 
   const hasMessages = messages.length > 0;
 
@@ -403,20 +493,50 @@ const Chats = () => {
       )}
 
       {!isGuest && (
-        <ChatHistory conversations={conversations} activeId={activeConvId}
-          onSelect={handleSelectConversation} onNew={handleNewConversation}
-          onDelete={handleDeleteConversation} onDeleteAll={handleDeleteAll}
-          open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <ChatHistory
+          conversations={conversations}
+          activeId={activeConvId}
+          onSelect={handleSelectConversation}
+          onNew={handleNewConversation}
+          onDelete={handleDeleteConversation}
+          onDeleteAll={handleDeleteAll}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
       )}
 
-      <Header selectedModel={selectedModel} onModelChange={setSelectedModel}
-        onLogout={handleLogout} remainingMessages={remainingMessages}
+      <Header
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        onLogout={handleLogout}
+        remainingMessages={remainingMessages}
         onSidebarToggle={!isGuest ? () => setSidebarOpen(true) : undefined}
-        isGuest={isGuest} />
+        isGuest={isGuest}
+      />
+
+      {/* Share button — visible when there's an active conversation */}
+      {hasMessages && activeConvId && (
+        <div
+          style={{
+            position: "fixed",
+            top: 60,
+            right: 16,
+            zIndex: 40,
+          }}
+        >
+          <ShareButton conversationId={activeConvId} />
+        </div>
+      )}
 
       <HeroView visible={!hasMessages} />
-      {hasMessages && <ChatView messages={messages} isLoading={isLoading} typingStatus={typingStatus} />}
-
+      {hasMessages && (
+        <ChatView
+          messages={messages}
+          isLoading={isLoading}
+          typingStatus={typingStatus}
+          selectedModel={selectedModel}
+        />
+      )}
 
       {isImageGenerating && (
         <div className="image-gen-banner">
