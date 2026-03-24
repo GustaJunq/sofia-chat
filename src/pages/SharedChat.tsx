@@ -294,7 +294,7 @@ const SharedChat = () => {
                 Continue essa conversa ou inicie a sua própria.
               </p>
               <Link
-                to="/chats"
+                to={`/chats/${shareId}`}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -311,7 +311,7 @@ const SharedChat = () => {
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
-                Abrir SynastrIA
+                Abrir conversa
                 <ExternalLink style={{ width: 13, height: 13 }} />
               </Link>
             </div>
