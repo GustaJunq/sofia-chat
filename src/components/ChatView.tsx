@@ -15,15 +15,19 @@ export interface Message {
   sandboxTitle?: string;
   sandboxPublicUrl?: string;
   sandboxGithubFiles?: Record<string, string>;
+  /** Which model slug generated this assistant message */
+  modelSlug?: string;
 }
 
 interface ChatViewProps {
   messages: Message[];
   isLoading: boolean;
   typingStatus?: "thinking" | "wikipedia";
+  /** Currently selected model slug — used for the typing indicator avatar */
+  selectedModel?: string;
 }
 
-const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewProps) => {
+const ChatView = ({ messages, isLoading, typingStatus = "thinking", selectedModel }: ChatViewProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentPauseRef = useRef<(() => void) | null>(null);
 
@@ -52,6 +56,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking" }: ChatViewPr
               imagePreview={msg.imagePreview}
               imageGenerated={msg.imageGenerated}
               onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
+              modelSlug={msg.role === "assistant" ? (msg.modelSlug ?? selectedModel) : undefined}
             />
             {msg.sandboxSteps && msg.sandboxSteps.length > 0 && (
               <div className="sandbox-progress-wrapper">
