@@ -5,8 +5,8 @@ import { API_URL, getToken } from "@/lib/api";
 /* ──────────────────── Slash Commands ──────────────────── */
 
 const SLASH_COMMANDS = [
-  { command: "/imagine", description: "Gerar uma imagem com IA" },
-  { command: "/file_manager", description: "Processar ou converter um arquivo" },
+  { command: "/imagine", description: "Generate an image with AI" },
+  { command: "/file_manager", description: "Process or convert a file" },
 ];
 
 interface SlashMenuProps {
@@ -259,7 +259,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
         onPointerUp={stopRecording}
         onPointerLeave={stopRecording}
         onPointerCancel={stopRecording}
-        aria-label={isRecording ? "Solte para enviar" : "Segure para falar"}
+        aria-label={isRecording ? "Release to send" : "Hold to speak"}
         disabled={isBusy}
         style={{ touchAction: "none", userSelect: "none" }}
       >
@@ -289,7 +289,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
       )}
 
       {/* Close */}
-      <button onClick={onClose} className="voice-close-btn" aria-label="Fechar modo voz">
+      <button onClick={onClose} className="voice-close-btn" aria-label="Close voice mode">
         <X className="w-6 h-6" />
       </button>
     </div>
@@ -458,8 +458,8 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   const placeholder = docBase64
     ? `O que fazer com "${docName}"?`
     : imageBase64
-    ? "Pergunte sobre a imagem..."
-    : "Faça uma pergunta...";
+    ? "Ask about the image..."
+    : "Ask something...";
 
   return (
     <>
@@ -469,10 +469,10 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
         <div className="file-manager-warning">
           <span className="file-manager-warning-icon">⚠️</span>
           <div>
-            <p className="file-manager-warning-title">ei, sou eu, a SynastrIA!</p>
+            <p className="file-manager-warning-title">hey, it's me, SynastrIA!</p>
             <p className="file-manager-warning-desc">
-              Ainda tô aprendendo a usar esse terminal, então se eu não entregar o tipo de arquivo certo ou tiver algo de TXT, não me culpe — essa função tá em beta :)<br />
-              Mas pode usar mesmo assim e recomende melhorias nesse TikTok ↓<br />
+              I'm still learning to use this terminal, so if I don't deliver the right file type or something comes out as TXT, don't blame me — this feature is in beta :)<br />
+              But feel free to use it and suggest improvements on TikTok ↓<br />
               <strong>@synastria.dev</strong>
             </p>
           </div>
@@ -489,24 +489,24 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
       <div className="inputbar-wrapper">
         <div className="inputbar-gradient">
         <div className="inputbar-surface">
-          {/* Preview de imagem */}
+          {/* Image preview */}
           {imagePreview && (
             <div className="inputbar-image-preview">
               <img src={imagePreview} alt="Selected image" className="inputbar-image-thumb" />
-              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remover">
+              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remove">
                 <X className="w-3 h-3" />
               </button>
             </div>
           )}
 
-          {/* Preview de documento */}
+          {/* Document preview */}
           {docName && (
             <div className="inputbar-image-preview" style={{ alignItems: "center", gap: "8px", padding: "6px 10px" }}>
               {getDocIcon(docName)}
               <span style={{ fontSize: "0.8rem", color: "var(--text-secondary, #aaa)", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {docName}
               </span>
-              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remover">
+              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remove">
                 <X className="w-3 h-3" />
               </button>
             </div>
@@ -517,7 +517,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
               className="inputbar-attach"
-              title="Anexar arquivo"
+              title="Attach file"
             >
               <Paperclip className="w-5 h-5" />
             </button>

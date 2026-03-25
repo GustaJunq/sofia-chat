@@ -14,20 +14,20 @@ export interface AgentToolCallEntry {
 const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; doneLabel: string; Icon: React.FC<{ className?: string }> }> = {
   web_search: {
     label: "web_search",
-    runningLabel: "Pesquisando",
-    doneLabel: "Pesquisa concluída",
+    runningLabel: "Searching",
+    doneLabel: "Search complete",
     Icon: Globe,
   },
   run_sandbox: {
     label: "run_sandbox",
-    runningLabel: "Executando sandbox",
-    doneLabel: "Arquivo gerado",
+    runningLabel: "Running sandbox",
+    doneLabel: "File generated",
     Icon: Terminal,
   },
   generate_image: {
     label: "generate_image",
-    runningLabel: "Gerando imagem",
-    doneLabel: "Imagem gerada",
+    runningLabel: "Generating image",
+    doneLabel: "Image generated",
     Icon: ImageIcon,
   },
 };

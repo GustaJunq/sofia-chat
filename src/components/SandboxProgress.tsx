@@ -50,7 +50,7 @@ function StepRow({ step }: { step: SandboxStep }) {
         <StatusIcon status={step.status} />
         <span className="sandbox-step-label">{step.label}</span>
         {step.attempt && step.attempt > 1 && (
-          <span className="sandbox-step-attempt">tentativa {step.attempt}</span>
+          <span className="sandbox-step-attempt">attempt {step.attempt}</span>
         )}
         {hasDetail && (
           open

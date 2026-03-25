@@ -57,7 +57,7 @@ const CodeBlock = ({ children, className }: { children: string; className?: stri
         <span className="code-block-lang">{lang}</span>
         <button onClick={handleCopy} className="code-copy-btn">
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? "Copiado" : "Copiar"}
+          {copied ? "Copied" : "Copy"}
         </button>
       </div>
       <pre><code className={className}>{children}</code></pre>
@@ -244,7 +244,7 @@ const MessageBubble = ({
           <div>
             <button onClick={() => setShowThinking(!showThinking)} className="msg-thinking-btn">
               <Brain className="w-3 h-3" />
-              {showThinking ? "Ocultar raciocínio" : "Ver raciocínio"}
+              {showThinking ? "Hide reasoning" : "Show reasoning"}
               {showThinking ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
             {showThinking && <div className="msg-thinking-block">{thinking}</div>}
