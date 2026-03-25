@@ -142,6 +142,11 @@ const Chats = () => {
   const activeConvIdRef = useRef<string | null>(null);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
 
+  // Tracks a new conversation ID received during streaming — navigation is
+  // deferred to after the stream ends so the useEffect that fetches conversation
+  // history from the DB doesn't fire while the backend hasn't saved yet.
+  const pendingConvIdRef = useRef<string | null>(null);
+
   // ── Sync active conversation with URL ──
   const setActiveConvAndNav = useCallback((id: string | null) => {
     setActiveConvId(id);
@@ -160,6 +165,10 @@ const Chats = () => {
 
   useEffect(() => {
     if (!token || !urlConvId) return;
+    // Skip if we're actively streaming — the in-memory messages are the
+    // source of truth during a stream. Navigation after the stream ends
+    // will re-trigger this effect with data already saved to the DB.
+    if (isLoading) return;
     fetchConversation(token, urlConvId)
       .then((data) => {
         setMessages(data.messages.map((m) => ({
@@ -444,8 +453,12 @@ const Chats = () => {
         },
         (meta) => {
           if (meta.conversation_id && !activeConvIdRef.current) {
-            setActiveConvAndNav(meta.conversation_id);
-            fetchConversations(token!).then(setConversations).catch(() => {});
+            // Update the ref so subsequent messages in this stream go to
+            // the right conversation — but DON'T navigate yet.
+            // Navigation triggers the urlConvId useEffect which would fetch
+            // from DB (empty while backend is still streaming).
+            activeConvIdRef.current = meta.conversation_id;
+            pendingConvIdRef.current = meta.conversation_id;
           }
           if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
         },
@@ -553,6 +566,12 @@ const Chats = () => {
         return updated;
       });
     } finally {
+      // Navigate to the new conversation NOW (after DB has the messages saved)
+      if (pendingConvIdRef.current) {
+        setActiveConvAndNav(pendingConvIdRef.current);
+        fetchConversations(token!).then(setConversations).catch(() => {});
+        pendingConvIdRef.current = null;
+      }
       setIsLoading(false);
       setTypingStatus("thinking");
     }
