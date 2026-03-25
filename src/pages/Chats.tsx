@@ -314,7 +314,7 @@ const Chats = () => {
 
     if (isGuest) {
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "assistant", content: "Faça login para usar a SynastrIA. No modo visitante, o chat não é salvo.", modelSlug: selectedModel }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: "Log in to use SynastrIA. In guest mode, chats are not saved.", modelSlug: selectedModel }]);
         setIsLoading(false);
       }, 600);
       return;
@@ -337,18 +337,18 @@ const Chats = () => {
     const isFileManager = text.trim().toLowerCase().startsWith("/file_manager");
     if (isFileManager) {
       const command = text.trim().replace(/^\/file_manager\s*/i, "").trim()
-        || (fileName ? `Analise e processe o arquivo: ${fileName}` : "Crie um script Python útil");
+        || (fileName ? `Analyze and process the file: ${fileName}` : "Create a useful Python script");
 
       const initialSteps = [
-        { id: "classifying", label: "Analisando solicitação", status: "running" as const },
-        { id: "generating",  label: "Gerando código",         status: "pending" as const },
-        { id: "executing",   label: "Executando",             status: "pending" as const },
-        { id: "uploading",   label: "Salvando resultado",     status: "pending" as const },
+        { id: "classifying", label: "Analyzing request",  status: "running" as const },
+        { id: "generating",  label: "Generating code",    status: "pending" as const },
+        { id: "executing",   label: "Checking syntax",    status: "pending" as const },
+        { id: "uploading",   label: "Saving result",      status: "pending" as const },
       ];
 
       setMessages((prev) => [...prev, {
         role: "assistant",
-        content: "🖥️ Rodando no CLI...",
+        content: "🖥️ Running on CLI...",
         sandboxSteps: initialSteps,
         modelSlug: selectedModel,
       }]);
@@ -403,8 +403,8 @@ const Chats = () => {
             updated[updated.length - 1] = {
               ...last,
               content: result.output_type === "html"
-                ? `✅ Pronto! **${result.title}** — publicado em synastria.dev`
-                : `✅ Pronto! **${result.title}**`,
+                ? `✅ Done! **${result.title}** — published on synastria.dev`
+                : `✅ Done! **${result.title}**`,
               sandboxOutputUrl: result.output_url,
               sandboxOutputType: result.output_type,
               sandboxTitle: result.title,
@@ -424,7 +424,7 @@ const Chats = () => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
-            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "Erro no CLI."}` };
+            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "CLI error."}` };
           }
           return updated;
         });
@@ -561,7 +561,7 @@ const Chats = () => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
         if (last?.role === "assistant" && last.content === "") {
-          updated[updated.length - 1] = { ...last, content: "Desculpe, ocorreu um erro. Tente novamente." };
+          updated[updated.length - 1] = { ...last, content: "Sorry, an error occurred. Please try again." };
         }
         return updated;
       });
@@ -583,7 +583,7 @@ const Chats = () => {
     <div className="app-shell">
       {upgradeBanner && (
         <div className="upgrade-banner">
-          <div className="upgrade-banner-inner">Plano pro ativado! Faça login novamente para atualizar.</div>
+          <div className="upgrade-banner-inner">Pro plan activated! Log in again to apply the upgrade.</div>
         </div>
       )}
 
@@ -635,10 +635,10 @@ const Chats = () => {
 
       {isImageGenerating && (
         <div className="image-gen-banner">
-          <span>Gerando imagem...</span>
+          <span>Generating image...</span>
           <button onClick={() => { imageAbortRef.current?.abort(); }} className="image-gen-cancel">
             <X className="w-4 h-4" />
-            Cancelar
+            Cancel
           </button>
         </div>
       )}
@@ -648,14 +648,14 @@ const Chats = () => {
           <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
             <div className="flex items-center gap-2 text-white font-semibold text-lg">
               <Key className="w-5 h-5 text-orange-400" />
-              Chave do OpenRouter
+              OpenRouter API Key
             </div>
             <p className="text-white/60 text-sm">
-              Para gerar imagens, cole sua chave da API do{" "}
+              To generate images, paste your API key from{" "}
               <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">
                 OpenRouter
               </a>
-              . Ela fica salva só no seu navegador.
+              . It is saved only in your browser.
             </p>
             <input
               type="password"
@@ -680,7 +680,7 @@ const Chats = () => {
                 onClick={() => { setShowKeyModal(false); setPendingImageText(null); setKeyInput(""); }}
                 className="flex-1 py-2 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/5"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 onClick={() => {
@@ -695,7 +695,7 @@ const Chats = () => {
                 }}
                 className="flex-1 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600"
               >
-                Salvar e gerar
+                Save and generate
               </button>
             </div>
           </div>
