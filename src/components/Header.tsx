@@ -6,7 +6,7 @@ import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/a
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const models = [
-  { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "GPT OSS 20B",   requiredPlan: null },
+  { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "Llama 3.1 8B",   requiredPlan: null },
   { id: "syn-v1-pro",   label: "SYN-V1-PRO",   sublabel: "GPT OSS 120B",  requiredPlan: "paid" },
   { id: "syn-v1-qwen",  label: "SYN-V1-QWEN",  sublabel: "Qwen3 32B",     requiredPlan: "paid" },
   { id: "syn-v1-llama", label: "SYN-V1-LLAMA", sublabel: "Llama 3.3 70B", requiredPlan: "paid" },
