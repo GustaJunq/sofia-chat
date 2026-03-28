@@ -213,6 +213,7 @@ export async function sendChatMessage(
           thinking: typeof parsed.thinking === "string" && parsed.thinking
             ? parsed.thinking
             : undefined,
+          ttft_ms: typeof parsed.ttft_ms === "number" ? parsed.ttft_ms : undefined,
           conversation_id: (parsed.conversation_id as string) ?? conversationId ?? "",
           remaining_messages: parsed.remaining_messages as number | undefined,
           model: parsed.model as string | undefined,
