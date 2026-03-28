@@ -546,12 +546,16 @@ const Chats = () => {
         },
       );
 
-      if (response.thinking) {
+      if (response.thinking || response.ttft_ms !== undefined) {
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last?.role === "assistant") {
-            updated[updated.length - 1] = { ...last, thinking: response.thinking };
+            updated[updated.length - 1] = {
+              ...last,
+              ...(response.thinking ? { thinking: response.thinking } : {}),
+              ...(response.ttft_ms !== undefined ? { ttft_ms: response.ttft_ms } : {}),
+            };
           }
           return updated;
         });
