@@ -299,9 +299,7 @@ function VoiceMode({ open, onClose, conversationId }: VoiceModeProps) {
 /* ──────────────────── Input Bar ──────────────────── */
 
 // Tipos de arquivo aceitos
-const ACCEPTED_IMAGE_TYPES = "image/*";
 const ACCEPTED_DOC_TYPES = ".pdf,.xlsx,.xls,.csv,.docx,.doc,.txt,.json,.html,.py,.js,.ts";
-const ACCEPTED_ALL = `${ACCEPTED_IMAGE_TYPES},${ACCEPTED_DOC_TYPES}`;
 
 const DOC_MEDIA_TYPES: Record<string, string> = {
   pdf: "application/pdf",
@@ -328,8 +326,6 @@ function getDocIcon(fileName: string) {
 interface InputBarProps {
   onSend: (
     message: string,
-    imageBase64?: string,
-    imageMediaType?: string,
     fileBase64?: string,
     fileName?: string,
     fileMediaType?: string,
@@ -341,10 +337,6 @@ interface InputBarProps {
 const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   const [text, setText] = useState("");
   const [slashQuery, setSlashQuery] = useState<string | null>(null);
-  // imagem
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [imageMediaType, setImageMediaType] = useState<string>("image/jpeg");
   // documento
   const [docName, setDocName] = useState<string | null>(null);
   const [docBase64, setDocBase64] = useState<string | null>(null);
@@ -381,34 +373,20 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
   };
 
   const clearAttachment = () => {
-    setImagePreview(null);
-    setImageBase64(null);
-    setImageMediaType("image/jpeg");
     setDocName(null);
     setDocBase64(null);
     setDocMediaType("application/octet-stream");
   };
 
   const handleFileSelect = (file: File) => {
-    const isImage = file.type.startsWith("image/");
-
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
       const base64 = result.split(",", 2)[1];
-
-      if (isImage) {
-        setDocName(null); setDocBase64(null);
-        setImagePreview(result);
-        setImageBase64(base64);
-        setImageMediaType(file.type);
-      } else {
-        setImagePreview(null); setImageBase64(null);
-        const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-        setDocName(file.name);
-        setDocBase64(base64);
-        setDocMediaType(DOC_MEDIA_TYPES[ext] ?? file.type ?? "application/octet-stream");
-      }
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+      setDocName(file.name);
+      setDocBase64(base64);
+      setDocMediaType(DOC_MEDIA_TYPES[ext] ?? file.type ?? "application/octet-stream");
     };
     reader.readAsDataURL(file);
   };
@@ -419,25 +397,11 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     e.target.value = "";
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of Array.from(items)) {
-      if (item.type.startsWith("image/")) {
-        const file = item.getAsFile();
-        if (file) handleFileSelect(file);
-        break;
-      }
-    }
-  };
-
   const handleSend = () => {
     const trimmed = text.trim();
-    if ((!trimmed && !imageBase64 && !docBase64) || disabled) return;
+    if ((!trimmed && !docBase64) || disabled) return;
     onSend(
       trimmed,
-      imageBase64 ?? undefined,
-      imageBase64 ? imageMediaType : undefined,
       docBase64 ?? undefined,
       docName ?? undefined,
       docBase64 ? docMediaType : undefined,
@@ -453,13 +417,9 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
     }
   };
 
-  const hasAttachment = !!imageBase64 || !!docBase64;
+  const hasAttachment = !!docBase64;
   const canSend = (text.trim().length > 0 || hasAttachment) && !disabled;
-  const placeholder = docBase64
-    ? `O que fazer com "${docName}"?`
-    : imageBase64
-    ? "Ask about the image..."
-    : "Ask something...";
+  const placeholder = docBase64 ? `O que fazer com "${docName}"?` : "Ask something...";
 
   return (
     <>
@@ -489,16 +449,6 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
       <div className="inputbar-wrapper">
         <div className="inputbar-gradient">
         <div className="inputbar-surface">
-          {/* Image preview */}
-          {imagePreview && (
-            <div className="inputbar-image-preview">
-              <img src={imagePreview} alt="Selected image" className="inputbar-image-thumb" />
-              <button onClick={clearAttachment} className="inputbar-image-remove" title="Remove">
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          )}
-
           {/* Document preview */}
           {docName && (
             <div className="inputbar-image-preview" style={{ alignItems: "center", gap: "8px", padding: "6px 10px" }}>
@@ -525,7 +475,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept={ACCEPTED_ALL}
+            accept={ACCEPTED_DOC_TYPES}
               onChange={handleFileChange}
               className="hidden"
             />
@@ -539,7 +489,6 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
                 value={text}
                 onChange={(e) => handleTextChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                onPaste={handlePaste}
                 placeholder={placeholder}
                 disabled={disabled}
                 rows={1}
