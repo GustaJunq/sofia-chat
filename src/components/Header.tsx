@@ -6,19 +6,13 @@ import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/a
 const API_URL = "https://sofia-api-z8nr.onrender.com";
 
 const models = [
-  { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "Llama 3.1 8B",   requiredPlan: null },
-  { id: "syn-v1-pro",   label: "SYN-V1-PRO",   sublabel: "GPT OSS 120B",  requiredPlan: "paid" },
-  { id: "syn-v1-qwen",  label: "SYN-V1-QWEN",  sublabel: "Qwen3 32B",     requiredPlan: "paid" },
-  { id: "syn-v1-llama", label: "SYN-V1-LLAMA", sublabel: "Llama 3.3 70B", requiredPlan: "paid" },
-  { id: "syn-v1-kimi",  label: "SYN-V1-KIMI",  sublabel: "Kimi K2",       requiredPlan: "paid" },
+  { id: "syn-v1-free", label: "SYN-V1-FREE", sublabel: "Llama 3.1 8B",  requiredPlan: null },
+  { id: "syn-v1-pro",  label: "SYN-V1-PRO",  sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
 ];
 
 const PLAN_ACCESS: Record<string, string[]> = {
-  "syn-v1-free":  ["free", "paid"],
-  "syn-v1-pro":   ["paid"],
-  "syn-v1-qwen":  ["paid"],
-  "syn-v1-llama": ["paid"],
-  "syn-v1-kimi":  ["paid"],
+  "syn-v1-free": ["free", "paid"],
+  "syn-v1-pro":  ["paid"],
 };
 
 interface HeaderProps {
@@ -48,7 +42,6 @@ const Header = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Verifica status do GitHub
     const token = getToken();
     if (token) {
       fetch(`${API_URL}/auth/github/status`, {
@@ -219,7 +212,6 @@ const Header = ({
 
       {/* ── Main header bar ── */}
       <header className="header-bar">
-        {/* Top gradient fade like x.ai */}
         <div className="header-gradient" />
 
         <div className="header-inner">
