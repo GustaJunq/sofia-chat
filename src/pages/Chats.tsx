@@ -174,7 +174,6 @@ const Chats = () => {
         setMessages(data.messages.map((m) => ({
           role: m.role,
           content: m.content,
-          imagePreview: m.role === "user" ? (m.image_url ?? undefined) : undefined,
           imageGenerated: m.role === "assistant" ? (m.image_url ?? undefined) : undefined,
         })));
         setActiveConvId(urlConvId);
@@ -214,7 +213,6 @@ const Chats = () => {
       setMessages(data.messages.map((m) => ({
         role: m.role,
         content: m.content,
-        imagePreview: m.role === "user" ? (m.image_url ?? undefined) : undefined,
         imageGenerated: m.role === "assistant" ? (m.image_url ?? undefined) : undefined,
       })));
     } catch { setMessages([]); }
@@ -245,8 +243,6 @@ const Chats = () => {
   const startImageGeneration = useCallback(async (
     text: string,
     orKey: string,
-    imageBase64?: string,
-    imageMediaType?: string,
   ) => {
     setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde...", modelSlug: selectedModel }]);
     setIsImageGenerating(true);
@@ -255,8 +251,7 @@ const Chats = () => {
     imageAbortRef.current = abort;
 
     try {
-      const referenceImage = imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined;
-      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current, referenceImage);
+      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current);
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
@@ -298,8 +293,6 @@ const Chats = () => {
 
   const sendMessage = useCallback(async (
     text: string,
-    imageBase64?: string,
-    imageMediaType?: string,
     fileBase64?: string,
     fileName?: string,
     fileMediaType?: string,
@@ -307,7 +300,6 @@ const Chats = () => {
     const userMsg: Message = {
       role: "user",
       content: text || (fileName ? `📎 ${fileName}` : ""),
-      imagePreview: imageBase64 ? `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` : undefined,
     };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
@@ -329,7 +321,7 @@ const Chats = () => {
         setShowKeyModal(true);
         return;
       }
-      await startImageGeneration(text, orKey, imageBase64, imageMediaType);
+      await startImageGeneration(text, orKey);
       return;
     }
 
@@ -462,11 +454,9 @@ const Chats = () => {
           }
           if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
         },
-        imageBase64,
-        imageMediaType,
-        undefined,
-        undefined,
-        undefined,
+        fileBase64,
+        fileName,
+        fileMediaType,
         selectedModel,
         // ── Agent tool call: add badge to last assistant message ──
         (evt) => {
