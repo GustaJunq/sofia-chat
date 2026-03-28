@@ -3,8 +3,6 @@ import { ChevronDown, Key, Trash2, Menu, Github } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
 import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/api";
 
-const API_URL = "https://sofia-api-z8nr.onrender.com";
-
 const models = [
   { id: "syn-v1-free", label: "SYN-V1-FREE", sublabel: "Llama 3.1 8B",  requiredPlan: null },
   { id: "syn-v1-pro",  label: "SYN-V1-PRO",  sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
