@@ -115,6 +115,7 @@ interface MessageBubbleProps {
   imageGenerated?: string;
   onPlayRequest?: (play: () => Promise<void>, pause: () => void) => void;
   modelSlug?: string;
+  ttft_ms?: number;
 }
 
 const MessageBubble = ({
@@ -125,6 +126,7 @@ const MessageBubble = ({
   imageGenerated,
   onPlayRequest,
   modelSlug = DEFAULT_MODEL,
+  ttft_ms,
 }: MessageBubbleProps) => {
   const { profile } = useProfile();
   const [ttsState, setTtsState] = useState<"idle" | "loading" | "playing">("idle");
@@ -294,6 +296,20 @@ const MessageBubble = ({
         </div>
       </div>
 
+      {ttft_ms !== undefined && (
+        <div style={{
+          fontSize: "0.62rem",
+          color: "hsl(var(--muted-foreground))",
+          opacity: 0.5,
+          marginTop: "4px",
+          marginLeft: "33px",
+          fontFamily: "'JetBrains Mono', monospace",
+          letterSpacing: "0.03em",
+          userSelect: "none",
+        }}>
+          ⚡ {ttft_ms}ms
+        </div>
+      )}
       <div className="msg-action-buttons">
         <button
           onClick={() => {

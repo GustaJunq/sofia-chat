@@ -30,6 +30,7 @@ export interface Message {
   };
   /** Image produced by the agent's generate_image tool call */
   agentImageUrl?: string;
+  ttft_ms?: number;
 }
 
 interface ChatViewProps {
@@ -75,6 +76,7 @@ const ChatView = ({ messages, isLoading, typingStatus = "thinking", selectedMode
               imageGenerated={msg.imageGenerated ?? msg.agentImageUrl}
               onPlayRequest={msg.role === "assistant" ? handlePlayRequest : undefined}
               modelSlug={msg.role === "assistant" ? (msg.modelSlug ?? selectedModel) : undefined}
+              ttft_ms={msg.role === "assistant" ? msg.ttft_ms : undefined}
             />
 
             {/* /file_manager sandbox progress */}
