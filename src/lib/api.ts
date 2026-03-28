@@ -113,8 +113,6 @@ export async function sendChatMessage(
   conversationId?: string | null,
   onDelta?: (delta: string) => void,
   onMeta?: (meta: ChatMeta) => void,
-  imageBase64?: string,
-  imageMediaType?: string,
   fileBase64?: string,
   fileName?: string,
   fileMediaType?: string,
@@ -124,8 +122,6 @@ export async function sendChatMessage(
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
-  if (imageBase64) body.image_base64 = imageBase64;
-  if (imageMediaType) body.image_media_type = imageMediaType;
   if (fileBase64) body.file_base64 = fileBase64;
   if (fileName) body.file_name = fileName;
   if (fileMediaType) body.file_media_type = fileMediaType;
@@ -256,11 +252,9 @@ export async function generateImage(
   openRouterKey: string,
   signal?: AbortSignal,
   conversationId?: string | null,
-  referenceImage?: string,
 ): Promise<ImageGenResponse> {
   const body: Record<string, string> = { message, openrouter_key: openRouterKey };
   if (conversationId) body.conversation_id = conversationId;
-  if (referenceImage) body.reference_image = referenceImage;
 
   const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
