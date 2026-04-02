@@ -95,18 +95,6 @@ export interface AgentToolResultEvent {
   summary: string;
 }
 
-/**
- * Envia uma mensagem ao backend com suporte a streaming SSE.
- *
- * @param token           JWT do usuário
- * @param message         Texto enviado pelo usuário
- * @param conversationId  ID da conversa (null = nova conversa)
- * @param onDelta         Callback chamado a cada chunk de texto recebido
- * @param onMeta          Callback chamado com os metadados iniciais (conversation_id, etc.)
- * @param onAgentToolCall Callback quando o agente inicia uma ferramenta
- * @param onAgentToolResult Callback quando o resultado de uma ferramenta chega
- * @returns               ChatResponse com o reply completo ao final
- */
 export async function sendChatMessage(
   token: string,
   message: string,
@@ -140,6 +128,7 @@ export async function sendChatMessage(
   const decoder = new TextDecoder();
   let buffer = "";
   let result: ChatResponse | null = null;
+  let hasDelta = false;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -147,9 +136,8 @@ export async function sendChatMessage(
 
     buffer += decoder.decode(value, { stream: true });
 
-    // Processa todas as linhas completas acumuladas no buffer
     const lines = buffer.split("\n");
-    buffer = lines.pop() ?? ""; // última linha pode estar incompleta
+    buffer = lines.pop() ?? "";
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -165,12 +153,10 @@ export async function sendChatMessage(
         continue;
       }
 
-      // Erro vindo do backend
       if (parsed.error) {
         throw new Error(String(parsed.error));
       }
 
-      // Metadados iniciais (primeiro evento)
       if (parsed.conversation_id) {
         const meta: ChatMeta = {
           conversation_id: parsed.conversation_id as string,
@@ -181,12 +167,11 @@ export async function sendChatMessage(
         onMeta?.(meta);
       }
 
-      // Chunk de texto parcial
       if (typeof parsed.delta === "string") {
+        hasDelta = true;
         onDelta?.(parsed.delta);
       }
 
-      // Agente iniciou uma ferramenta
       if (parsed.agent_tool_call) {
         onAgentToolCall?.({
           tool: String(parsed.agent_tool_call),
@@ -194,7 +179,6 @@ export async function sendChatMessage(
         });
       }
 
-      // Resultado de ferramenta chegou
       if (parsed.agent_tool_result) {
         onAgentToolResult?.({
           tool: String(parsed.agent_tool_result),
@@ -202,14 +186,17 @@ export async function sendChatMessage(
         });
       }
 
-      // Evento final com reply completo
       if (parsed.done && typeof parsed.full_reply === "string") {
+        // Se não vieram deltas (safeguard, leak filter, etc.), injeta o full_reply direto
+        if (!hasDelta) {
+          onDelta?.(parsed.full_reply);
+        }
+
         result = {
           reply: parsed.full_reply,
           thinking: typeof parsed.thinking === "string" && parsed.thinking
             ? parsed.thinking
             : undefined,
-          ttft_ms: typeof parsed.ttft_ms === "number" ? parsed.ttft_ms : undefined,
           conversation_id: (parsed.conversation_id as string) ?? conversationId ?? "",
           remaining_messages: parsed.remaining_messages as number | undefined,
           model: parsed.model as string | undefined,
@@ -272,7 +259,6 @@ export async function generateImage(
     throw new Error(errMsg);
   }
 
-  // O endpoint retorna SSE para evitar timeout do Render durante a geração
   if (!res.body) throw new Error("Stream não suportado");
 
   const reader = res.body.getReader();
@@ -306,7 +292,6 @@ export async function generateImage(
           remaining_messages: parsed.remaining_messages as number | undefined,
         };
       }
-      // parsed.status === "generating" → heartbeat, continua aguardando
     }
   }
 
@@ -394,7 +379,6 @@ export async function sendSandboxMessage(
       let parsed: Record<string, unknown>;
       try { parsed = JSON.parse(jsonStr); } catch { continue; }
 
-      // Eventos com status (exec_error, etc.) devem atualizar o callback ANTES de lançar erro
       if (parsed.status) {
         onStatus?.(String(parsed.status), parsed.message ? String(parsed.message) : undefined, {
           code: parsed.code as string | undefined,
@@ -404,7 +388,6 @@ export async function sendSandboxMessage(
         });
       }
 
-      // Evento de erro final (sem status) — lança exceção
       if (parsed.error && !parsed.status) throw new Error(String(parsed.error));
 
       if (parsed.done) {
