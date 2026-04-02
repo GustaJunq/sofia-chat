@@ -4,14 +4,18 @@ import { getUserPlan } from "@/lib/auth";
 import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/api";
 
 const models = [
-  { id: "syn-v1-free", label: "SYN-V1-FREE", sublabel: "Llama 3.1 8B",  requiredPlan: null },
-  { id: "syn-v1-pro",  label: "SYN-V1-PRO",  sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
+  { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
+  { id: "syn-v1-pro",   label: "SYN-V1-PRO",   sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
+  { id: "syn-v1-april", label: "SYN-V1-APRIL", sublabel: "🌸 Modo especial de abril", requiredPlan: null },
 ];
 
 const PLAN_ACCESS: Record<string, string[]> = {
-  "syn-v1-free": ["free", "paid"],
-  "syn-v1-pro":  ["paid"],
+  "syn-v1-free":  ["free", "paid"],
+  "syn-v1-pro":   ["paid"],
+  "syn-v1-april": ["free", "paid"],
 };
+
+const isApril = new Date().getMonth() === 3; // 0-indexed
 
 interface HeaderProps {
   selectedModel: string;
@@ -91,6 +95,13 @@ const Header = ({
 
   const handleModelClick = async (modelId: string) => {
     setCheckoutError("");
+
+    // Bloqueia syn-v1-april fora de abril
+    if (modelId === "syn-v1-april" && !isApril) {
+      setCheckoutError("Este modo só está disponível em abril. 🌸");
+      return;
+    }
+
     const plan = getUserPlan();
     const allowed = PLAN_ACCESS[modelId] ?? [];
 
@@ -141,6 +152,7 @@ const Header = ({
   const plan = getUserPlan();
 
   const getBadge = (modelId: string) => {
+    if (modelId === "syn-v1-april" && !isApril) return "🔒";
     if (PLAN_ACCESS[modelId]?.includes(plan)) return null;
     return "PRO";
   };
