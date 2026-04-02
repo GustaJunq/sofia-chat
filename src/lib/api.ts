@@ -1,4 +1,4 @@
-export const API_URL = "https://sofia-api-z8nr.onrender.com";
+export const API_URL = "https://api.synastria.dev";
 
 export function getToken(): string | null {
   return sessionStorage.getItem("sof_token");
