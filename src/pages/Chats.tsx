@@ -536,25 +536,28 @@ const Chats = () => {
           return updated;
         });
       }
-    } catch {
-      setMessages((prev) => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-        if (last?.role === "assistant" && last.content === "") {
-          updated[updated.length - 1] = { ...last, content: "Sorry, an error occurred. Please try again." };
-        }
-        return updated;
-      });
-    } finally {
-      // Navigate to the new conversation NOW (after DB has the messages saved)
-      if (pendingConvIdRef.current) {
-        setActiveConvAndNav(pendingConvIdRef.current);
-        fetchConversations(token!).then(setConversations).catch(() => {});
+    } catch (err) {
+        // Se deu erro no stream, não devemos navegar para uma conversa que pode estar incompleta no DB
         pendingConvIdRef.current = null;
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === "assistant" && last.content === "") {
+            updated[updated.length - 1] = { ...last, content: `❌ ${err instanceof Error ? err.message : "Sorry, an error occurred. Please try again."}` };
+          }
+          return updated;
+        });
+      } finally {
+        // Navigate to the new conversation NOW (after DB has the messages saved)
+        if (pendingConvIdRef.current) {
+          setActiveConvAndNav(pendingConvIdRef.current);
+          fetchConversations(token!).then(setConversations).catch(() => {});
+          pendingConvIdRef.current = null;
+        }
+        setIsLoading(false);
+        setTypingStatus("thinking");
       }
-      setIsLoading(false);
-      setTypingStatus("thinking");
-    }
   }, [token, isGuest, selectedModel, startImageGeneration, setActiveConvAndNav]);
 
   const hasMessages = messages.length > 0;
