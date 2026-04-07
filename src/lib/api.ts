@@ -210,19 +210,7 @@ export async function sendChatMessage(
   return result;
 }
 
-// ================= OPENROUTER KEY =================
 
-export function getOpenRouterKey(): string | null {
-  return localStorage.getItem("sof_openrouter_key");
-}
-
-export function saveOpenRouterKey(key: string): void {
-  localStorage.setItem("sof_openrouter_key", key.trim());
-}
-
-export function clearOpenRouterKey(): void {
-  localStorage.removeItem("sof_openrouter_key");
-}
 
 // ================= IMAGE GENERATION =================
 
@@ -236,11 +224,10 @@ export interface ImageGenResponse {
 export async function generateImage(
   token: string,
   message: string,
-  openRouterKey: string,
   signal?: AbortSignal,
   conversationId?: string | null,
 ): Promise<ImageGenResponse> {
-  const body: Record<string, string> = { message, openrouter_key: openRouterKey };
+  const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
 
   const res = await fetch(`${API_URL}/generate-image`, {

@@ -13,8 +13,6 @@ import {
   sendChatMessage,
   sendSandboxMessage,
   generateImage,
-  getOpenRouterKey,
-  saveOpenRouterKey,
   deleteConversation,
   deleteAllConversations,
   type ConversationSummary,
@@ -134,9 +132,7 @@ const Chats = () => {
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isImageGenerating, setIsImageGenerating] = useState(false);
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [keyInput, setKeyInput] = useState("");
-  const [pendingImageText, setPendingImageText] = useState<string | null>(null);
+
   const imageAbortRef = useRef<AbortController | null>(null);
 
   const activeConvIdRef = useRef<string | null>(null);
@@ -242,7 +238,6 @@ const Chats = () => {
 
   const startImageGeneration = useCallback(async (
     text: string,
-    orKey: string,
   ) => {
     setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde...", modelSlug: selectedModel }]);
     setIsImageGenerating(true);
@@ -251,7 +246,7 @@ const Chats = () => {
     imageAbortRef.current = abort;
 
     try {
-      const result = await generateImage(token!, text, orKey, abort.signal, activeConvIdRef.current);
+      const result = await generateImage(token!, text, abort.signal, activeConvIdRef.current);
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
@@ -276,9 +271,6 @@ const Chats = () => {
         });
       } else {
         const msg = err instanceof Error ? err.message : "Erro desconhecido";
-        if (msg.includes("401") || msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("unauthorized")) {
-          localStorage.removeItem("sof_openrouter_key");
-        }
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = { role: "assistant", content: `Não consegui gerar a imagem. ${msg}`, modelSlug: selectedModel };
@@ -315,13 +307,7 @@ const Chats = () => {
     // ── Image generation ──
     if (isImageRequest(text)) {
       setIsLoading(false);
-      const orKey = getOpenRouterKey();
-      if (!orKey) {
-        setPendingImageText(text);
-        setShowKeyModal(true);
-        return;
-      }
-      await startImageGeneration(text, orKey);
+      await startImageGeneration(text);
       return;
     }
 
@@ -637,64 +623,7 @@ const Chats = () => {
         </div>
       )}
 
-      {showKeyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-white font-semibold text-lg">
-              <Key className="w-5 h-5 text-orange-400" />
-              OpenRouter API Key
-            </div>
-            <p className="text-white/60 text-sm">
-              To generate images, paste your API key from{" "}
-              <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-orange-400 underline">
-                OpenRouter
-              </a>
-              . It is saved only in your browser.
-            </p>
-            <input
-              type="password"
-              value={keyInput}
-              onChange={(e) => setKeyInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && keyInput.trim()) {
-                  saveOpenRouterKey(keyInput);
-                  setShowKeyModal(false);
-                  if (pendingImageText) {
-                    startImageGeneration(pendingImageText, keyInput.trim());
-                    setPendingImageText(null);
-                  }
-                  setKeyInput("");
-                }
-              }}
-              placeholder="sk-or-..."
-              className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-orange-400"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setShowKeyModal(false); setPendingImageText(null); setKeyInput(""); }}
-                className="flex-1 py-2 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (!keyInput.trim()) return;
-                  saveOpenRouterKey(keyInput);
-                  setShowKeyModal(false);
-                  if (pendingImageText) {
-                    startImageGeneration(pendingImageText, keyInput.trim());
-                    setPendingImageText(null);
-                  }
-                  setKeyInput("");
-                }}
-                className="flex-1 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600"
-              >
-                Save and generate
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <InputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
     </div>

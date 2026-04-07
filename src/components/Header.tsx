@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Key, Trash2, Menu, Github } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
-import { getOpenRouterKey, clearOpenRouterKey, API_URL, getToken } from "@/lib/api";
+import { API_URL, getToken } from "@/lib/api";
 
 const models = [
   { id: "syn-v1-free",  label: "SYN-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
@@ -35,9 +35,7 @@ const Header = ({
   isGuest,
 }: HeaderProps) => {
   const [open, setOpen] = useState(false);
-  const [hasOrKey, setHasOrKey] = useState(!!getOpenRouterKey());
-  const [showOrModal, setShowOrModal] = useState(false);
-  const [orKeyInput, setOrKeyInput] = useState("");
+
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [githubUsername, setGithubUsername] = useState<string | null>(null);
@@ -128,20 +126,7 @@ const Header = ({
     }
   };
 
-  const handleRemoveOrKey = () => {
-    clearOpenRouterKey();
-    setHasOrKey(false);
-    setOpen(false);
-  };
 
-  const handleSaveOrKey = () => {
-    if (!orKeyInput.trim()) return;
-    localStorage.setItem("sof_openrouter_key", orKeyInput.trim());
-    setHasOrKey(true);
-    setShowOrModal(false);
-    setOrKeyInput("");
-    setOpen(false);
-  };
 
   const handleLogout = () => {
     sessionStorage.removeItem("sof_token");
@@ -159,66 +144,7 @@ const Header = ({
 
   return (
     <>
-      {/* OpenRouter key modal */}
-      {showOrModal && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center px-4"
-          style={{ background: "hsl(0 0% 0% / 0.8)", backdropFilter: "blur(8px)" }}
-        >
-          <div
-            className="rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4"
-            style={{
-              background: "hsl(0 0% 6%)",
-              border: "1px solid hsl(0 0% 100% / 0.06)",
-            }}
-          >
-            <div
-              className="flex items-center gap-2 font-semibold text-lg"
-              style={{ color: "hsl(var(--foreground))" }}
-            >
-              <Key className="w-5 h-5" style={{ color: "hsl(220 60% 70%)" }} />
-              Chave do OpenRouter
-            </div>
-            <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
-              Cole sua chave da API do{" "}
-              <a
-                href="https://openrouter.ai/keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-                style={{ color: "hsl(220 60% 70%)" }}
-              >
-                OpenRouter
-              </a>
-              . Ela fica salva só no seu navegador.
-            </p>
-            <input
-              type="password"
-              value={orKeyInput}
-              onChange={(e) => setOrKeyInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSaveOrKey(); }}
-              placeholder="sk-or-..."
-              className="auth-input"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setShowOrModal(false); setOrKeyInput(""); }}
-                className="flex-1 py-2.5 rounded-xl text-sm transition-colors"
-                style={{ border: "1px solid hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSaveOrKey}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
-                style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
-              >
-                Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* ── Main header bar ── */}
       <header className="header-bar">
@@ -285,17 +211,6 @@ const Header = ({
                 )}
 
                 <div style={{ borderTop: "1px solid hsl(var(--border))", marginTop: "4px" }}>
-                  {hasOrKey ? (
-                    <button onClick={handleRemoveOrKey} className="header-logout flex items-center gap-2" style={{ color: "hsl(var(--destructive))" }}>
-                      <Trash2 className="w-3 h-3" />
-                      Remover chave OpenRouter
-                    </button>
-                  ) : (
-                    <button onClick={() => { setShowOrModal(true); setOpen(false); }} className="header-logout flex items-center gap-2">
-                      <Key className="w-3 h-3" />
-                      Adicionar chave OpenRouter
-                    </button>
-                  )}
                   {githubUsername ? (
                     <button onClick={handleDisconnectGitHub} className="header-logout flex items-center gap-2" style={{ color: "hsl(var(--muted-foreground))" }}>
                       <Github className="w-3 h-3" />
