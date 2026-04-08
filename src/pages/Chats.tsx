@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroView from "@/components/HeroView";
 import ChatView, { type Message } from "@/components/ChatView";
-import InputBar from "@/components/InputBar";
+import { AnimatedInputBar } from "@/components/ui/animated-ai-chat";
 import ChatHistory from "@/components/ChatHistory";
 import { X, Key, Share2, Check } from "lucide-react";
 import { type AgentToolCallEntry } from "@/components/AgentToolCallsBar";
@@ -628,7 +628,7 @@ const Chats = () => {
 
 
 
-      <InputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
+      <AnimatedInputBar onSend={sendMessage} disabled={isLoading || isImageGenerating} conversationId={activeConvId} />
     </div>
   );
 };
