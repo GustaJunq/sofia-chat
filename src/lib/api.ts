@@ -81,6 +81,7 @@ export interface ChatResponse {
   remaining_messages?: number;
   model?: string;
   plan?: string;
+  ttft_ms?: number;
 }
 
 // ================= AGENT TOOL EVENTS =================

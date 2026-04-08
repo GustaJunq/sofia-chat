@@ -331,7 +331,7 @@ const Chats = () => {
         modelSlug: selectedModel,
       }]);
 
-      const updateSteps = (updater: (steps: import("./SandboxProgress").SandboxStep[]) => import("./SandboxProgress").SandboxStep[]) => {
+      const updateSteps = (updater: (steps: import("@/components/SandboxProgress").SandboxStep[]) => import("@/components/SandboxProgress").SandboxStep[]) => {
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
