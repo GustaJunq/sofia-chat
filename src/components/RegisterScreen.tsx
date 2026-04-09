@@ -1,6 +1,7 @@
 import { useState, FormEvent } from "react";
 import { API_URL } from "@/lib/api";
 import StarLogo from "./StarLogo";
+import { motion } from "framer-motion";
 
 interface RegisterScreenProps {
   onLogin: (token: string) => void;
@@ -17,7 +18,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   const validatePassword = (pwd: string): string | null => {
     if (pwd.length < 8) return "Password needs to have 8 characters.";
     if (!/[A-Z]/.test(pwd)) return "Password needs a capital letter.";
-    if (!/[0-9]/.test(pwd)) return "Password needs to have an number.";
+    if (!/[0-9]/.test(pwd)) return "Password needs to have a number.";
     return null;
   };
 
@@ -58,38 +59,48 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
 
   return (
     <div className="auth-screen">
-      <form onSubmit={handleSubmit} className="auth-form">
-        <div className="flex justify-center mb-4">
-          <div className="relative">
-            <div className="hero-glow" style={{ width: 120, height: 120 }} />
-            <StarLogo className="w-14 h-14 relative z-10" />
+      <motion.form
+        onSubmit={handleSubmit}
+        className="auth-form"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <div className="auth-card">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="hero-glow" style={{ width: 140, height: 140 }} />
+              <StarLogo className="w-14 h-14 relative z-10" />
+            </div>
           </div>
+          <h1 className="auth-title">Criar conta</h1>
+          <p className="auth-subtitle">Comece a usar a SynastrIA agora</p>
+
+          <div className="flex flex-col gap-3 mt-4">
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email" autoComplete="email" className="auth-input" />
+
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password" autoComplete="new-password" className="auth-input" />
+
+            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm password" autoComplete="new-password" className="auth-input" />
+
+            <p className="auth-hint">min 8 chars · 1 maiúscula · 1 número</p>
+
+            {error && <p className="auth-error">{error}</p>}
+
+            <button type="submit" disabled={loading} className="auth-submit">
+              {loading ? "Creating account…" : "Create an account"}
+            </button>
+          </div>
+
+          <p className="auth-footer">
+            Already registered?{" "}
+            <button type="button" onClick={onSwitchToLogin} className="auth-footer-link">Entrar</button>
+          </p>
         </div>
-        <h1 className="auth-title">Criar conta</h1>
-        <p className="auth-subtitle">Comece a usar a SynastrIA agora</p>
-
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email" autoComplete="email" className="auth-input" />
-
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password" autoComplete="new-password" className="auth-input" />
-
-        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirm password" autoComplete="new-password" className="auth-input" />
-
-        <p className="auth-hint">min 8 chars · 1 maiúscula · 1 número</p>
-
-        {error && <p className="auth-error">{error}</p>}
-
-        <button type="submit" disabled={loading} className="auth-submit">
-          {loading ? "Creating account…" : "Create an account"}
-        </button>
-
-        <p className="auth-footer">
-          Already registered?{" "}
-          <button type="button" onClick={onSwitchToLogin} className="auth-footer-link">Entrar</button>
-        </p>
-      </form>
+      </motion.form>
     </div>
   );
 };
