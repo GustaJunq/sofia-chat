@@ -1,6 +1,6 @@
-import { Globe, Terminal, ImageIcon, Check, X, Loader2 } from "lucide-react";
+import { Globe, Terminal, ImageIcon, Check, X, Loader2, Brain } from "lucide-react";
 
-export type AgentToolName = "web_search" | "run_sandbox" | "generate_image";
+export type AgentToolName = "web_search" | "run_sandbox" | "generate_image" | "save_memory";
 
 export interface AgentToolCallEntry {
   tool: AgentToolName;
@@ -30,6 +30,12 @@ const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; 
     doneLabel: "Image generated",
     Icon: ImageIcon,
   },
+  save_memory: {
+    label: "save_memory",
+    runningLabel: "Saving to memory",
+    doneLabel: "Memory saved",
+    Icon: Brain,
+  },
 };
 
 // ─── Single badge ──────────────────────────────────────────────────────────────
@@ -55,6 +61,9 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
   } else if (entry.tool === "generate_image" && entry.args.prompt) {
     const p = String(entry.args.prompt);
     annotation = p.slice(0, 48) + (p.length > 48 ? "…" : "");
+  } else if (entry.tool === "save_memory" && entry.args.content) {
+    const c = String(entry.args.content);
+    annotation = c.slice(0, 48) + (c.length > 48 ? "…" : "");
   }
 
   return (
