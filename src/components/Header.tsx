@@ -18,7 +18,8 @@ const PLAN_ACCESS: Record<string, string[]> = {
 interface HeaderProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
-  remainingMessages?: number | null;
+  remainingTokens?: number | null;
+  tokensUsed?: number | null;
   onLogout: () => void;
   onSidebarToggle?: () => void;
   isGuest?: boolean;
@@ -27,7 +28,8 @@ interface HeaderProps {
 const Header = ({
   selectedModel,
   onModelChange,
-  remainingMessages,
+  remainingTokens,
+  tokensUsed,
   onLogout,
   onSidebarToggle,
   isGuest,
@@ -192,8 +194,11 @@ const Header = ({
                   );
                 })}
 
-                {remainingMessages !== null && remainingMessages !== undefined && (
-                  <div className="header-remaining">{remainingMessages} mensagens restantes</div>
+                {remainingTokens !== null && remainingTokens !== undefined && (
+                  <div className="header-remaining">
+                    {tokensUsed ? `Usou ${tokensUsed} de ` : ""}
+                    {remainingTokens + (tokensUsed || 0)} tokens
+                  </div>
                 )}
                 {checkoutError && (
                   <div className="px-4 py-2 text-xs border-t mt-1" style={{ color: "hsl(var(--destructive))", borderColor: "hsl(var(--border))" }}>

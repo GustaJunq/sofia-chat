@@ -128,7 +128,8 @@ const Chats = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [typingStatus, setTypingStatus] = useState<"thinking" | "wikipedia">("thinking");
   const [selectedModel, setSelectedModel] = useState("syn-v1-free");
-  const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
+  const [remainingTokens, setRemainingTokens] = useState<number | null>(null);
+  const [tokensUsed, setTokensUsed] = useState<number | null>(null);
   const [upgradeBanner, setUpgradeBanner] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isImageGenerating, setIsImageGenerating] = useState(false);
@@ -261,7 +262,8 @@ const Chats = () => {
         if (!activeConvIdRef.current) setActiveConvAndNav(result.conversation_id);
         fetchConversations(token!).then(setConversations).catch(() => {});
       }
-      if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
+      if (result.remaining_tokens !== undefined) setRemainingTokens(result.remaining_tokens);
+        if (result.tokens_used !== undefined) setTokensUsed(result.tokens_used);
     } catch (err: unknown) {
       if ((err as Error)?.name === "AbortError") {
         setMessages((prev) => {
@@ -396,7 +398,8 @@ const Chats = () => {
           return updated;
         });
 
-        if (result.remaining_messages !== undefined) setRemainingMessages(result.remaining_messages);
+        if (result.remaining_tokens !== undefined) setRemainingTokens(result.remaining_tokens);
+        if (result.tokens_used !== undefined) setTokensUsed(result.tokens_used);
       } catch (err) {
         updateSteps((steps) => steps.map((s) =>
           s.status === "running" ? { ...s, status: "error" as const } : s
@@ -441,7 +444,8 @@ const Chats = () => {
             activeConvIdRef.current = meta.conversation_id;
             pendingConvIdRef.current = meta.conversation_id;
           }
-          if (meta.remaining_messages !== undefined) setRemainingMessages(meta.remaining_messages);
+          if (meta.remaining_tokens !== undefined) setRemainingTokens(meta.remaining_tokens);
+          if (meta.tokens_used !== undefined) setTokensUsed(meta.tokens_used);
         },
         fileBase64,
         fileName,
@@ -592,7 +596,8 @@ const Chats = () => {
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
         onLogout={handleLogout}
-        remainingMessages={remainingMessages}
+        remainingTokens={remainingTokens}
+        tokensUsed={tokensUsed}
         onSidebarToggle={!isGuest ? () => setSidebarOpen(true) : undefined}
         isGuest={isGuest}
       />

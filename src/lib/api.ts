@@ -69,7 +69,8 @@ export async function deleteAllConversations(token: string): Promise<void> {
 
 export interface ChatMeta {
   conversation_id: string;
-  remaining_messages?: number;
+  remaining_tokens?: number;
+  tokens_used?: number;
   model?: string;
   plan?: string;
 }
@@ -78,7 +79,8 @@ export interface ChatResponse {
   reply: string;
   thinking?: string;
   conversation_id: string;
-  remaining_messages?: number;
+  remaining_tokens?: number;
+  tokens_used?: number;
   model?: string;
   plan?: string;
   ttft_ms?: number;
@@ -165,7 +167,8 @@ export async function sendChatMessage(
       if (parsed.conversation_id) {
         const meta: ChatMeta = {
           conversation_id: parsed.conversation_id as string,
-          remaining_messages: parsed.remaining_messages as number | undefined,
+          remaining_tokens: parsed.remaining_tokens as number | undefined,
+          tokens_used: parsed.tokens_used as number | undefined,
           model: parsed.model as string | undefined,
           plan: parsed.plan as string | undefined,
         };
@@ -203,7 +206,8 @@ export async function sendChatMessage(
             ? parsed.thinking
             : undefined,
           conversation_id: (parsed.conversation_id as string) ?? conversationId ?? "",
-          remaining_messages: parsed.remaining_messages as number | undefined,
+          remaining_tokens: parsed.remaining_tokens as number | undefined,
+          tokens_used: parsed.tokens_used as number | undefined,
           model: parsed.model as string | undefined,
           plan: parsed.plan as string | undefined,
         };
@@ -223,7 +227,8 @@ export interface ImageGenResponse {
   prompt_refined: string;
   image_url: string;
   conversation_id?: string;
-  remaining_messages?: number;
+  remaining_tokens?: number;
+  tokens_used?: number;
 }
 
 export async function generateImage(
@@ -281,7 +286,8 @@ export async function generateImage(
           prompt_refined: parsed.prompt_refined as string,
           image_url: parsed.image_url as string,
           conversation_id: parsed.conversation_id as string | undefined,
-          remaining_messages: parsed.remaining_messages as number | undefined,
+          remaining_tokens: parsed.remaining_tokens as number | undefined,
+          tokens_used: parsed.tokens_used as number | undefined,
         };
       }
     }
@@ -309,7 +315,8 @@ export interface SandboxResponse {
   log_id: string;
   stdout?: string;
   conversation_id?: string;
-  remaining_messages?: number;
+  remaining_tokens?: number;
+  tokens_used?: number;
   public_url?: string;
   file_content?: string;
   github_files?: Record<string, string>;
@@ -389,7 +396,8 @@ export async function sendSandboxMessage(
           title: parsed.title as string,
           log_id: parsed.log_id as string,
           stdout: parsed.stdout as string | undefined,
-          remaining_messages: parsed.remaining_messages as number | undefined,
+          remaining_tokens: parsed.remaining_tokens as number | undefined,
+          tokens_used: parsed.tokens_used as number | undefined,
           public_url: parsed.public_url as string | undefined,
           file_content: parsed.file_content as string | undefined,
           github_files: parsed.github_files as Record<string, string> | undefined,
