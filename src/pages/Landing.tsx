@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Landing = () => {
   const cubeRef = useRef<HTMLVideoElement>(null);
@@ -11,318 +12,180 @@ const Landing = () => {
     });
   }, []);
 
+  const fadeUp = {
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+  };
+
   return (
-    <>
-      <style>{`
-        @import url('https://api.fontshare.com/v2/css?f[]=soria@400,700&display=swap');
+    <div className="min-h-screen flex flex-col items-center overflow-x-hidden"
+      style={{
+        background: `
+          radial-gradient(ellipse at 20% 0%, hsl(250 60% 18% / 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 100%, hsl(220 60% 12% / 0.25) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 50%, hsl(280 40% 10% / 0.1) 0%, transparent 60%),
+          hsl(240 6% 3%)
+        `,
+        color: "hsl(210 20% 92%)",
+        fontFamily: "'Inter', -apple-system, sans-serif",
+      }}
+    >
+      {/* Hero */}
+      <div className="flex flex-col items-center px-6 pt-16 pb-0 w-full max-w-[540px] text-center lg:max-w-[1200px] lg:flex-row lg:justify-center lg:text-left lg:gap-20 lg:pt-24 lg:px-10">
+        <motion.div
+          className="w-[clamp(160px,42vw,220px)] aspect-square mb-7 lg:w-[400px] lg:mb-0 lg:order-2"
+          {...fadeUp}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <video ref={cubeRef} src="/cube.mp4" autoPlay loop muted playsInline
+            className="w-full h-full object-cover rounded-2xl"
+          />
+        </motion.div>
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        <div className="flex flex-col items-center lg:items-start">
+          <motion.h1
+            className="text-[clamp(2.6rem,9vw,3.6rem)] lg:text-[5rem] font-semibold leading-none mb-6 lg:mb-5"
+            style={{ letterSpacing: "-0.04em" }}
+            {...fadeUp}
+            transition={{ duration: 0.6 }}
+          >
+            Synastria
+          </motion.h1>
 
-        .ln-root {
-          background: #000;
-          color: #fff;
-          min-height: 100vh;
-          font-family: 'Soria', Georgia, serif;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          overflow-x: hidden;
-        }
+          <motion.p
+            className="text-[clamp(0.95rem,3.2vw,1.12rem)] lg:text-[1.4rem] font-normal leading-relaxed max-w-[300px] lg:max-w-[450px] mb-9 lg:mb-12"
+            style={{ color: "hsl(220 10% 50%)" }}
+            {...fadeUp}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            A constellation of AI agents<br />inside a single chatbot.
+          </motion.p>
 
-        .ln-hero {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 64px 24px 0;
-          width: 100%;
-          max-width: 540px;
-          text-align: center;
-        }
-
-        .ln-wordmark {
-          font-family: 'Soria', Georgia, serif;
-          font-size: clamp(2.6rem, 9vw, 3.6rem);
-          font-weight: 400;
-          letter-spacing: -0.01em;
-          color: #fff;
-          line-height: 1;
-          margin-bottom: 32px;
-        }
-
-        .ln-cube-wrap {
-          width: clamp(160px, 42vw, 220px);
-          aspect-ratio: 1;
-          margin-bottom: 28px;
-        }
-
-        .ln-cube-wrap video {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .ln-subtitle {
-          font-family: 'Soria', Georgia, serif;
-          font-size: clamp(0.95rem, 3.2vw, 1.12rem);
-          font-weight: 400;
-          color: rgba(255,255,255,0.62);
-          line-height: 1.55;
-          max-width: 300px;
-          margin-bottom: 36px;
-          letter-spacing: 0.01em;
-        }
-
-        .ln-cta {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 13px 36px;
-          background: #fff;
-          color: #000;
-          font-family: 'Soria', Georgia, serif;
-          font-size: 0.88rem;
-          font-weight: 400;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          text-decoration: none;
-          border-radius: 100px;
-          transition: opacity 0.2s ease;
-          margin-bottom: 80px;
-        }
-
-        .ln-cta:hover { opacity: 0.82; }
-
-        .ln-align {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0 24px;
-          width: 100%;
-          max-width: 540px;
-          text-align: center;
-        }
-
-        .ln-icon-wrap {
-          width: clamp(80px, 22vw, 110px);
-          aspect-ratio: 1;
-          border-radius: 26px;
-          overflow: hidden;
-          margin-bottom: 28px;
-          box-shadow: 0 0 40px 6px rgba(0, 255, 100, 0.12);
-        }
-
-        .ln-icon-wrap video {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .ln-heading {
-          font-family: 'Soria', Georgia, serif;
-          font-size: clamp(3.2rem, 12vw, 5.2rem);
-          font-weight: 400;
-          line-height: 1.0;
-          letter-spacing: -0.02em;
-          color: #fff;
-          margin-bottom: 24px;
-        }
-
-        .ln-desc {
-          font-family: 'Soria', Georgia, serif;
-          font-size: clamp(0.88rem, 2.9vw, 1.02rem);
-          font-weight: 400;
-          color: rgba(255,255,255,0.55);
-          line-height: 1.65;
-          max-width: 280px;
-          margin-bottom: 72px;
-          letter-spacing: 0.01em;
-        }
-
-        .ln-trynow-wrap {
-          width: 100%;
-          max-width: 540px;
-          padding: 0 24px 100px;
-          text-align: center;
-        }
-
-        .ln-trynow {
-          font-family: 'Soria', Georgia, serif;
-          font-size: clamp(4.8rem, 18vw, 8rem);
-          font-weight: 400;
-          line-height: 0.92;
-          letter-spacing: -0.03em;
-          color: #fff;
-          text-decoration: none;
-          display: inline-block;
-          transition: opacity 0.2s ease;
-        }
-
-        .ln-trynow:hover { opacity: 0.7; }
-
-        .ln-footer {
-          width: 100%;
-          border-top: 1px solid rgba(255,255,255,0.07);
-          padding: 20px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .ln-footer-copy {
-          font-family: 'Soria', Georgia, serif;
-          font-size: 0.6rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.18);
-        }
-
-        .ln-footer-links { display: flex; gap: 24px; }
-
-        .ln-footer-link {
-          font-family: 'Soria', Georgia, serif;
-          font-size: 0.6rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.18);
-          text-decoration: none;
-          transition: color 0.15s ease;
-        }
-
-        .ln-footer-link:hover { color: rgba(255,255,255,0.5); }
-
-        /* Desktop Adaptations */
-        @media (min-width: 1024px) {
-          .ln-hero {
-            max-width: 1200px;
-            padding: 100px 40px 0;
-            flex-direction: row;
-            justify-content: center;
-            text-align: left;
-            gap: 80px;
-          }
-
-          .ln-hero-content {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-          }
-
-          .ln-wordmark {
-            font-size: 5rem;
-            margin-bottom: 24px;
-          }
-
-          .ln-cube-wrap {
-            width: 400px;
-            margin-bottom: 0;
-            order: 2;
-          }
-
-          .ln-subtitle {
-            font-size: 1.5rem;
-            max-width: 450px;
-            margin-bottom: 48px;
-          }
-
-          .ln-align {
-            max-width: 1200px;
-            flex-direction: row-reverse;
-            justify-content: center;
-            text-align: left;
-            gap: 100px;
-            padding: 120px 40px;
-          }
-
-          .ln-align-content {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-          }
-
-          .ln-icon-wrap {
-            width: 280px;
-            margin-bottom: 0;
-          }
-
-          .ln-heading {
-            font-size: 6rem;
-          }
-
-          .ln-desc {
-            font-size: 1.2rem;
-            max-width: 450px;
-          }
-
-          .ln-trynow-wrap {
-            max-width: 1200px;
-            padding-bottom: 160px;
-          }
-
-          .ln-trynow {
-            font-size: 12rem;
-          }
-        }
-
-        @keyframes ln-fade {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .ln-wordmark  { animation: ln-fade 0.7s ease both; }
-        .ln-cube-wrap { animation: ln-fade 0.7s 0.1s ease both; }
-        .ln-subtitle  { animation: ln-fade 0.7s 0.2s ease both; }
-        .ln-cta       { animation: ln-fade 0.7s 0.3s ease both; }
-        .ln-icon-wrap { animation: ln-fade 0.7s 0.35s ease both; }
-        .ln-heading   { animation: ln-fade 0.7s 0.45s ease both; }
-        .ln-desc      { animation: ln-fade 0.7s 0.55s ease both; }
-        .ln-trynow    { animation: ln-fade 0.7s 0.65s ease both; }
-      `}</style>
-
-      <div className="ln-root">
-        <div className="ln-hero">
-          <div className="ln-cube-wrap">
-            <video ref={cubeRef} src="/cube.mp4" autoPlay loop muted playsInline />
-          </div>
-
-          <div className="ln-hero-content">
-            <h1 className="ln-wordmark">Synastria</h1>
-            <p className="ln-subtitle">
-              A constellation of AI agents<br />inside a single chatbot.
-            </p>
-            <Link to="/register" className="ln-cta">Get started</Link>
-          </div>
+          <motion.div {...fadeUp} transition={{ duration: 0.6, delay: 0.3 }}>
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-sm font-medium uppercase tracking-wider transition-all duration-300"
+              style={{
+                background: "hsl(250 80% 68%)",
+                color: "#fff",
+                letterSpacing: "0.06em",
+                boxShadow: "0 8px 30px hsl(250 80% 68% / 0.25)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 12px 40px hsl(250 80% 68% / 0.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 8px 30px hsl(250 80% 68% / 0.25)";
+              }}
+            >
+              Get started
+            </Link>
+          </motion.div>
         </div>
-
-        <div className="ln-align">
-          <div className="ln-icon-wrap">
-            <video ref={iconRef} src="/icon.mp4" autoPlay loop muted playsInline />
-          </div>
-
-          <div className="ln-align-content">
-            <h2 className="ln-heading">Where AI<br />systems align</h2>
-            <p className="ln-desc">
-              Create specialized AI agents, connect them into
-              a unified system, and run everything through a single
-              intelligent chatbot.
-            </p>
-          </div>
-        </div>
-
-        <div className="ln-trynow-wrap">
-          <Link to="/register" className="ln-trynow">Try now.</Link>
-        </div>
-
-        <footer className="ln-footer">
-          <span className="ln-footer-copy">SynastrIA © {new Date().getFullYear()}</span>
-          <div className="ln-footer-links">
-            <Link to="/login" className="ln-footer-link">Entrar</Link>
-            <Link to="/register" className="ln-footer-link">Cadastrar</Link>
-          </div>
-        </footer>
       </div>
-    </>
+
+      {/* Section 2 */}
+      <div className="flex flex-col items-center px-6 pt-20 pb-0 w-full max-w-[540px] text-center lg:max-w-[1200px] lg:flex-row-reverse lg:justify-center lg:text-left lg:gap-24 lg:py-28 lg:px-10">
+        <motion.div
+          className="w-[clamp(80px,22vw,110px)] lg:w-[280px] aspect-square rounded-2xl overflow-hidden mb-7 lg:mb-0"
+          style={{
+            boxShadow: "0 0 50px 8px hsl(250 60% 60% / 0.12)",
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <video ref={iconRef} src="/icon.mp4" autoPlay loop muted playsInline
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
+
+        <div className="flex flex-col items-center lg:items-start">
+          <motion.h2
+            className="text-[clamp(3.2rem,12vw,5.2rem)] lg:text-[6rem] font-semibold leading-none mb-6"
+            style={{ letterSpacing: "-0.04em" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Where AI<br />systems align
+          </motion.h2>
+
+          <motion.p
+            className="text-[clamp(0.88rem,2.9vw,1.02rem)] lg:text-[1.15rem] font-normal leading-relaxed max-w-[280px] lg:max-w-[450px] mb-16"
+            style={{ color: "hsl(220 10% 45%)" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Create specialized AI agents, connect them into
+            a unified system, and run everything through a single
+            intelligent chatbot.
+          </motion.p>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <motion.div
+        className="w-full max-w-[540px] lg:max-w-[1200px] px-6 pb-24 lg:pb-40 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <Link
+          to="/register"
+          className="inline-block text-[clamp(4.8rem,18vw,8rem)] lg:text-[12rem] font-semibold leading-none transition-all duration-300"
+          style={{
+            letterSpacing: "-0.04em",
+            color: "hsl(210 20% 92%)",
+            textDecoration: "none",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.6";
+            e.currentTarget.style.textShadow = "0 0 60px hsl(250 80% 68% / 0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.textShadow = "none";
+          }}
+        >
+          Try now.
+        </Link>
+      </motion.div>
+
+      {/* Footer */}
+      <footer className="w-full border-t px-8 py-5 flex justify-between items-center"
+        style={{ borderColor: "hsl(0 0% 100% / 0.06)" }}
+      >
+        <span className="text-[0.65rem] tracking-widest uppercase"
+          style={{ color: "hsl(220 10% 25%)" }}
+        >
+          SynastrIA © {new Date().getFullYear()}
+        </span>
+        <div className="flex gap-6">
+          <Link to="/login" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
+            style={{ color: "hsl(220 10% 25%)", textDecoration: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "hsl(250 80% 68%)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "hsl(220 10% 25%)"}
+          >
+            Entrar
+          </Link>
+          <Link to="/register" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
+            style={{ color: "hsl(220 10% 25%)", textDecoration: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "hsl(250 80% 68%)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "hsl(220 10% 25%)"}
+          >
+            Cadastrar
+          </Link>
+        </div>
+      </footer>
+    </div>
   );
 };
 
