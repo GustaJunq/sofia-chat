@@ -465,6 +465,29 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
   }
+  .header-tokens-display {
+    @apply flex items-center gap-1 px-3 py-1.5 rounded-lg;
+    background: hsl(var(--muted) / 0.5);
+    border: 1px solid hsl(var(--border));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+  }
+  .header-tokens-used {
+    color: hsl(var(--primary));
+    font-weight: 600;
+  }
+  .header-tokens-sep {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.5;
+  }
+  .header-tokens-total {
+    color: hsl(var(--muted-foreground));
+  }
+  .header-tokens-label {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.6;
+    margin-left: 2px;
+  }
   .header-logout {
     @apply w-full px-4 py-2.5 text-left text-sm transition-all duration-200 rounded-lg;
     color: hsl(var(--muted-foreground));

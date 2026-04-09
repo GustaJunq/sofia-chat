@@ -224,8 +224,16 @@ const Header = ({
             )}
           </div>
 
-          {/* ── Right: actions ── */}
+          {/* ── Right: tokens display ── */}
           <div className="header-actions">
+            {remainingTokens !== null && remainingTokens !== undefined && (
+              <div className="header-tokens-display">
+                <span className="header-tokens-used">{tokensUsed || 0}</span>
+                <span className="header-tokens-sep">/</span>
+                <span className="header-tokens-total">{remainingTokens + (tokensUsed || 0)}</span>
+                <span className="header-tokens-label">tokens</span>
+              </div>
+            )}
           </div>
         </div>
       </header>
