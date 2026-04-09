@@ -81,28 +81,6 @@ const Landing = () => {
             >
               Products
             </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-sm font-medium uppercase tracking-wider transition-all duration-300"
-              style={{
-                background: "transparent",
-                color: "hsl(210 20% 92%)",
-                letterSpacing: "0.06em",
-                border: "1px solid hsl(0 0% 100% / 0.15)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.borderColor = "hsl(250 80% 68%)";
-                e.currentTarget.style.color = "hsl(250 80% 68%)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.15)";
-                e.currentTarget.style.color = "hsl(210 20% 92%)";
-              }}
-            >
-              Entrar
-            </Link>
           </motion.div>
         </div>
       </div>
@@ -190,19 +168,12 @@ const Landing = () => {
           SynastrIA © {new Date().getFullYear()}
         </span>
         <div className="flex gap-6">
-          <Link to="/login" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
-            style={{ color: "hsl(220 10% 25%)", textDecoration: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.color = "hsl(250 80% 68%)"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "hsl(220 10% 25%)"}
-          >
-            Entrar
-          </Link>
           <Link to="/register" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
             style={{ color: "hsl(220 10% 25%)", textDecoration: "none" }}
             onMouseEnter={(e) => e.currentTarget.style.color = "hsl(250 80% 68%)"}
             onMouseLeave={(e) => e.currentTarget.style.color = "hsl(220 10% 25%)"}
           >
-            Cadastrar
+            Sign Up
           </Link>
         </div>
       </footer>

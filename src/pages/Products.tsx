@@ -30,27 +30,7 @@ const Products = () => {
           onMouseLeave={(e) => e.currentTarget.style.color = "hsl(0 0% 50%)"}
         >
           <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Link>
-        <Link
-          to="/login"
-          className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg text-xs font-medium uppercase tracking-wider transition-all duration-300"
-          style={{
-            background: "transparent",
-            color: "hsl(0 0% 92%)",
-            letterSpacing: "0.06em",
-            border: "1px solid hsl(0 0% 100% / 0.2)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "hsl(0 0% 100%)";
-            e.currentTarget.style.color = "hsl(0 0% 100%)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.2)";
-            e.currentTarget.style.color = "hsl(0 0% 92%)";
-          }}
-        >
-          Entrar
+          Back
         </Link>
       </header>
 
@@ -62,7 +42,7 @@ const Products = () => {
           {...fadeUp}
           transition={{ duration: 0.6 }}
         >
-          Nossos Produtos
+          Our Products
         </motion.h1>
         <motion.p
           className="text-base lg:text-lg mb-16 text-center max-w-md"
@@ -70,7 +50,7 @@ const Products = () => {
           {...fadeUp}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Conheça as soluções desenvolvidas pela Synastria
+          Discover the solutions developed by Synastria
         </motion.p>
 
         {/* Product Card - SofIA */}
@@ -120,19 +100,19 @@ const Products = () => {
                 className="text-sm lg:text-base leading-relaxed mb-6"
                 style={{ color: "hsl(0 0% 50%)" }}
               >
-                Nossa inteligência artificial avançada, projetada para auxiliar em conversas, 
-                análises e tarefas complexas com precisão e agilidade.
+                Our advanced artificial intelligence, designed to assist with conversations, 
+                analysis and complex tasks with precision and agility.
               </p>
 
               {/* Features */}
               <div className="flex flex-wrap gap-4 mb-6">
                 <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(0 0% 60%)" }}>
                   <MessageSquare className="w-4 h-4" style={{ color: "hsl(0 0% 70%)" }} />
-                  Chat inteligente
+                  Smart chat
                 </div>
                 <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(0 0% 60%)" }}>
                   <Zap className="w-4 h-4" style={{ color: "hsl(0 0% 70%)" }} />
-                  Respostas rápidas
+                  Fast responses
                 </div>
               </div>
 
@@ -141,7 +121,7 @@ const Products = () => {
                 className="inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1"
                 style={{ color: "hsl(0 0% 80%)" }}
               >
-                Começar agora
+                Get started
                 <span className="ml-2">→</span>
               </div>
             </div>
@@ -162,22 +142,13 @@ const Products = () => {
         </span>
         <div className="flex gap-6">
           <Link
-            to="/login"
-            className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
-            style={{ color: "hsl(0 0% 30%)", textDecoration: "none" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(0 0% 80%)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(0 0% 30%)")}
-          >
-            Entrar
-          </Link>
-          <Link
             to="/register"
             className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
             style={{ color: "hsl(0 0% 30%)", textDecoration: "none" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(0 0% 80%)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(0 0% 30%)")}
           >
-            Cadastrar
+            Sign Up
           </Link>
         </div>
       </footer>
