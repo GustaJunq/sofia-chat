@@ -47,7 +47,7 @@ interface VoiceModeProps {
 type VoiceStatus = "idle" | "recording" | "thinking" | "speaking";
 
 const STATUS_LABELS: Record<VoiceStatus, string> = {
-  idle: "Hold to speak.",
+  idle: "Hold to speak",
   recording: "Recording...",
   thinking: "Thinking...",
   speaking: "Speaking...",
@@ -419,7 +419,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
 
   const hasAttachment = !!docBase64;
   const canSend = (text.trim().length > 0 || hasAttachment) && !disabled;
-  const placeholder = docBase64 ? `O que fazer com "${docName}"?` : "Ask something...";
+  const placeholder = docBase64 ? `What to do with "${docName}"?` : "Ask something...";
 
   return (
     <>
@@ -439,7 +439,7 @@ const InputBar = ({ onSend, disabled, conversationId }: InputBarProps) => {
           <button
             className="file-manager-warning-close"
             onClick={() => setWarningDismissed(true)}
-            aria-label="Fechar aviso"
+            aria-label="Close warning"
           >
             ✕
           </button>

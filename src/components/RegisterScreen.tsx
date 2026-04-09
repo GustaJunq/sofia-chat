@@ -44,8 +44,8 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (res.status === 409) { setError("Este email já está em uso"); return; }
-      if (!res.ok) { setError("Erro ao criar conta. Tente novamente."); return; }
+      if (res.status === 409) { setError("This email is already in use"); return; }
+      if (!res.ok) { setError("Error creating account. Try again."); return; }
 
       const data = await res.json();
       sessionStorage.setItem("sof_token", data.token);
@@ -73,8 +73,8 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
               <StarLogo className="w-14 h-14 relative z-10" />
             </div>
           </div>
-          <h1 className="auth-title">Criar conta</h1>
-          <p className="auth-subtitle">Comece a usar a SynastrIA agora</p>
+          <h1 className="auth-title">Create account</h1>
+          <p className="auth-subtitle">Start using SynastrIA now</p>
 
           <div className="flex flex-col gap-3 mt-4">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
@@ -86,7 +86,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
             <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm password" autoComplete="new-password" className="auth-input" />
 
-            <p className="auth-hint">min 8 chars · 1 maiúscula · 1 número</p>
+            <p className="auth-hint">min 8 chars · 1 uppercase · 1 number</p>
 
             {error && <p className="auth-error">{error}</p>}
 
@@ -97,7 +97,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
 
           <p className="auth-footer">
             Already registered?{" "}
-            <button type="button" onClick={onSwitchToLogin} className="auth-footer-link">Entrar</button>
+            <button type="button" onClick={onSwitchToLogin} className="auth-footer-link">Sign in</button>
           </p>
         </div>
       </motion.form>

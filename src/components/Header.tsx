@@ -5,8 +5,8 @@ import { API_URL, getToken } from "@/lib/api";
 
 const models = [
   { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
-  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
-  { id: "syn-v1-pentest", label: "SOF-V1-PENTEST", sublabel: "Eu vou verificar vulnerabilidades do seu código.", requiredPlan: "paid" },
+  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Qwen, Llama 70b, GPT and Kimi, I choose.", requiredPlan: "paid" },
+  { id: "syn-v1-pentest", label: "SOF-V1-PENTEST", sublabel: "I will check vulnerabilities in your code.", requiredPlan: "paid" },
 ];
 
 const PLAN_ACCESS: Record<string, string[]> = {
@@ -115,7 +115,7 @@ const Header = ({
       const data = await res.json();
       window.location.href = data.url;
     } catch {
-      setCheckoutError("Erro ao iniciar checkout. Tente novamente.");
+      setCheckoutError("Error starting checkout. Try again.");
       setCheckoutLoading(false);
     }
   };
@@ -150,7 +150,7 @@ const Header = ({
               <button
                 onClick={onSidebarToggle}
                 className="header-icon-btn"
-                aria-label="Abrir histórico"
+                aria-label="Open history"
               >
                 <Menu className="w-4 h-4" />
               </button>
@@ -181,7 +181,7 @@ const Header = ({
                         color: selectedModel === m.id ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
                       }}
                     >
-                      {isLoading ? "Redirecionando..." : (
+                      {isLoading ? "Redirecting..." : (
                         <>
                           <span style={{ display: "flex", flexDirection: "column", gap: "1px", flex: 1, textAlign: "left" }}>
                             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.78rem" }}>{m.label}</span>
@@ -196,7 +196,7 @@ const Header = ({
 
                 {remainingTokens !== null && remainingTokens !== undefined && (
                   <div className="header-remaining">
-                    {tokensUsed ? `Usou ${tokensUsed} de ` : ""}
+                    {tokensUsed ? `Used ${tokensUsed} of ` : ""}
                     {remainingTokens + (tokensUsed || 0)} tokens
                   </div>
                 )}
@@ -215,10 +215,10 @@ const Header = ({
                   ) : (
                     <button onClick={handleConnectGitHub} className="header-logout flex items-center gap-2">
                       <Github className="w-3 h-3" />
-                      Conectar GitHub
+                      Connect GitHub
                     </button>
                   )}
-                  <button onClick={handleLogout} className="header-logout">Sair</button>
+                  <button onClick={handleLogout} className="header-logout">Log out</button>
                 </div>
               </div>
             )}

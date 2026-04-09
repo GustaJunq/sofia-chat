@@ -120,7 +120,7 @@ const SwipeItem = ({ conv, isActive, onSelect, onDelete }: SwipeItemProps) => {
           }}
         >
           <Trash2 className="w-4 h-4" />
-          Deletar
+          Delete
         </button>
       </div>
 
@@ -235,7 +235,7 @@ const ProfileSection = () => {
               cursor: "pointer",
               color: "hsl(var(--muted-foreground))",
             }}
-            title="Trocar foto"
+            title="Change photo"
           >
             <Camera style={{ width: 9, height: 9 }} />
           </button>
@@ -295,7 +295,7 @@ const ProfileSection = () => {
               <button
                 onClick={() => { setNameInput(profile.name); setEditing(true); }}
                 style={{ color: "hsl(var(--muted-foreground))", background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0 }}
-                title="Editar nome"
+                title="Edit name"
               >
                 <Pencil style={{ width: 11, height: 11 }} />
               </button>
@@ -310,7 +310,7 @@ const ProfileSection = () => {
               textTransform: "uppercase",
             }}
           >
-            Perfil
+            Profile
           </span>
         </div>
       </div>
@@ -336,9 +336,9 @@ const ChatHistory = ({
 
       <aside className={`sidebar ${open ? "sidebar--open" : "sidebar--closed"}`}>
         <div className="sidebar-header">
-          <span className="sidebar-title">Histórico</span>
+          <span className="sidebar-title">History</span>
           <div className="flex items-center gap-1">
-            <button onClick={onNew} className="sidebar-icon-btn" title="Nova conversa">
+            <button onClick={onNew} className="sidebar-icon-btn" title="New conversation">
               <Plus className="w-4 h-4" />
             </button>
             <button onClick={onClose} className="sidebar-icon-btn">
@@ -353,7 +353,7 @@ const ChatHistory = ({
         {/* ── Conversation list ── */}
         <div className="sidebar-list" style={{ overflowX: "hidden" }}>
           {conversations.length === 0 && (
-            <p className="sidebar-empty">Nenhuma conversa ainda.</p>
+            <p className="sidebar-empty">No conversations yet.</p>
           )}
           {conversations.map((conv) => (
             <SwipeItem
@@ -370,7 +370,7 @@ const ChatHistory = ({
           <div className="sidebar-footer">
             <button onClick={onDeleteAll} className="sidebar-delete-all">
               <Trash2 className="w-3.5 h-3.5" />
-              Limpar histórico
+              Clear history
             </button>
           </div>
         )}

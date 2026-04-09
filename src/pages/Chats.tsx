@@ -81,7 +81,7 @@ const ShareButton = ({ conversationId }: { conversationId: string | null }) => {
     <button
       onClick={handleShare}
       disabled={sharing}
-      title="Compartilhar conversa"
+      title="Share conversation"
       style={{
         display: "flex",
         alignItems: "center",
@@ -108,7 +108,7 @@ const ShareButton = ({ conversationId }: { conversationId: string | null }) => {
       }}
     >
       {copied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
-      {copied ? "Copiado!" : "Compartilhar"}
+      {copied ? "Copied!" : "Share"}
     </button>
   );
 };
@@ -240,7 +240,7 @@ const Chats = () => {
   const startImageGeneration = useCallback(async (
     text: string,
   ) => {
-    setMessages((prev) => [...prev, { role: "assistant", content: "✦ Gerando sua imagem, aguarde...", modelSlug: selectedModel }]);
+    setMessages((prev) => [...prev, { role: "assistant", content: "✦ Generating your image, please wait...", modelSlug: selectedModel }]);
     setIsImageGenerating(true);
 
     const abort = new AbortController();
@@ -268,14 +268,14 @@ const Chats = () => {
       if ((err as Error)?.name === "AbortError") {
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: "Geração de imagem cancelada.", modelSlug: selectedModel };
+          updated[updated.length - 1] = { role: "assistant", content: "Image generation cancelled.", modelSlug: selectedModel };
           return updated;
         });
       } else {
-        const msg = err instanceof Error ? err.message : "Erro desconhecido";
+        const msg = err instanceof Error ? err.message : "Unknown error";
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: `Não consegui gerar a imagem. ${msg}`, modelSlug: selectedModel };
+          updated[updated.length - 1] = { role: "assistant", content: `Could not generate the image. ${msg}`, modelSlug: selectedModel };
           return updated;
         });
       }
@@ -323,10 +323,10 @@ const Chats = () => {
         || (fileName ? `Analyze and process the file: ${fileName}` : "Create a useful Python script");
 
       const initialSteps = [
-        { id: "classifying", label: "Analyzing request",  status: "running" as const },
-        { id: "generating",  label: "Generating code",    status: "pending" as const },
-        { id: "executing",   label: "Checking syntax",    status: "pending" as const },
-        { id: "uploading",   label: "Saving result",      status: "pending" as const },
+        { id: "classifying", label: "Analyzing request", status: "running" as const },
+        { id: "generating",  label: "Generating code",   status: "pending" as const },
+        { id: "executing",   label: "Checking syntax",   status: "pending" as const },
+        { id: "uploading",   label: "Saving result",     status: "pending" as const },
       ];
 
       setMessages((prev) => [...prev, {

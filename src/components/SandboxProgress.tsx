@@ -98,12 +98,12 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title, p
       });
       const data = await res.json();
       if (data.needs_auth) {
-        setPushResult({ error: "Conecte seu GitHub primeiro (menu → Conectar GitHub)" });
+        setPushResult({ error: "Connect your GitHub first (menu → Connect GitHub)" });
       } else {
         setPushResult(data);
       }
     } catch {
-      setPushResult({ error: "Erro ao conectar com o GitHub." });
+      setPushResult({ error: "Error connecting to GitHub." });
     } finally {
       setPushing(false);
     }
@@ -125,7 +125,7 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title, p
           className="sandbox-download-btn"
           style={{ background: "hsl(var(--primary) / 0.2)", borderBottom: "1px solid hsl(var(--border))" }}
         >
-          🌐 Ver site publicado
+          🌐 View published site
         </a>
       )}
 
@@ -149,16 +149,16 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title, p
             }}
           >
             <Github className="w-4 h-4" />
-            {pushing ? "Enviando pro GitHub..." : "Publicar no GitHub"}
+            {pushing ? "Pushing to GitHub..." : "Publish on GitHub"}
           </button>
           {pushResult?.repo_url && (
             <div style={{ padding: "10px 14px", fontSize: "0.78rem", display: "flex", flexDirection: "column", gap: "4px" }}>
               <a href={pushResult.repo_url} target="_blank" rel="noopener noreferrer" style={{ color: "hsl(var(--primary))" }}>
-                📦 Ver repositório
+                📦 View repository
               </a>
               {pushResult.pages_url && (
                 <a href={pushResult.pages_url} target="_blank" rel="noopener noreferrer" style={{ color: "hsl(var(--primary))" }}>
-                  🌐 GitHub Pages (pode demorar alguns minutos)
+                  🌐 GitHub Pages (may take a few minutes)
                 </a>
               )}
             </div>
@@ -177,7 +177,7 @@ export default function SandboxProgress({ steps, outputUrl, outputType, title, p
           className="sandbox-download-btn"
           download={title ? `${title}.${outputType}` : undefined}
         >
-          ⬇️ Baixar {outputType?.toUpperCase()}
+          ⬇️ Download {outputType?.toUpperCase()}
         </a>
       )}
     </div>

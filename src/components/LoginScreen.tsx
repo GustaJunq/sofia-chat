@@ -77,7 +77,7 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
 
           <p className="auth-footer">
             Want to create an account?{" "}
-            <button type="button" onClick={onSwitchToRegister} className="auth-footer-link">Criar conta</button>
+            <button type="button" onClick={onSwitchToRegister} className="auth-footer-link">Create account</button>
           </p>
         </div>
       </motion.form>

@@ -95,7 +95,7 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
 
       {/* Label */}
       <span>
-        {isRunning ? cfg.runningLabel : isDone ? cfg.doneLabel : `Erro: ${cfg.label}`}
+        {isRunning ? cfg.runningLabel : isDone ? cfg.doneLabel : `Error: ${cfg.label}`}
       </span>
 
       {/* Annotation */}

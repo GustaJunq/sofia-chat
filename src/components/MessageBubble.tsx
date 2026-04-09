@@ -174,7 +174,7 @@ const MessageBubble = ({
       <div className="msg-user-row">
         <div className="msg-user-bubble">
           {imagePreview && (
-            <img src={imagePreview} alt="Imagem enviada" className="msg-user-image" />
+            <img src={imagePreview} alt="Sent image" className="msg-user-image" />
           )}
           {content && <span>{content}</span>}
         </div>
@@ -202,7 +202,7 @@ const MessageBubble = ({
           {profile.avatarUrl ? (
             <img
               src={profile.avatarUrl}
-              alt="você"
+              alt="you"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
@@ -277,7 +277,7 @@ const MessageBubble = ({
             <div className="msg-generated-image-wrapper">
               <img
                 src={imageGenerated}
-                alt="Imagem gerada"
+                alt="Generated image"
                 className="msg-generated-image"
                 loading="lazy"
               />
@@ -287,9 +287,9 @@ const MessageBubble = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="msg-generated-image-download"
-                title="Baixar imagem"
+                title="Download image"
               >
-                ↓ Baixar
+                ↓ Download
               </a>
             </div>
           )}
@@ -318,11 +318,11 @@ const MessageBubble = ({
             setTimeout(() => setCopiedResponse(false), 2000);
           }}
           className="msg-tts-btn"
-          title="Copiar resposta"
+          title="Copy response"
         >
           {copiedResponse ? <Check className="w-4 h-4" /> : <ClipboardCopy className="w-4 h-4" />}
         </button>
-        <button onClick={handleTTSClick} className="msg-tts-btn" title="Ouvir resposta">
+        <button onClick={handleTTSClick} className="msg-tts-btn" title="Listen to response">
           {ttsState === "loading" && <Loader2 className="w-4 h-4 animate-spin" />}
           {ttsState === "playing" && <Pause className="w-4 h-4" />}
           {ttsState === "idle" && <Volume2 className="w-4 h-4" />}
