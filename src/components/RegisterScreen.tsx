@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { API_URL } from "@/lib/api";
+import { API_URL, registerHeaders } from "@/lib/api";
 import StarLogo from "./StarLogo";
 import { motion } from "framer-motion";
 
@@ -40,7 +40,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: registerHeaders(),
         body: JSON.stringify({ email, password }),
       });
 
