@@ -89,6 +89,11 @@ const COMMAND_SUGGESTIONS: CommandSuggestion[] = [
 const ACCEPTED_DOC_TYPES =
   ".pdf,.xlsx,.xls,.csv,.docx,.doc,.txt,.json,.html,.py,.js,.ts";
 
+const ACCEPTED_IMAGE_TYPES = ".jpg,.jpeg,.png,.gif,.webp";
+const ACCEPTED_ALL_TYPES = ACCEPTED_DOC_TYPES + "," + ACCEPTED_IMAGE_TYPES;
+
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp"]);
+
 const DOC_MEDIA_TYPES: Record<string, string> = {
   pdf: "application/pdf",
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -134,7 +139,9 @@ export interface AnimatedInputBarProps {
     message: string,
     fileBase64?: string,
     fileName?: string,
-    fileMediaType?: string
+    fileMediaType?: string,
+    imageBase64?: string,
+    imageMediaType?: string,
   ) => void;
   disabled?: boolean;
   conversationId?: string | null;
@@ -154,6 +161,13 @@ export function AnimatedInputBar({
   const [docName, setDocName] = useState<string | null>(null);
   const [docBase64, setDocBase64] = useState<string | null>(null);
   const [docMediaType, setDocMediaType] = useState("application/octet-stream");
+
+  // Image attachment state
+  const [imageName, setImageName] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [imageMediaType, setImageMediaType] = useState("image/jpeg");
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Voice
@@ -203,22 +217,46 @@ export function AnimatedInputBar({
     setDocName(null);
     setDocBase64(null);
     setDocMediaType("application/octet-stream");
+    setImageName(null);
+    setImageBase64(null);
+    setImageMediaType("image/jpeg");
+    setImagePreviewUrl(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      const base64 = result.split(",", 2)[1];
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-      setDocName(file.name);
-      setDocBase64(base64);
-      setDocMediaType(
-        DOC_MEDIA_TYPES[ext] ?? file.type ?? "application/octet-stream"
-      );
-    };
+
+    if (IMAGE_EXTENSIONS.has(ext)) {
+      reader.onload = (ev) => {
+        const result = ev.target?.result as string;
+        const base64 = result.split(",", 2)[1];
+        setImageName(file.name);
+        setImageBase64(base64);
+        setImageMediaType(file.type || "image/jpeg");
+        setImagePreviewUrl(result); // data URL for preview
+        // clear any doc attachment
+        setDocName(null);
+        setDocBase64(null);
+      };
+    } else {
+      reader.onload = (ev) => {
+        const result = ev.target?.result as string;
+        const base64 = result.split(",", 2)[1];
+        setDocName(file.name);
+        setDocBase64(base64);
+        setDocMediaType(
+          DOC_MEDIA_TYPES[ext] ?? file.type ?? "application/octet-stream"
+        );
+        // clear any image attachment
+        setImageName(null);
+        setImageBase64(null);
+        setImagePreviewUrl(null);
+      };
+    }
+
     reader.readAsDataURL(file);
     e.target.value = "";
   };
@@ -226,12 +264,14 @@ export function AnimatedInputBar({
   // ── Send ──
   const handleSend = () => {
     const trimmed = text.trim();
-    if ((!trimmed && !docBase64) || disabled) return;
+    if ((!trimmed && !docBase64 && !imageBase64) || disabled) return;
     onSend(
       trimmed,
       docBase64 ?? undefined,
       docName ?? undefined,
-      docBase64 ? docMediaType : undefined
+      docBase64 ? docMediaType : undefined,
+      imageBase64 ?? undefined,
+      imageBase64 ? imageMediaType : undefined,
     );
     setText("");
     clearAttachment();
@@ -275,9 +315,11 @@ export function AnimatedInputBar({
     textareaRef.current?.focus();
   };
 
-  const hasAttachment = !!docBase64;
+  const hasAttachment = !!docBase64 || !!imageBase64;
   const canSend = (text.trim().length > 0 || hasAttachment) && !disabled;
-  const placeholder = docBase64
+  const placeholder = imageBase64
+    ? "What do you want to know about this image?"
+    : docBase64
     ? `What to do with "${docName}"?`
     : "Ask something...";
 
@@ -393,6 +435,32 @@ export function AnimatedInputBar({
             )}
           </AnimatePresence>
 
+          {/* Image attachment preview */}
+          <AnimatePresence>
+            {imagePreviewUrl && (
+              <motion.div
+                className="px-4 pt-3 flex items-center gap-2"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <div className="relative">
+                  <img
+                    src={imagePreviewUrl}
+                    alt={imageName ?? "attached image"}
+                    className="h-16 w-16 object-cover rounded-lg border border-muted/40"
+                  />
+                  <button
+                    onClick={clearAttachment}
+                    className="absolute -top-1.5 -right-1.5 bg-background border border-muted/40 rounded-full p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <XIcon className="w-3 h-3" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Textarea */}
           <div className="px-4 pt-3 pb-1">
             <textarea
@@ -445,7 +513,7 @@ export function AnimatedInputBar({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept={ACCEPTED_DOC_TYPES}
+                accept={ACCEPTED_ALL_TYPES}
                 onChange={handleFileChange}
                 className="hidden"
               />
