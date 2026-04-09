@@ -108,6 +108,8 @@ export async function sendChatMessage(
   selectedModel?: string,
   onAgentToolCall?: (evt: AgentToolCallEvent) => void,
   onAgentToolResult?: (evt: AgentToolResultEvent) => void,
+  imageBase64?: string,
+  imageMediaType?: string,
 ): Promise<ChatResponse> {
   const body: Record<string, string> = { message };
   if (conversationId) body.conversation_id = conversationId;
@@ -115,6 +117,8 @@ export async function sendChatMessage(
   if (fileName) body.file_name = fileName;
   if (fileMediaType) body.file_media_type = fileMediaType;
   if (selectedModel) body.model_slug = selectedModel;
+  if (imageBase64) body.image_base64 = imageBase64;
+  if (imageMediaType) body.image_media_type = imageMediaType;
 
   const res = await fetch(`${API_URL}/chat`, {
     method: "POST",
