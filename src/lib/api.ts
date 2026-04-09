@@ -408,3 +408,37 @@ export async function sendSandboxMessage(
 
   throw new Error("Stream encerrado sem resposta final");
 }
+
+// ================= MEMORY =================
+
+export interface MemoryEntry {
+  id: number;
+  content: string;
+  tags: string[];
+  created_at: string;
+}
+
+export async function fetchMemories(token: string): Promise<MemoryEntry[]> {
+  const res = await fetch(`${API_URL}/memory`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Erro ao buscar memórias");
+  const data = await res.json();
+  return data.memories ?? [];
+}
+
+export async function deleteMemory(token: string, id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/memory/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Erro ao deletar memória");
+}
+
+export async function clearAllMemories(token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/memory`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Erro ao limpar memórias");
+}
