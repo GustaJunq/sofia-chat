@@ -20,12 +20,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col items-center overflow-x-hidden"
       style={{
-        background: `
-          radial-gradient(ellipse at 20% 0%, hsl(250 60% 18% / 0.3) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 100%, hsl(220 60% 12% / 0.25) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 50%, hsl(280 40% 10% / 0.1) 0%, transparent 60%),
-          hsl(240 6% 3%)
-        `,
+        background: "#000000",
         color: "hsl(210 20% 92%)",
         fontFamily: "'Inter', -apple-system, sans-serif",
       }}
