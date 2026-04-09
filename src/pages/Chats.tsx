@@ -308,7 +308,7 @@ const Chats = () => {
     }
 
     // ── Image generation ──
-    if (isImageRequest(text)) {
+    if (!imageBase64 && isImageRequest(text)) {
       setIsLoading(false);
       await startImageGeneration(text);
       return;
