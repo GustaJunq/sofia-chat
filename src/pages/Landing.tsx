@@ -192,6 +192,79 @@ const Landing = () => {
 
         .ln-footer-link:hover { color: rgba(255,255,255,0.5); }
 
+        /* Desktop Adaptations */
+        @media (min-width: 1024px) {
+          .ln-hero {
+            max-width: 1200px;
+            padding: 100px 40px 0;
+            flex-direction: row;
+            justify-content: center;
+            text-align: left;
+            gap: 80px;
+          }
+
+          .ln-hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .ln-wordmark {
+            font-size: 5rem;
+            margin-bottom: 24px;
+          }
+
+          .ln-cube-wrap {
+            width: 400px;
+            margin-bottom: 0;
+            order: 2;
+          }
+
+          .ln-subtitle {
+            font-size: 1.5rem;
+            max-width: 450px;
+            margin-bottom: 48px;
+          }
+
+          .ln-align {
+            max-width: 1200px;
+            flex-direction: row-reverse;
+            justify-content: center;
+            text-align: left;
+            gap: 100px;
+            padding: 120px 40px;
+          }
+
+          .ln-align-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .ln-icon-wrap {
+            width: 280px;
+            margin-bottom: 0;
+          }
+
+          .ln-heading {
+            font-size: 6rem;
+          }
+
+          .ln-desc {
+            font-size: 1.2rem;
+            max-width: 450px;
+          }
+
+          .ln-trynow-wrap {
+            max-width: 1200px;
+            padding-bottom: 160px;
+          }
+
+          .ln-trynow {
+            font-size: 12rem;
+          }
+        }
+
         @keyframes ln-fade {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -209,17 +282,17 @@ const Landing = () => {
 
       <div className="ln-root">
         <div className="ln-hero">
-          <h1 className="ln-wordmark">Synastria</h1>
-
           <div className="ln-cube-wrap">
             <video ref={cubeRef} src="/cube.mp4" autoPlay loop muted playsInline />
           </div>
 
-          <p className="ln-subtitle">
-            A constellation of AI agents<br />inside a single chatbot.
-          </p>
-
-          <Link to="/register" className="ln-cta">Get started</Link>
+          <div className="ln-hero-content">
+            <h1 className="ln-wordmark">Synastria</h1>
+            <p className="ln-subtitle">
+              A constellation of AI agents<br />inside a single chatbot.
+            </p>
+            <Link to="/register" className="ln-cta">Get started</Link>
+          </div>
         </div>
 
         <div className="ln-align">
@@ -227,13 +300,14 @@ const Landing = () => {
             <video ref={iconRef} src="/icon.mp4" autoPlay loop muted playsInline />
           </div>
 
-          <h2 className="ln-heading">Where AI<br />systems align</h2>
-
-          <p className="ln-desc">
-            Create specialized AI agents, connect them into
-            a unified system, and run everything through a single
-            intelligent chatbot.
-          </p>
+          <div className="ln-align-content">
+            <h2 className="ln-heading">Where AI<br />systems align</h2>
+            <p className="ln-desc">
+              Create specialized AI agents, connect them into
+              a unified system, and run everything through a single
+              intelligent chatbot.
+            </p>
+          </div>
         </div>
 
         <div className="ln-trynow-wrap">
