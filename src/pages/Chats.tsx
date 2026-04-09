@@ -288,10 +288,13 @@ const Chats = () => {
     fileBase64?: string,
     fileName?: string,
     fileMediaType?: string,
+    imageBase64?: string,
+    imageMediaType?: string,
   ) => {
     const userMsg: Message = {
       role: "user",
       content: text || (fileName ? `📎 ${fileName}` : ""),
+      ...(imageBase64 ? { imagePreview: `data:${imageMediaType ?? "image/jpeg"};base64,${imageBase64}` } : {}),
     };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
@@ -520,6 +523,8 @@ const Chats = () => {
             return updated;
           });
         },
+        imageBase64,
+        imageMediaType,
       );
 
       if (response.thinking || response.ttft_ms !== undefined) {
