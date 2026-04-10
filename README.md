@@ -1,4 +1,4 @@
-# SofIA — Frontend
+# SofIA Frontend
 
 Interface web do assistente **sofIA** by SofIA Networks.
 
