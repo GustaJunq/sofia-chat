@@ -1,6 +1,6 @@
 # SofIA Frontend
 
-Interface web do assistente **sofIA** by SofIA Networks.
+Interface web do assistente **sofIA** by SynastrIA Networks.
 
 ## Stack
 
