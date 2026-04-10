@@ -1,12 +1,13 @@
 import { Globe, Terminal, ImageIcon, Check, X, Loader2, Brain } from "lucide-react";
 
-export type AgentToolName = "web_search" | "run_sandbox" | "generate_image" | "save_memory";
+export type AgentToolName = "web_search" | "run_sandbox" | "run_command" | "generate_image" | "save_memory" | "listing_skills" | "running_skill";
 
 export interface AgentToolCallEntry {
   tool: AgentToolName;
   args: Record<string, unknown>;
   status: "running" | "done" | "error";
   summary?: string;
+  skillName?: string; // Nome da skill sendo executada
 }
 
 // ─── Config ────────────────────────────────────────────────────────────────────
@@ -24,6 +25,12 @@ const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; 
     doneLabel: "File generated",
     Icon: Terminal,
   },
+  run_command: {
+    label: "run_command",
+    runningLabel: "Running command",
+    doneLabel: "Command executed",
+    Icon: Terminal,
+  },
   generate_image: {
     label: "generate_image",
     runningLabel: "Generating image",
@@ -34,6 +41,18 @@ const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; 
     label: "save_memory",
     runningLabel: "Saving to memory",
     doneLabel: "Memory saved",
+    Icon: Brain,
+  },
+  listing_skills: {
+    label: "listing_skills",
+    runningLabel: "Listing skills…",
+    doneLabel: "Skills loaded",
+    Icon: Brain,
+  },
+  running_skill: {
+    label: "running_skill",
+    runningLabel: "Running skill…",
+    doneLabel: "Skill executed",
     Icon: Brain,
   },
 };
@@ -64,6 +83,11 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
   } else if (entry.tool === "save_memory" && entry.args.content) {
     const c = String(entry.args.content);
     annotation = c.slice(0, 48) + (c.length > 48 ? "…" : "");
+  } else if (entry.tool === "run_command" && entry.args.command) {
+    const cmd = String(entry.args.command);
+    annotation = cmd.slice(0, 48) + (cmd.length > 48 ? "…" : "");
+  } else if ((entry.tool === "running_skill" || entry.tool === "listing_skills") && entry.skillName) {
+    annotation = entry.skillName;
   }
 
   return (
