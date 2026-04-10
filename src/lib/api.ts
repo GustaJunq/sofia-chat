@@ -448,3 +448,37 @@ export async function clearAllMemories(token: string): Promise<void> {
   });
   if (!res.ok) throw new Error("Erro ao limpar memórias");
 }
+
+// ================= SKILLS =================
+
+export interface SkillEntry {
+  id: string;
+  url: string;
+  uploaded_at?: string;
+}
+
+export async function fetchSkills(token: string): Promise<SkillEntry[]> {
+  const res = await fetch(`${API_URL}/skills`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Erro ao buscar skills");
+  const data = await res.json();
+  return data.skills ?? [];
+}
+
+export async function importSkill(
+  token: string,
+  fileBase64: string,
+  fileName: string
+): Promise<{ success: boolean; skill_id: string; message: string }> {
+  const res = await fetch(`${API_URL}/skills/import`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ file_base64: fileBase64, file_name: fileName }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Erro ao importar skill");
+  }
+  return res.json();
+}

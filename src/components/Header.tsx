@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Trash2, Menu, Github, Brain, X, Loader2 } from "lucide-react";
+import { ChevronDown, Trash2, Menu, Github, Brain, X, Loader2, Upload, Terminal } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
-import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry } from "@/lib/api";
+import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry, fetchSkills, importSkill, type SkillEntry } from "@/lib/api";
 
 const models = [
   { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
@@ -238,6 +238,198 @@ function MemoryPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
+function SkillsPanel({ onClose }: { onClose: () => void }) {
+  const token = getToken();
+  const [skills, setSkills] = useState<SkillEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchSkills(token)
+      .then(setSkills)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    if (!file.name.endsWith(".zip")) {
+      alert("Por favor, selecione um arquivo .zip");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        try {
+          await importSkill(token, base64, file.name);
+          const updated = await fetchSkills(token);
+          setSkills(updated);
+        } catch (err: any) {
+          alert(err.message);
+        } finally {
+          setImporting(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setImporting(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "hsl(var(--background) / 0.85)",
+        backdropFilter: "blur(6px)",
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{
+          width: "min(520px, calc(100vw - 32px))",
+          maxHeight: "80vh",
+          background: "hsl(var(--card))",
+          border: "1px solid hsl(var(--border))",
+          borderRadius: 12,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "16px 20px",
+            borderBottom: "1px solid hsl(var(--border))",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Terminal style={{ width: 16, height: 16, color: "hsl(var(--primary))" }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.82rem", letterSpacing: "0.04em" }}>
+              SKILLS DO CLAUDE CODE
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImport}
+              accept=".zip"
+              style={{ display: "none" }}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              style={{
+                display: "flex", alignItems: "center", gap: 4,
+                padding: "4px 10px", borderRadius: 6,
+                border: "1px solid hsl(var(--primary) / 0.4)",
+                background: "hsl(var(--primary) / 0.08)",
+                color: "hsl(var(--primary))",
+                fontSize: "0.7rem", fontFamily: "'JetBrains Mono', monospace",
+                cursor: "pointer", letterSpacing: "0.03em",
+              }}
+            >
+              {importing ? <Loader2 style={{ width: 10, height: 10 }} className="animate-spin" /> : <Upload style={{ width: 10, height: 10 }} />}
+              Importar .zip
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 28, height: 28, borderRadius: 6, border: "none",
+                background: "transparent", cursor: "pointer",
+                color: "hsl(var(--muted-foreground))",
+              }}
+            >
+              <X style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+              <Loader2 style={{ width: 20, height: 20, color: "hsl(var(--muted-foreground))" }} className="animate-spin" />
+            </div>
+          ) : skills.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center", padding: "40px 20px",
+                color: "hsl(var(--muted-foreground))",
+                fontSize: "0.8rem", fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              <Terminal style={{ width: 32, height: 32, margin: "0 auto 12px", opacity: 0.3 }} />
+              <p>Nenhuma skill importada.</p>
+              <p style={{ opacity: 0.6, marginTop: 4, fontSize: "0.72rem" }}>
+                Importe arquivos .zip contendo SKILL.md e pasta scripts/.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {skills.map((s) => (
+                <div
+                  key={s.id}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    gap: 10, padding: "10px 12px",
+                    background: "hsl(var(--muted) / 0.3)",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "0.8rem", fontWeight: 500, color: "hsl(var(--foreground) / 0.9)", margin: 0 }}>
+                      {s.id}
+                    </p>
+                    <p style={{ fontSize: "0.65rem", color: "hsl(var(--muted-foreground))", margin: "2px 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
+                      {s.uploaded_at ? new Date(s.uploaded_at).toLocaleDateString("pt-BR") : "Importada"}
+                    </p>
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "hsl(var(--primary))", fontFamily: "'JetBrains Mono', monospace" }}>
+                    Ativa
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            padding: "10px 20px",
+            borderTop: "1px solid hsl(var(--border))",
+            fontSize: "0.68rem",
+            color: "hsl(var(--muted-foreground))",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
+        >
+          {skills.length} {skills.length === 1 ? "skill" : "skills"} disponíveis
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Header ────────────────────────────────────────────────────────────────────
 
 const Header = ({
@@ -251,6 +443,7 @@ const Header = ({
 }: HeaderProps) => {
   const [open, setOpen] = useState(false);
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
+  const [skillsPanelOpen, setSkillsPanelOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [githubUsername, setGithubUsername] = useState<string | null>(null);
@@ -349,10 +542,10 @@ const Header = ({
   };
 
   return (
-    <>
-      {memoryPanelOpen && <MemoryPanel onClose={() => setMemoryPanelOpen(false)} />}
-
-      {/* ── Main header bar ── */}
+          {memoryPanelOpen && <MemoryPanel onClose={() => setMemoryPanelOpen(false)} />}
+          {skillsPanelOpen && <SkillsPanel onClose={() => setSkillsPanelOpen(false)} />}
+        </div>
+      </header>ar ── */}
       <header className="header-bar">
         <div className="header-gradient" />
 
@@ -428,6 +621,16 @@ const Header = ({
                     >
                       <Brain className="w-3 h-3" />
                       Memória da SofIA
+                    </button>
+                  )}
+                  {!isGuest && (
+                    <button
+                      onClick={() => { setOpen(false); setSkillsPanelOpen(true); }}
+                      className="header-logout flex items-center gap-2"
+                      style={{ color: "hsl(var(--muted-foreground))" }}
+                    >
+                      <Terminal className="w-3 h-3" />
+                      Importar Skills
                     </button>
                   )}
                   {githubUsername ? (
