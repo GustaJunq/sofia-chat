@@ -468,19 +468,11 @@ const Header = ({
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
-    if (data.redirect_url) {
-      const popup = window.open(data.redirect_url, "github-oauth", "width=600,height=700");
-      window.addEventListener("message", (e) => {
-        if (e.data?.github_connected) {
-          setGithubUsername(e.data.username);
-          popup?.close();
-          setOpen(false);
-        }
-      }, { once: true });
-    }
+    if (data.url) window.location.href = data.url;
   };
 
   const handleDisconnectGitHub = async () => {
+    if (!confirm("Desconectar sua conta do GitHub?")) return;
     const token = getToken();
     if (!token) return;
     await fetch(`${API_URL}/auth/github/disconnect`, {
@@ -488,15 +480,16 @@ const Header = ({
       headers: { Authorization: `Bearer ${token}` },
     });
     setGithubUsername(null);
-    setOpen(false);
   };
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleModelClick = async (modelId: string) => {
@@ -542,10 +535,7 @@ const Header = ({
   };
 
   return (
-          {memoryPanelOpen && <MemoryPanel onClose={() => setMemoryPanelOpen(false)} />}
-          {skillsPanelOpen && <SkillsPanel onClose={() => setSkillsPanelOpen(false)} />}
-        </div>
-      </header>ar ── */}
+    <>
       <header className="header-bar">
         <div className="header-gradient" />
 
@@ -663,6 +653,9 @@ const Header = ({
           </div>
         </div>
       </header>
+
+      {memoryPanelOpen && <MemoryPanel onClose={() => setMemoryPanelOpen(false)} />}
+      {skillsPanelOpen && <SkillsPanel onClose={() => setSkillsPanelOpen(false)} />}
     </>
   );
 };
