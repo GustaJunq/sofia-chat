@@ -482,3 +482,14 @@ export async function importSkill(
   }
   return res.json();
 }
+
+export async function deleteSkill(token: string, skillId: string): Promise<void> {
+  const res = await fetch(`${API_URL}/skills/${skillId}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Erro ao deletar skill");
+  }
+}

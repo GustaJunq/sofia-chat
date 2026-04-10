@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Trash2, Menu, Github, Brain, X, Loader2, Upload, Terminal } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
-import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry, fetchSkills, importSkill, type SkillEntry } from "@/lib/api";
+import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry, fetchSkills, importSkill, type SkillEntry, deleteSkill } from "@/lib/api";
 
 const models = [
   { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
@@ -243,6 +243,7 @@ function SkillsPanel({ onClose }: { onClose: () => void }) {
   const [skills, setSkills] = useState<SkillEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -280,6 +281,19 @@ function SkillsPanel({ onClose }: { onClose: () => void }) {
       reader.readAsDataURL(file);
     } catch {
       setImporting(false);
+    }
+  };
+
+  const handleDelete = async (skillId: string) => {
+    if (!token || !confirm(`Tem certeza que deseja deletar a skill "${skillId}"?`)) return;
+    setDeletingId(skillId);
+    try {
+      await deleteSkill(token, skillId);
+      setSkills((prev) => prev.filter((s) => s.id !== skillId));
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -404,9 +418,24 @@ function SkillsPanel({ onClose }: { onClose: () => void }) {
                       {s.uploaded_at ? new Date(s.uploaded_at).toLocaleDateString("pt-BR") : "Importada"}
                     </p>
                   </div>
-                  <div style={{ fontSize: "0.65rem", color: "hsl(var(--primary))", fontFamily: "'JetBrains Mono', monospace" }}>
-                    Ativa
-                  </div>
+                  <button
+                    onClick={() => handleDelete(s.id)}
+                    disabled={deletingId === s.id}
+                    style={{
+                      flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                      width: 26, height: 26, borderRadius: 6, border: "none",
+                      background: "transparent", cursor: "pointer",
+                      color: "hsl(var(--muted-foreground))",
+                      transition: "color 0.15s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(var(--destructive))")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(var(--muted-foreground))")}
+                  >
+                    {deletingId === s.id
+                      ? <Loader2 style={{ width: 12, height: 12 }} className="animate-spin" />
+                      : <Trash2 style={{ width: 12, height: 12 }} />
+                    }
+                  </button>
                 </div>
               ))}
             </div>
