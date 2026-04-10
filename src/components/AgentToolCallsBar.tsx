@@ -1,58 +1,34 @@
-import { Globe, Terminal, ImageIcon, Check, X, Loader2, Brain } from "lucide-react";
+import { Terminal, Check, X, Loader2, Brain } from "lucide-react";
 
-export type AgentToolName = "web_search" | "run_sandbox" | "run_command" | "generate_image" | "save_memory" | "listing_skills" | "running_skill";
+export type AgentToolName = "list_skills" | "run_skill" | "save_memory";
 
 export interface AgentToolCallEntry {
   tool: AgentToolName;
   args: Record<string, unknown>;
   status: "running" | "done" | "error";
   summary?: string;
-  skillName?: string; // Nome da skill sendo executada
+  skillName?: string; // Nome da skill sendo executada (ex: web_search, run_command)
 }
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 
 const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; doneLabel: string; Icon: React.FC<{ className?: string }> }> = {
-  web_search: {
-    label: "web_search",
-    runningLabel: "Searching",
-    doneLabel: "Search complete",
-    Icon: Globe,
-  },
-  run_sandbox: {
-    label: "run_sandbox",
-    runningLabel: "Running sandbox",
-    doneLabel: "File generated",
-    Icon: Terminal,
-  },
-  run_command: {
-    label: "run_command",
-    runningLabel: "Running command",
-    doneLabel: "Command executed",
-    Icon: Terminal,
-  },
-  generate_image: {
-    label: "generate_image",
-    runningLabel: "Generating image",
-    doneLabel: "Image generated",
-    Icon: ImageIcon,
-  },
-  save_memory: {
-    label: "save_memory",
-    runningLabel: "Saving to memory",
-    doneLabel: "Memory saved",
-    Icon: Brain,
-  },
-  listing_skills: {
-    label: "listing_skills",
+  list_skills: {
+    label: "list_skills",
     runningLabel: "Listing skills…",
     doneLabel: "Skills loaded",
     Icon: Brain,
   },
-  running_skill: {
-    label: "running_skill",
+  run_skill: {
+    label: "run_skill",
     runningLabel: "Running skill…",
     doneLabel: "Skill executed",
+    Icon: Terminal,
+  },
+  save_memory: {
+    label: "save_memory",
+    runningLabel: "Saving memory…",
+    doneLabel: "Memory saved",
     Icon: Brain,
   },
 };
@@ -70,24 +46,15 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
   const isRunning = entry.status === "running";
   const isDone = entry.status === "done";
 
-  // Annotation (query / command)
+  // Annotation (skill name or content)
   let annotation = "";
-  if (entry.tool === "web_search" && entry.args.query) {
-    annotation = `"${String(entry.args.query).slice(0, 48)}${String(entry.args.query).length > 48 ? "…" : ""}"`;
-  } else if (entry.tool === "run_sandbox" && entry.args.command) {
-    const cmd = String(entry.args.command);
-    annotation = cmd.slice(0, 48) + (cmd.length > 48 ? "…" : "");
-  } else if (entry.tool === "generate_image" && entry.args.prompt) {
-    const p = String(entry.args.prompt);
-    annotation = p.slice(0, 48) + (p.length > 48 ? "…" : "");
+  if (entry.skillName) {
+    annotation = entry.skillName;
   } else if (entry.tool === "save_memory" && entry.args.content) {
     const c = String(entry.args.content);
     annotation = c.slice(0, 48) + (c.length > 48 ? "…" : "");
-  } else if (entry.tool === "run_command" && entry.args.command) {
-    const cmd = String(entry.args.command);
-    annotation = cmd.slice(0, 48) + (cmd.length > 48 ? "…" : "");
-  } else if ((entry.tool === "running_skill" || entry.tool === "listing_skills") && entry.skillName) {
-    annotation = entry.skillName;
+  } else if (entry.tool === "run_skill" && entry.args.skill_name) {
+    annotation = String(entry.args.skill_name);
   }
 
   return (
