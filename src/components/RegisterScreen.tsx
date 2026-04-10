@@ -38,7 +38,8 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/auth/register`, {
+      // Usamos o proxy local do Vercel (/api/register) para injetar a chave secreta com segurança
+      const res = await fetch(`/api/register`, {
         method: "POST",
         headers: registerHeaders(),
         body: JSON.stringify({ email, password }),

@@ -1,5 +1,4 @@
 export const API_URL = "https://api.synastria.dev";
-export const REGISTRATION_KEY = import.meta.env.VITE_REGISTRATION_KEY || "";
 
 export function getToken(): string | null {
   return sessionStorage.getItem("sof_token");
@@ -13,13 +12,9 @@ function authHeaders(token: string) {
 }
 
 export function registerHeaders() {
-  const headers: Record<string, string> = {
+  return {
     "Content-Type": "application/json",
   };
-  if (REGISTRATION_KEY) {
-    headers["X-User-Key"] = REGISTRATION_KEY;
-  }
-  return headers;
 }
 
 export interface ConversationSummary {
