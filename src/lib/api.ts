@@ -493,3 +493,39 @@ export async function deleteSkill(token: string, skillId: string): Promise<void>
     throw new Error(err.error || "Erro ao deletar skill");
   }
 }
+
+// ================= SUBAGENTS =================
+
+export interface SubagentEntry {
+  id: number;
+  name: string;
+  personality: string;
+  system_prompt: string;
+  created_at: string;
+}
+
+export async function fetchSubagents(token: string): Promise<SubagentEntry[]> {
+  const res = await fetch(`${API_URL}/subagents`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Erro ao buscar subagentes");
+  const data = await res.json();
+  return data.subagents ?? [];
+}
+
+export async function createSubagent(
+  token: string,
+  name: string,
+  personality: string
+): Promise<SubagentEntry> {
+  const res = await fetch(`${API_URL}/subagents`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ name, personality }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Erro ao criar subagente");
+  }
+  return res.json();
+}

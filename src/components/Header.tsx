@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Trash2, Menu, Github, Brain, X, Loader2, Upload, Terminal } from "lucide-react";
 import { getUserPlan } from "@/lib/auth";
-import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry, fetchSkills, importSkill, type SkillEntry, deleteSkill } from "@/lib/api";
+import { API_URL, getToken, fetchMemories, deleteMemory, clearAllMemories, type MemoryEntry, fetchSkills, importSkill, type SkillEntry, deleteSkill, fetchSubagents, createSubagent, type SubagentEntry } from "@/lib/api";
+import { Users } from "lucide-react";
 
 const models = [
   { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
@@ -459,6 +460,209 @@ function SkillsPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
+function SubagentsPanel({ onClose }: { onClose: () => void }) {
+  const token = getToken();
+  const [subagents, setSubagents] = useState<SubagentEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newPersonality, setNewPersonality] = useState("");
+
+  useEffect(() => {
+    if (!token) return;
+    fetchSubagents(token)
+      .then(setSubagents)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !newName || !newPersonality) return;
+    setCreating(true);
+    try {
+      const res = await createSubagent(token, newName, newPersonality);
+      setSubagents((prev) => [res, ...prev]);
+      setNewName("");
+      setNewPersonality("");
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "hsl(var(--background) / 0.85)",
+        backdropFilter: "blur(6px)",
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{
+          width: "min(520px, calc(100vw - 32px))",
+          maxHeight: "80vh",
+          background: "hsl(var(--card))",
+          border: "1px solid hsl(var(--border))",
+          borderRadius: 12,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "16px 20px",
+            borderBottom: "1px solid hsl(var(--border))",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Users style={{ width: 16, height: 16, color: "hsl(var(--primary))" }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.82rem", letterSpacing: "0.04em" }}>
+              SUBAGENTS DA SOFIA
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 28, height: 28, borderRadius: 6, border: "none",
+              background: "transparent", cursor: "pointer",
+              color: "hsl(var(--muted-foreground))",
+            }}
+          >
+            <X style={{ width: 14, height: 14 }} />
+          </button>
+        </div>
+
+        {/* Create Form */}
+        <form
+          onSubmit={handleCreate}
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid hsl(var(--border))",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            background: "hsl(var(--muted) / 0.2)",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Nome do subagente (ex: Analista)"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            required
+            style={{
+              padding: "8px 12px", borderRadius: 6,
+              border: "1px solid hsl(var(--border))",
+              background: "hsl(var(--background))",
+              fontSize: "0.8rem", fontFamily: "'JetBrains Mono', monospace",
+            }}
+          />
+          <textarea
+            placeholder="Personalidade e foco (ex: Especialista em dados, sarcástico)"
+            value={newPersonality}
+            onChange={(e) => setNewPersonality(e.target.value)}
+            required
+            rows={2}
+            style={{
+              padding: "8px 12px", borderRadius: 6,
+              border: "1px solid hsl(var(--border))",
+              background: "hsl(var(--background))",
+              fontSize: "0.8rem", fontFamily: "'JetBrains Mono', monospace",
+              resize: "none",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={creating}
+            style={{
+              padding: "8px", borderRadius: 6,
+              background: "hsl(var(--primary))",
+              color: "hsl(var(--primary-foreground))",
+              fontSize: "0.75rem", fontWeight: 600,
+              cursor: "pointer", border: "none",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            }}
+          >
+            {creating ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : "Criar Subagente"}
+          </button>
+        </form>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+              <Loader2 style={{ width: 20, height: 20, color: "hsl(var(--muted-foreground))" }} className="animate-spin" />
+            </div>
+          ) : subagents.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center", padding: "40px 20px",
+                color: "hsl(var(--muted-foreground))",
+                fontSize: "0.8rem", fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              <Users style={{ width: 32, height: 32, margin: "0 auto 12px", opacity: 0.3 }} />
+              <p>Nenhum subagente criado.</p>
+              <p style={{ opacity: 0.6, marginTop: 4, fontSize: "0.72rem" }}>
+                Crie subagentes para delegar tarefas complexas.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {subagents.map((s) => (
+                <div
+                  key={s.id}
+                  style={{
+                    padding: "10px 12px",
+                    background: "hsl(var(--muted) / 0.3)",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                  }}
+                >
+                  <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "hsl(var(--foreground) / 0.9)", margin: 0 }}>
+                    {s.name}
+                  </p>
+                  <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted-foreground))", marginTop: 4, lineHeight: 1.4 }}>
+                    {s.personality}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            padding: "10px 20px",
+            borderTop: "1px solid hsl(var(--border))",
+            fontSize: "0.68rem",
+            color: "hsl(var(--muted-foreground))",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
+        >
+          {subagents.length} {subagents.length === 1 ? "subagente" : "subagentes"} ativos
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Header ────────────────────────────────────────────────────────────────────
 
 const Header = ({
@@ -473,6 +677,7 @@ const Header = ({
   const [open, setOpen] = useState(false);
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const [skillsPanelOpen, setSkillsPanelOpen] = useState(false);
+  const [subagentsPanelOpen, setSubagentsPanelOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [githubUsername, setGithubUsername] = useState<string | null>(null);
@@ -652,6 +857,16 @@ const Header = ({
                       Importar Skills
                     </button>
                   )}
+                  {!isGuest && (
+                    <button
+                      onClick={() => { setOpen(false); setSubagentsPanelOpen(true); }}
+                      className="header-logout flex items-center gap-2"
+                      style={{ color: "hsl(var(--muted-foreground))" }}
+                    >
+                      <Users className="w-3 h-3" />
+                      Subagents
+                    </button>
+                  )}
                   {githubUsername ? (
                     <button onClick={handleDisconnectGitHub} className="header-logout flex items-center gap-2" style={{ color: "hsl(var(--muted-foreground))" }}>
                       <Github className="w-3 h-3" />
@@ -685,6 +900,7 @@ const Header = ({
 
       {memoryPanelOpen && <MemoryPanel onClose={() => setMemoryPanelOpen(false)} />}
       {skillsPanelOpen && <SkillsPanel onClose={() => setSkillsPanelOpen(false)} />}
+      {subagentsPanelOpen && <SubagentsPanel onClose={() => setSubagentsPanelOpen(false)} />}
     </>
   );
 };
