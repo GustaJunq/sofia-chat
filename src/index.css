@@ -363,7 +363,7 @@
 
   /* Header — ultra-premium glassmorphism */
   .header-bar {
-    @apply fixed inset-x-0 top-0 z-50;
+    @apply fixed inset-x-0 top-0 z-50 w-full;
   }
   .header-gradient {
     @apply pointer-events-none absolute inset-x-0 top-0 h-32;
@@ -616,10 +616,10 @@
 
   /* Chat view */
   .chat-scroll {
-    @apply flex-1 overflow-y-auto pt-20 pb-40 px-5;
+    @apply flex-1 overflow-y-auto pt-20 pb-40 px-5 flex flex-col items-center w-full;
   }
   .chat-container {
-    @apply max-w-[680px] mx-auto;
+    @apply w-full max-w-[680px];
   }
 
   /* Message bubbles */
@@ -682,7 +682,7 @@
 
   /* Input bar */
   .inputbar-wrapper {
-    @apply fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center px-5;
+    @apply fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center px-5 w-full;
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 1.25rem);
   }
   .inputbar-gradient {
@@ -978,7 +978,7 @@
 
   /* Main layout */
   .app-shell {
-    @apply h-[100dvh] flex flex-col relative overflow-hidden;
+    @apply h-[100dvh] flex flex-col relative overflow-hidden w-full;
     background:
       radial-gradient(ellipse at 15% 0%, hsl(250 50% 15% / 0.15) 0%, transparent 50%),
       radial-gradient(ellipse at 85% 100%, hsl(220 50% 12% / 0.12) 0%, transparent 50%),
