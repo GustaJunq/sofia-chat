@@ -44,7 +44,13 @@
     --input: 0 0% 100% / 0.05;
     --ring: 250 80% 68% / 0.25;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
+    
+    /* Gradient variables for premium design */
+    --gradient-black-to-gray: linear-gradient(to bottom, hsl(240 6% 15%), hsl(240 6% 3%));
+    --gradient-white-to-gray: linear-gradient(to bottom, hsl(0 0% 100%), hsl(0 0% 85%));
+    --gradient-primary: linear-gradient(135deg, hsl(250 80% 68%), hsl(250 75% 60%));
+    --gradient-primary-dark: linear-gradient(135deg, hsl(250 80% 68%), hsl(250 70% 55%));
 
     --glow-color: 250 80% 68%;
     --glow-secondary: 220 70% 55%;
@@ -305,7 +311,7 @@
     @apply w-full max-w-[400px] flex flex-col gap-3;
   }
   .auth-card {
-    @apply glass-strong rounded-2xl p-8;
+    @apply glass-strong rounded-3xl p-8;
     box-shadow:
       0 0 0 1px hsl(0 0% 100% / 0.06),
       0 24px 80px -12px hsl(250 60% 10% / 0.5);
@@ -319,8 +325,8 @@
     color: hsl(var(--muted-foreground));
   }
   .auth-input {
-    @apply w-full rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-[15px] outline-none;
-    background: hsl(var(--secondary));
+    @apply w-full rounded-2xl px-4 py-3 text-foreground placeholder:text-muted-foreground text[15px] outline-none;
+    background: linear-gradient(to bottom, hsl(240 5% 12%), hsl(240 5% 8%));
     border: 1px solid hsl(var(--border));
     transition: all 0.3s ease;
   }
@@ -329,15 +335,15 @@
     box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
   }
   .auth-submit {
-    @apply w-full rounded-xl py-3 text-[15px] font-medium disabled:opacity-40 mt-2;
-    background: hsl(var(--primary));
+    @apply w-full rounded-2xl py-3 text-[15px] font-medium disabled:opacity-40 mt-2;
+    background: var(--gradient-primary);
     color: hsl(var(--primary-foreground));
     transition: all 0.3s ease;
+    box-shadow: 0 8px 30px hsl(var(--primary) / 0.25);
   }
   .auth-submit:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px hsl(var(--primary) / 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px hsl(var(--primary) / 0.35);
   }
   .auth-footer {
     @apply text-center text-sm mt-3;
@@ -627,11 +633,16 @@
     @apply flex justify-end mb-4 gap-2;
   }
   .msg-user-bubble {
-    @apply rounded-[20px_20px_4px_20px] px-4 py-3 text-[15px] leading-relaxed break-words;
-    background: hsl(var(--primary));
+    @apply rounded-[24px_24px_6px_24px] px-4 py-3 text-[15px] leading-relaxed break-words;
+    background: var(--gradient-primary);
     color: hsl(var(--primary-foreground));
     max-width: min(75%, calc(100vw - 3rem));
-    box-shadow: 0 4px 20px hsl(var(--primary) / 0.2);
+    box-shadow: 0 8px 24px hsl(var(--primary) / 0.3);
+    transition: all 0.3s ease;
+  }
+  .msg-user-bubble:hover {
+    box-shadow: 0 12px 32px hsl(var(--primary) / 0.4);
+    transform: translateY(-1px);
   }
   .msg-assistant-row {
     @apply flex justify-start mb-4 gap-2 items-start;
@@ -664,8 +675,8 @@
     color: hsl(var(--foreground));
   }
   .msg-thinking-block {
-    @apply mt-1.5 p-3 rounded-xl text-xs whitespace-pre-wrap leading-relaxed;
-    background: hsl(var(--muted) / 0.5);
+    @apply mt-1.5 p-3 rounded-2xl text-xs whitespace-pre-wrap leading-relaxed;
+    background: linear-gradient(to bottom, hsl(240 5% 15%), hsl(240 5% 10%));
     border: 1px solid hsl(var(--border));
     color: hsl(var(--muted-foreground));
   }
@@ -686,7 +697,7 @@
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 1.25rem);
   }
   .inputbar-gradient {
-    @apply w-full max-w-[680px] rounded-2xl p-px;
+    @apply w-full max-w-[680px] rounded-3xl p-px;
     background: linear-gradient(
       135deg,
       hsl(var(--primary) / 0.15),
@@ -696,8 +707,8 @@
     box-shadow: 0 -12px 50px hsl(0 0% 0% / 0.5);
   }
   .inputbar-surface {
-    @apply w-full rounded-2xl flex flex-col px-4 py-2;
-    background: hsl(var(--card) / 0.95);
+    @apply w-full rounded-3xl flex flex-col px-4 py-2;
+    background: linear-gradient(to bottom, hsl(240 5% 10%), hsl(240 5% 6%));
     backdrop-filter: blur(24px);
   }
   .inputbar-row {
@@ -1186,15 +1197,15 @@
 }
 
   .auth-github {
-    @apply w-full rounded-xl py-3 text-[15px] font-medium flex items-center justify-center gap-2 mt-2;
-    background: #24292f;
+    @apply w-full rounded-2xl py-3 text-[15px] font-medium flex items-center justify-center gap-2 mt-2;
+    background: linear-gradient(to bottom, #2d333b, #1a1e22);
     color: white;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
   .auth-github:hover {
-    background: #1a1e22;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   }
   .auth-divider {
     @apply flex items-center gap-3 my-4;

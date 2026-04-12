@@ -72,6 +72,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      backgroundImage: {
+        "gradient-black-to-gray": "var(--gradient-black-to-gray)",
+        "gradient-white-to-gray": "var(--gradient-white-to-gray)",
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-primary-dark": "var(--gradient-primary-dark)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

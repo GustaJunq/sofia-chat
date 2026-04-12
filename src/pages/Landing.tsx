@@ -33,7 +33,7 @@ const Landing = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <video ref={cubeRef} src="/cube.mp4" autoPlay loop muted playsInline
-            className="w-full h-full object-cover rounded-2xl"
+            className="w-full h-full object-cover rounded-3xl"
           />
         </motion.div>
 
@@ -63,9 +63,9 @@ const Landing = () => {
           >
             <Link
               to="/products"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl text-sm font-medium uppercase tracking-wider transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl text-sm font-medium uppercase tracking-wider transition-all duration-300"
               style={{
-                background: "hsl(250 80% 68%)",
+                background: "linear-gradient(135deg, hsl(250 80% 68%), hsl(250 75% 60%))",
                 color: "#fff",
                 letterSpacing: "0.06em",
                 boxShadow: "0 8px 30px hsl(250 80% 68% / 0.25)",
@@ -88,7 +88,7 @@ const Landing = () => {
       {/* Section 2 */}
       <div className="flex flex-col items-center px-6 pt-20 pb-0 w-full max-w-[540px] text-center lg:max-w-[1200px] lg:flex-row-reverse lg:justify-center lg:text-left lg:gap-24 lg:py-28 lg:px-10">
         <motion.div
-          className="w-[clamp(80px,22vw,110px)] lg:w-[280px] aspect-square rounded-2xl overflow-hidden mb-7 lg:mb-0"
+          className="w-[clamp(80px,22vw,110px)] lg:w-[280px] aspect-square rounded-3xl overflow-hidden mb-7 lg:mb-0"
           style={{
             boxShadow: "0 0 50px 8px hsl(250 60% 60% / 0.12)",
           }}
@@ -139,19 +139,23 @@ const Landing = () => {
       >
         <Link
           to="/register"
-          className="inline-block text-[clamp(4.8rem,18vw,8rem)] lg:text-[12rem] font-semibold leading-none transition-all duration-300"
+          className="inline-block text-[clamp(4.8rem,18vw,8rem)] lg:text-[12rem] font-semibold leading-none transition-all duration-300 px-8 py-6 rounded-3xl"
           style={{
             letterSpacing: "-0.04em",
             color: "hsl(210 20% 92%)",
             textDecoration: "none",
+            background: "linear-gradient(to bottom, hsl(240 6% 15%), hsl(240 6% 3%))",
+            boxShadow: "0 8px 40px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(0 0% 100% / 0.1)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "0.6";
+            e.currentTarget.style.opacity = "0.85";
             e.currentTarget.style.textShadow = "0 0 60px hsl(250 80% 68% / 0.3)";
+            e.currentTarget.style.boxShadow = "0 12px 50px hsl(0 0% 0% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.15)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.opacity = "1";
             e.currentTarget.style.textShadow = "none";
+            e.currentTarget.style.boxShadow = "0 8px 40px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(0 0% 100% / 0.1)";
           }}
         >
           Try now.

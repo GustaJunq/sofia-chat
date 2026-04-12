@@ -64,14 +64,14 @@ const Products = () => {
             className="block group"
           >
             <div
-              className="relative p-8 rounded-2xl border transition-all duration-300 overflow-hidden"
+              className="relative p-8 rounded-3xl border transition-all duration-300 overflow-hidden"
               style={{
-                background: "hsl(0 0% 100% / 0.02)",
+                background: "linear-gradient(to bottom, hsl(240 6% 8%), hsl(240 6% 3%))",
                 borderColor: "hsl(0 0% 100% / 0.15)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.4)";
-                e.currentTarget.style.boxShadow = "0 0 40px hsl(0 0% 100% / 0.05)";
+                e.currentTarget.style.boxShadow = "0 0 40px hsl(0 0% 100% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.1)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.15)";
@@ -80,10 +80,10 @@ const Products = () => {
             >
               {/* Icon */}
               <div
-                className="w-16 h-16 rounded-xl flex items-center justify-center mb-6"
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
                 style={{
-                  background: "hsl(0 0% 100% / 0.05)",
-                  border: "1px solid hsl(0 0% 100% / 0.1)",
+                  background: "linear-gradient(135deg, hsl(250 80% 68% / 0.15), hsl(250 80% 68% / 0.05))",
+                  border: "1px solid hsl(250 80% 68% / 0.3)",
                 }}
               >
                 <StarLogo className="w-8 h-8" />
