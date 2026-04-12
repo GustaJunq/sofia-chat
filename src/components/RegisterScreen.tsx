@@ -60,17 +60,15 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
   };
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.github_auth_success && event.data.token) {
-        sessionStorage.setItem("sof_token", event.data.token);
-        onLogin(event.data.token);
-      } else if (event.data.error) {
-        setError(event.data.error);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    // Tenta capturar o token da URL (vindo do redirecionamento do backend)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get("token");
+    if (tokenFromUrl) {
+      sessionStorage.setItem("sof_token", tokenFromUrl);
+      onLogin(tokenFromUrl);
+      // Limpa a URL para o usuário não ver o token
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, [onLogin]);
 
   const handleGithubRegister = async () => {
@@ -81,15 +79,8 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
       const data = await res.json();
       
       if (data.redirect_url) {
-        const width = 600;
-        const height = 700;
-        const left = window.screenX + (window.outerWidth - width) / 2;
-        const top = window.screenY + (window.outerHeight - height) / 2;
-        window.open(
-          data.redirect_url,
-          "GitHub Register",
-          `width=${width},height=${height},left=${left},top=${top}`
-        );
+        // Redireciona diretamente na mesma janela
+        window.location.href = data.redirect_url;
       } else {
         setError("Could not initialize GitHub register.");
       }
