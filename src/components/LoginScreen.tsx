@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import { API_URL } from "@/lib/api";
 import StarLogo from "./StarLogo";
 import { motion } from "framer-motion";
+import { Github } from "lucide-react";
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
@@ -42,6 +43,13 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
     }
   };
 
+  const handleGithubLogin = () => {
+    // Redireciona para o fluxo OAuth do GitHub no backend
+    // Como o usuário ainda não está logado, passamos um state vazio ou um marcador
+    const params = `client_id=Ov23lizV88Z7K77Y296R&scope=repo,read:user&state=login_request`;
+    window.location.href = `https://github.com/login/oauth/authorize?${params}`;
+  };
+
   return (
     <div className="auth-screen">
       <motion.form
@@ -72,6 +80,17 @@ const LoginScreen = ({ onLogin, onSwitchToRegister }: LoginScreenProps) => {
 
             <button type="submit" disabled={loading} className="auth-submit">
               {loading ? "Logging in..." : "Login"}
+            </button>
+
+            <div className="auth-divider">ou</div>
+
+            <button 
+              type="button" 
+              onClick={handleGithubLogin}
+              className="auth-github"
+            >
+              <Github className="w-5 h-5" />
+              Login with GitHub
             </button>
           </div>
 

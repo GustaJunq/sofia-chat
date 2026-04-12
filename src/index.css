@@ -1184,3 +1184,27 @@
 .faq-answer-inner--open {
   max-height: 300px;
 }
+
+  .auth-github {
+    @apply w-full rounded-xl py-3 text-[15px] font-medium flex items-center justify-center gap-2 mt-2;
+    background: #24292f;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  .auth-github:hover {
+    background: #1a1e22;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  }
+  .auth-divider {
+    @apply flex items-center gap-3 my-4;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: "";
+    @apply flex-1 h-[1px];
+    background: hsl(var(--border));
+  }
