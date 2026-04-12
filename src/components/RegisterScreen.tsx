@@ -63,10 +63,14 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     // Tenta capturar o token da URL (vindo do redirecionamento do backend)
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get("token");
+    const errorFromUrl = urlParams.get("error");
+
     if (tokenFromUrl) {
       sessionStorage.setItem("sof_token", tokenFromUrl);
       onLogin(tokenFromUrl);
-      // Limpa a URL para o usuário não ver o token
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (errorFromUrl) {
+      setError(`GitHub register failed: ${errorFromUrl.replace(/_/g, " ")}`);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [onLogin]);
