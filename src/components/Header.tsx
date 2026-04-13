@@ -740,7 +740,7 @@ const Header = ({
 
     setCheckoutLoading(true);
     try {
-      const token = sessionStorage.getItem("sof_token");
+      const token = localStorage.getItem("sof_token");
       const res = await fetch(`${API_URL}/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -756,7 +756,7 @@ const Header = ({
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("sof_token");
+    localStorage.removeItem("sof_token");
     setOpen(false);
     onLogout();
   };

@@ -119,7 +119,7 @@ const Chats = () => {
   const navigate = useNavigate();
   const { conversationId: urlConvId } = useParams<{ conversationId: string }>();
 
-  const token = sessionStorage.getItem("sof_token");
+  const token = localStorage.getItem("sof_token");
   const isGuest = !token;
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -182,7 +182,7 @@ const Chats = () => {
   }, [urlConvId, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = () => {
-    sessionStorage.removeItem("sof_token");
+    localStorage.removeItem("sof_token");
     navigate("/login");
   };
 

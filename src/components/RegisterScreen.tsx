@@ -50,7 +50,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
       if (!res.ok) { setError("Erro ao criar conta. Tente novamente."); return; }
 
       const data = await res.json();
-      sessionStorage.setItem("sof_token", data.token);
+      localStorage.setItem("sof_token", data.token);
       onLogin(data.token);
     } catch {
       setError("API error, try again.");
@@ -66,7 +66,7 @@ const RegisterScreen = ({ onLogin, onSwitchToLogin }: RegisterScreenProps) => {
     const errorFromUrl = urlParams.get("error");
 
     if (tokenFromUrl) {
-      sessionStorage.setItem("sof_token", tokenFromUrl);
+      localStorage.setItem("sof_token", tokenFromUrl);
       onLogin(tokenFromUrl);
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (errorFromUrl) {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  const token = sessionStorage.getItem("sof_token");
+  const token = localStorage.getItem("sof_token");
 
   useEffect(() => {
     if (token) {
