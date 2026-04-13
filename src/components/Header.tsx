@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const models = [
   { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
-  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Qwen, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
+  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Claude 4.6, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
   { id: "syn-v1-pentest", label: "SOF-V1-PENTEST", sublabel: "Eu vou verificar vulnerabilidades do seu código.", requiredPlan: "paid" },
 ];
 
