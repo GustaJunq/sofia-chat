@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chats from "./pages/Chats";
 import SharedChat from "./pages/SharedChat";
+import Settings from "./pages/Settings";
+import Customization from "./pages/Customization";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,10 @@ const App = () => (
           {/* Chat routes — with and without conversation ID */}
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:conversationId" element={<Chats />} />
+
+          {/* Settings routes */}
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/customization" element={<Customization />} />
 
           {/* Public shared conversation view */}
           <Route path="/share/:shareId" element={<SharedChat />} />
