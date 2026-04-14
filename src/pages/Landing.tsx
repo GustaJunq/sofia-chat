@@ -28,12 +28,12 @@ const Landing = () => {
   };
 
   const features = [
-    { icon: Bot, title: "Subagents", desc: "Create specialized AI agents for any task." },
+    { icon: Bot, title: "Subagents", desc: "Create customized AI agents for any task." },
     { icon: Terminal, title: "Skills", desc: "Extend capabilities with custom skill packs." },
-    { icon: Cpu, title: "Multi-Model", desc: "GPT, Claude, Llama, Kimi — we choose the best." },
+    { icon: Cpu, title: "Multi-Model", desc: "GPT, Qwen, Llama, Gemini — we choose the best." },
     { icon: Globe, title: "Web Access", desc: "Real-time search and data retrieval." },
     { icon: Shield, title: "Secure", desc: "Your data stays yours. Always." },
-    { icon: Sparkles, title: "Image Gen", desc: "Generate images with natural language." },
+    { icon: Sparkles, title: "Long memory", desc: "SofIA remembers everything, just say to save something." },
   ];
 
   return (
