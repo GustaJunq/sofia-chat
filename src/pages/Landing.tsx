@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Bot, Cpu, Globe, Shield, Sparkles, Terminal, Zap } from "lucide-react";
 import StarLogo from "@/components/StarLogo";
@@ -274,80 +274,44 @@ const Landing = () => {
           <h2 className="text-[clamp(2.5rem,7vw,5rem)] font-extrabold tracking-[-0.04em] mb-6 leading-[0.95]">
             Start building
             <br />
-            <span style={{ color: "#444" }}>today.</span>
+            <span style={{ color: "#555" }}>the future of AI.</span>
           </h2>
-          <p className="text-[clamp(0.9rem,2vw,1.1rem)] mb-10 max-w-md mx-auto" style={{ color: "#555" }}>
-            Join developers building the next generation of AI workflows.
+          <p className="text-[clamp(1rem,2.5vw,1.25rem)] mb-10 mx-auto max-w-[500px]" style={{ color: "#666" }}>
+            Join thousands of developers building the next generation of intelligent agents.
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-[15px] font-semibold transition-all duration-200"
+            className="inline-flex items-center gap-2 px-10 py-4 rounded-xl text-[16px] font-bold transition-all duration-300"
             style={{ background: "#fff", color: "#000" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "#e0e0e0"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.background = "#e0e0e0";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.background = "#fff";
+            }}
           >
-            Get Started Free
-            <ArrowRight className="w-4 h-4" />
+            Get Started for Free
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </motion.div>
       </section>
 
-      {/* ── Footer — Dense Vercel-style ── */}
-      <footer className="border-t px-6 py-12 lg:py-16" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-        <div className="mx-auto max-w-[1100px]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
-            {/* Column 1 */}
-            <div>
-              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Product</h4>
-              <div className="flex flex-col gap-2.5">
-                <Link to="/products" className="text-[13px] transition-colors duration-200" style={{ color: "#666" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#666"}>SofIA</Link>
-                <a href="#features" className="text-[13px] transition-colors duration-200" style={{ color: "#666" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#666"}>Features</a>
-                <span className="text-[13px]" style={{ color: "#333" }}>Pricing (soon)</span>
-              </div>
-            </div>
-            {/* Column 2 */}
-            <div>
-              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Resources</h4>
-              <div className="flex flex-col gap-2.5">
-                <span className="text-[13px]" style={{ color: "#333" }}>Docs (soon)</span>
-                <span className="text-[13px]" style={{ color: "#333" }}>API (soon)</span>
-                <span className="text-[13px]" style={{ color: "#333" }}>Changelog</span>
-              </div>
-            </div>
-            {/* Column 3 */}
-            <div>
-              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Company</h4>
-              <div className="flex flex-col gap-2.5">
-                <span className="text-[13px]" style={{ color: "#333" }}>About</span>
-                <span className="text-[13px]" style={{ color: "#333" }}>Blog</span>
-                <span className="text-[13px]" style={{ color: "#333" }}>Careers</span>
-              </div>
-            </div>
-            {/* Column 4 */}
-            <div>
-              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Legal</h4>
-              <div className="flex flex-col gap-2.5">
-                <span className="text-[13px]" style={{ color: "#333" }}>Privacy</span>
-                <span className="text-[13px]" style={{ color: "#333" }}>Terms</span>
-              </div>
-            </div>
+      {/* ── Footer ── */}
+      <footer className="py-12 px-6 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-[1100px] flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2.5 opacity-50">
+            <StarLogo className="w-5 h-5" />
+            <span className="text-[14px] font-bold tracking-tight">Synastria</span>
           </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-            <div className="flex items-center gap-2.5">
-              <StarLogo className="w-4 h-4 opacity-40" />
-              <span className="text-[11px] tracking-widest uppercase" style={{ color: "#333" }}>
-                SynastrIA © {new Date().getFullYear()}
-              </span>
-            </div>
-            <div className="flex gap-6">
-              <Link to="/register" className="text-[11px] tracking-widest uppercase transition-colors duration-200" style={{ color: "#444" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#444"}>
-                Sign Up
-              </Link>
-              <Link to="/login" className="text-[11px] tracking-widest uppercase transition-colors duration-200" style={{ color: "#444" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#444"}>
-                Log In
-              </Link>
-            </div>
+          <p className="text-[12px] opacity-30">
+            © 2026 Synastria Networks. All rights reserved.
+          </p>
+          <div className="flex gap-8">
+            <a href="#" className="text-[12px] opacity-40 hover:opacity-100 transition-opacity">Twitter</a>
+            <a href="#" className="text-[12px] opacity-40 hover:opacity-100 transition-opacity">GitHub</a>
+            <a href="#" className="text-[12px] opacity-40 hover:opacity-100 transition-opacity">Discord</a>
           </div>
         </div>
       </footer>
