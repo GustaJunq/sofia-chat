@@ -152,7 +152,7 @@ const Header = ({
           {/* ── Center: model selector ── */}
           <div ref={ref} className="relative">
             <button onClick={() => setOpen(!open)} className="header-model-btn">
-              {selectedModel}
+              {models.find(m => m.id === selectedModel)?.label || selectedModel}
               <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
 
