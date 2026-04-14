@@ -11,17 +11,17 @@ import { useProfile } from "@/hooks/useProfile";
 
 const MODEL_META: Record<string, { displayName: string; avatar: string; color: string }> = {
   "syn-v1-free": {
-    displayName: "SYN-V1-FREE",
+    displayName: "SOF-V1.1-LITE",
     avatar: "/syn-v1-free.png",
     color: "hsl(0 0% 60%)",
   },
   "syn-v1-pro": {
-    displayName: "SYN-V1-PRO",
+    displayName: "SOF-V1.1-PRO",
     avatar: "/syn-v1-pro.png",
     color: "hsl(0 0% 80%)",
   },
   "syn-v1-qwen": {
-    displayName: "SYN-V1-QWEN",
+    displayName: "SOF-V1.1-PENTEST",
     avatar: "/syn-v1-qwen.png",
     color: "hsl(0 0% 65%)",
   },
