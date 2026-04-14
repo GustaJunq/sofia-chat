@@ -94,7 +94,7 @@ const ModelAvatar = ({ modelSlug }: { modelSlug: string }) => {
         <img
           src={meta.avatar}
           alt={meta.displayName}
-          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%)" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
           onError={() => setImgError(true)}
         />
       ) : (
