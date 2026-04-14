@@ -5,8 +5,8 @@ import { API_URL, getToken } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 
 const models = [
-  { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Llama 3.1 8B",  requiredPlan: null },
-  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Claude 4.6, Llama 70b, GPT e Kimi, eu escolho.", requiredPlan: "paid" },
+  { id: "syn-v1-free",  label: "SOF-V1-FREE",  sublabel: "Um modelo simples, mas a arquitetura é poderosa.",  requiredPlan: null },
+  { id: "syn-v1-pro",   label: "SOF-V1-PRO",   sublabel: "Qwen 3, Llama 70B, GPT e Gemini. Não sabe escolher? eu escolho sempre.", requiredPlan: "paid" },
   { id: "syn-v1-pentest", label: "SOF-V1-PENTEST", sublabel: "Eu vou verificar vulnerabilidades do seu código.", requiredPlan: "paid" },
 ];
 
