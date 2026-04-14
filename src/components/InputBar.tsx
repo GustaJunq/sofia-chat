@@ -318,9 +318,9 @@ const DOC_MEDIA_TYPES: Record<string, string> = {
 
 function getDocIcon(fileName: string) {
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
-  if (["xlsx", "xls", "csv"].includes(ext)) return <FileSpreadsheet className="w-5 h-5 text-green-400" />;
-  if (["pdf", "docx", "doc"].includes(ext)) return <FileText className="w-5 h-5 text-red-400" />;
-  return <File className="w-5 h-5 text-blue-400" />;
+  if (["xlsx", "xls", "csv"].includes(ext)) return <FileSpreadsheet className="w-5 h-5 text-foreground/60" />;
+  if (["pdf", "docx", "doc"].includes(ext)) return <FileText className="w-5 h-5 text-foreground/60" />;
+  return <File className="w-5 h-5 text-foreground/60" />;
 }
 
 interface InputBarProps {
