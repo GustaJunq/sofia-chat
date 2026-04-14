@@ -1,184 +1,353 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ArrowRight, Bot, Cpu, Globe, Shield, Sparkles, Terminal, Zap } from "lucide-react";
+import StarLogo from "@/components/StarLogo";
 
 const Landing = () => {
   const cubeRef = useRef<HTMLVideoElement>(null);
   const iconRef = useRef<HTMLVideoElement>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     [cubeRef, iconRef].forEach((ref) => {
       if (ref.current) ref.current.play().catch(() => {});
     });
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const fadeUp = {
-    initial: { opacity: 0, y: 24 },
+    initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0 },
   };
 
+  const staggerChildren = {
+    animate: { transition: { staggerChildren: 0.1 } },
+  };
+
+  const features = [
+    { icon: Bot, title: "Subagents", desc: "Create specialized AI agents for any task." },
+    { icon: Terminal, title: "Skills", desc: "Extend capabilities with custom skill packs." },
+    { icon: Cpu, title: "Multi-Model", desc: "GPT, Claude, Llama, Kimi — we choose the best." },
+    { icon: Globe, title: "Web Access", desc: "Real-time search and data retrieval." },
+    { icon: Shield, title: "Secure", desc: "Your data stays yours. Always." },
+    { icon: Sparkles, title: "Image Gen", desc: "Generate images with natural language." },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col items-center overflow-x-hidden"
-      style={{
-        background: "#000000",
-        color: "hsl(210 20% 92%)",
-        fontFamily: "'Inter', -apple-system, sans-serif",
-      }}
-    >
-      {/* Hero */}
-      <div className="flex flex-col items-center px-6 pt-16 pb-0 w-full max-w-[540px] text-center lg:max-w-[1200px] lg:flex-row lg:justify-center lg:text-left lg:gap-20 lg:pt-24 lg:px-10">
-        <motion.div
-          className="w-[clamp(160px,42vw,220px)] aspect-square mb-7 lg:w-[400px] lg:mb-0 lg:order-2"
-          {...fadeUp}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <video ref={cubeRef} src="/cube.mp4" autoPlay loop muted playsInline
-            className="w-full h-full object-cover rounded-3xl"
-          />
-        </motion.div>
+    <div className="min-h-screen flex flex-col" style={{ background: "#000", color: "#fff" }}>
+      {/* ── Navbar ── */}
+      <nav
+        className="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled ? "rgba(0,0,0,0.85)" : "transparent",
+          backdropFilter: scrolled ? "blur(16px) saturate(140%)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+        }}
+      >
+        <div className="mx-auto max-w-[1200px] flex items-center justify-between px-6 py-4">
+          <Link to="/" className="flex items-center gap-2.5">
+            <StarLogo className="w-6 h-6" />
+            <span className="text-[15px] font-bold tracking-tight">Synastria</span>
+          </Link>
 
-        <div className="flex flex-col items-center lg:items-start">
-          <motion.h1
-            className="text-[clamp(2.6rem,9vw,3.6rem)] lg:text-[5rem] font-semibold leading-none mb-6 lg:mb-5"
-            style={{ letterSpacing: "-0.04em" }}
-            {...fadeUp}
-            transition={{ duration: 0.6 }}
-          >
-            Synastria
-          </motion.h1>
-
-          <motion.p
-            className="text-[clamp(0.95rem,3.2vw,1.12rem)] lg:text-[1.4rem] font-normal leading-relaxed max-w-[300px] lg:max-w-[450px] mb-9 lg:mb-12"
-            style={{ color: "hsl(220 10% 50%)" }}
-            {...fadeUp}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            A constellation of AI agents<br />inside a single chatbot.
-          </motion.p>
-
-          <motion.div 
-            className="flex flex-col sm:flex-row items-center gap-4"
-            {...fadeUp} 
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <Link
-              to="/products"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl text-sm font-medium uppercase tracking-wider transition-all duration-300"
-              style={{
-                background: "linear-gradient(135deg, hsl(250 80% 68%), hsl(250 75% 60%))",
-                color: "#fff",
-                letterSpacing: "0.06em",
-                boxShadow: "0 8px 30px hsl(250 80% 68% / 0.25)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 12px 40px hsl(250 80% 68% / 0.35)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 8px 30px hsl(250 80% 68% / 0.25)";
-              }}
-            >
+          <div className="hidden md:flex items-center gap-8">
+            <Link to="/products" className="text-[13px] text-[#888] hover:text-white transition-colors duration-200">
               Products
             </Link>
-          </motion.div>
-        </div>
-      </div>
+            <a href="#features" className="text-[13px] text-[#888] hover:text-white transition-colors duration-200">
+              Features
+            </a>
+            <Link to="/login" className="text-[13px] text-[#888] hover:text-white transition-colors duration-200">
+              Log In
+            </Link>
+          </div>
 
-      {/* Section 2 */}
-      <div className="flex flex-col items-center px-6 pt-20 pb-0 w-full max-w-[540px] text-center lg:max-w-[1200px] lg:flex-row-reverse lg:justify-center lg:text-left lg:gap-24 lg:py-28 lg:px-10">
-        <motion.div
-          className="w-[clamp(80px,22vw,110px)] lg:w-[280px] aspect-square rounded-3xl overflow-hidden mb-7 lg:mb-0"
-          style={{
-            boxShadow: "0 0 50px 8px hsl(250 60% 60% / 0.12)",
-          }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <video ref={iconRef} src="/icon.mp4" autoPlay loop muted playsInline
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-
-        <div className="flex flex-col items-center lg:items-start">
-          <motion.h2
-            className="text-[clamp(3.2rem,12vw,5.2rem)] lg:text-[6rem] font-semibold leading-none mb-6"
-            style={{ letterSpacing: "-0.04em" }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            Where AI<br />systems align
-          </motion.h2>
-
-          <motion.p
-            className="text-[clamp(0.88rem,2.9vw,1.02rem)] lg:text-[1.15rem] font-normal leading-relaxed max-w-[280px] lg:max-w-[450px] mb-16"
-            style={{ color: "hsl(220 10% 45%)" }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Create specialized AI agents, connect them into
-            a unified system, and run everything through a single
-            intelligent chatbot.
-          </motion.p>
-        </div>
-      </div>
-
-      {/* CTA */}
-      <motion.div
-        className="w-full max-w-[540px] lg:max-w-[1200px] px-6 pb-24 lg:pb-40 text-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <Link
-          to="/register"
-          className="inline-block text-[clamp(4.8rem,18vw,8rem)] lg:text-[12rem] font-semibold leading-none transition-all duration-300 px-8 py-6 rounded-3xl"
-          style={{
-            letterSpacing: "-0.04em",
-            color: "hsl(210 20% 92%)",
-            textDecoration: "none",
-            background: "linear-gradient(to bottom, hsl(240 6% 15%), hsl(240 6% 3%))",
-            boxShadow: "0 8px 40px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(0 0% 100% / 0.1)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "0.85";
-            e.currentTarget.style.textShadow = "0 0 60px hsl(250 80% 68% / 0.3)";
-            e.currentTarget.style.boxShadow = "0 12px 50px hsl(0 0% 0% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.textShadow = "none";
-            e.currentTarget.style.boxShadow = "0 8px 40px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(0 0% 100% / 0.1)";
-          }}
-        >
-          Try now.
-        </Link>
-      </motion.div>
-
-      {/* Footer */}
-      <footer className="w-full border-t px-8 py-5 flex justify-between items-center"
-        style={{ borderColor: "hsl(0 0% 100% / 0.06)" }}
-      >
-        <span className="text-[0.65rem] tracking-widest uppercase"
-          style={{ color: "hsl(220 10% 25%)" }}
-        >
-          SynastrIA © {new Date().getFullYear()}
-        </span>
-        <div className="flex gap-6">
-          <Link to="/register" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
-            style={{ color: "hsl(220 10% 25%)", textDecoration: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.color = "hsl(250 80% 68%)"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "hsl(220 10% 25%)"}
+          <Link
+            to="/register"
+            className="px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200"
+            style={{
+              background: "#fff",
+              color: "#000",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
           >
             Sign Up
           </Link>
+        </div>
+      </nav>
+
+      {/* ── Hero ── */}
+      <section className="relative flex flex-col items-center justify-center min-h-[100vh] px-6 pt-24 pb-20 overflow-hidden">
+        {/* Subtle radial gradient */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.04), transparent)",
+          }}
+        />
+
+        <motion.div
+          className="relative z-10 flex flex-col items-center text-center max-w-[900px]"
+          variants={staggerChildren}
+          initial="initial"
+          animate="animate"
+        >
+          {/* 3D Logo / Video */}
+          <motion.div
+            className="w-[clamp(120px,30vw,200px)] aspect-square mb-10 rounded-2xl overflow-hidden"
+            {...fadeUp}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <video
+              ref={cubeRef}
+              src="/cube.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              style={{ filter: "grayscale(100%) brightness(1.1)" }}
+            />
+          </motion.div>
+
+          <motion.h1
+            className="text-[clamp(2.8rem,8vw,5.5rem)] font-extrabold leading-[0.95] tracking-[-0.04em] mb-6"
+            {...fadeUp}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Create subagents,
+            <br />
+            <span style={{ color: "#888" }}>use skills all in the web.</span>
+          </motion.h1>
+
+          <motion.p
+            className="text-[clamp(1rem,2.5vw,1.25rem)] leading-relaxed max-w-[500px] mb-10"
+            style={{ color: "#666" }}
+            {...fadeUp}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            A constellation of AI agents inside a single chatbot.
+            Build, connect, and deploy intelligent workflows.
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col sm:flex-row items-center gap-4"
+            {...fadeUp}
+            transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-[14px] font-semibold transition-all duration-200"
+              style={{ background: "#fff", color: "#000" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#e0e0e0"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+            >
+              Get Started
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-[14px] font-medium transition-all duration-200"
+              style={{
+                background: "transparent",
+                color: "#888",
+                border: "1px solid rgba(255,255,255,0.15)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)";
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+                e.currentTarget.style.color = "#888";
+              }}
+            >
+              Learn More
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 landing-scroll-hint">
+          <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center pt-1.5">
+            <div className="w-1 h-2 rounded-full bg-white/40" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features Grid ── */}
+      <section id="features" className="relative py-24 lg:py-32 px-6">
+        <div className="mx-auto max-w-[1100px]">
+          <motion.div
+            className="text-center mb-16 lg:mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-bold tracking-[-0.03em] mb-4">
+              Where AI systems align
+            </h2>
+            <p className="text-[clamp(0.9rem,2vw,1.1rem)] max-w-md mx-auto" style={{ color: "#666" }}>
+              Everything you need to build, deploy, and manage AI agents at scale.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.title}
+                className="p-8 lg:p-10 transition-colors duration-300"
+                style={{ background: "#000" }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#000"; }}
+              >
+                <f.icon className="w-5 h-5 mb-4" style={{ color: "#666" }} strokeWidth={1.5} />
+                <h3 className="text-[15px] font-semibold mb-2 tracking-tight">{f.title}</h3>
+                <p className="text-[13px] leading-relaxed" style={{ color: "#555" }}>{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 2: Video + Text ── */}
+      <section className="py-24 lg:py-32 px-6">
+        <div className="mx-auto max-w-[1100px] flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          <motion.div
+            className="w-[clamp(100px,25vw,200px)] lg:w-[280px] aspect-square rounded-2xl overflow-hidden flex-shrink-0"
+            style={{ border: "1px solid rgba(255,255,255,0.06)" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <video
+              ref={iconRef}
+              src="/icon.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              style={{ filter: "grayscale(100%) brightness(1.1)" }}
+            />
+          </motion.div>
+
+          <motion.div
+            className="text-center lg:text-left"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+          >
+            <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-bold tracking-[-0.03em] mb-5 leading-tight">
+              One chatbot.
+              <br />
+              <span style={{ color: "#555" }}>Infinite agents.</span>
+            </h2>
+            <p className="text-[clamp(0.9rem,2vw,1.05rem)] leading-relaxed max-w-[450px] mx-auto lg:mx-0" style={{ color: "#555" }}>
+              Create specialized AI agents, connect them into a unified system, and run everything through a single intelligent chatbot.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── CTA Section ── */}
+      <section className="py-24 lg:py-32 px-6">
+        <motion.div
+          className="mx-auto max-w-[900px] text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <h2 className="text-[clamp(2.5rem,7vw,5rem)] font-extrabold tracking-[-0.04em] mb-6 leading-[0.95]">
+            Start building
+            <br />
+            <span style={{ color: "#444" }}>today.</span>
+          </h2>
+          <p className="text-[clamp(0.9rem,2vw,1.1rem)] mb-10 max-w-md mx-auto" style={{ color: "#555" }}>
+            Join developers building the next generation of AI workflows.
+          </p>
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-[15px] font-semibold transition-all duration-200"
+            style={{ background: "#fff", color: "#000" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+          >
+            Get Started Free
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* ── Footer — Dense Vercel-style ── */}
+      <footer className="border-t px-6 py-12 lg:py-16" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="mx-auto max-w-[1100px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
+            {/* Column 1 */}
+            <div>
+              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Product</h4>
+              <div className="flex flex-col gap-2.5">
+                <Link to="/products" className="text-[13px] transition-colors duration-200" style={{ color: "#666" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#666"}>SofIA</Link>
+                <a href="#features" className="text-[13px] transition-colors duration-200" style={{ color: "#666" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#666"}>Features</a>
+                <span className="text-[13px]" style={{ color: "#333" }}>Pricing (soon)</span>
+              </div>
+            </div>
+            {/* Column 2 */}
+            <div>
+              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Resources</h4>
+              <div className="flex flex-col gap-2.5">
+                <span className="text-[13px]" style={{ color: "#333" }}>Docs (soon)</span>
+                <span className="text-[13px]" style={{ color: "#333" }}>API (soon)</span>
+                <span className="text-[13px]" style={{ color: "#333" }}>Changelog</span>
+              </div>
+            </div>
+            {/* Column 3 */}
+            <div>
+              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Company</h4>
+              <div className="flex flex-col gap-2.5">
+                <span className="text-[13px]" style={{ color: "#333" }}>About</span>
+                <span className="text-[13px]" style={{ color: "#333" }}>Blog</span>
+                <span className="text-[13px]" style={{ color: "#333" }}>Careers</span>
+              </div>
+            </div>
+            {/* Column 4 */}
+            <div>
+              <h4 className="text-[12px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Legal</h4>
+              <div className="flex flex-col gap-2.5">
+                <span className="text-[13px]" style={{ color: "#333" }}>Privacy</span>
+                <span className="text-[13px]" style={{ color: "#333" }}>Terms</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <div className="flex items-center gap-2.5">
+              <StarLogo className="w-4 h-4 opacity-40" />
+              <span className="text-[11px] tracking-widest uppercase" style={{ color: "#333" }}>
+                SynastrIA © {new Date().getFullYear()}
+              </span>
+            </div>
+            <div className="flex gap-6">
+              <Link to="/register" className="text-[11px] tracking-widest uppercase transition-colors duration-200" style={{ color: "#444" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#444"}>
+                Sign Up
+              </Link>
+              <Link to="/login" className="text-[11px] tracking-widest uppercase transition-colors duration-200" style={{ color: "#444" }} onMouseEnter={(e) => e.currentTarget.style.color="#fff"} onMouseLeave={(e) => e.currentTarget.style.color="#444"}>
+                Log In
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

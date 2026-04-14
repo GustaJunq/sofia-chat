@@ -10,24 +10,12 @@ const Products = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        background: "#000000",
-        color: "hsl(0 0% 92%)",
-        fontFamily: "'Inter', -apple-system, sans-serif",
-      }}
-    >
+    <div className="min-h-screen flex flex-col" style={{ background: "#000", color: "#fff" }}>
       {/* Header */}
-      <header className="w-full px-6 py-5 flex items-center justify-between border-b"
-        style={{ borderColor: "hsl(0 0% 100% / 0.1)" }}
-      >
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-sm transition-colors duration-300"
-          style={{ color: "hsl(0 0% 50%)" }}
-          onMouseEnter={(e) => e.currentTarget.style.color = "hsl(0 0% 92%)"}
-          onMouseLeave={(e) => e.currentTarget.style.color = "hsl(0 0% 50%)"}
+      <header className="w-full px-6 py-5 flex items-center justify-between border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <Link to="/" className="flex items-center gap-2 text-sm transition-colors duration-200" style={{ color: "#666" }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "#fff"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "#666"}
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -37,8 +25,7 @@ const Products = () => {
       {/* Content */}
       <main className="flex-1 flex flex-col items-center px-6 py-16 lg:py-24">
         <motion.h1
-          className="text-[clamp(2rem,6vw,3rem)] font-semibold leading-tight mb-4 text-center"
-          style={{ letterSpacing: "-0.03em" }}
+          className="text-[clamp(2rem,6vw,3rem)] font-bold leading-tight mb-4 text-center tracking-[-0.03em]"
           {...fadeUp}
           transition={{ duration: 0.6 }}
         >
@@ -46,7 +33,7 @@ const Products = () => {
         </motion.h1>
         <motion.p
           className="text-base lg:text-lg mb-16 text-center max-w-md"
-          style={{ color: "hsl(0 0% 50%)" }}
+          style={{ color: "#555" }}
           {...fadeUp}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
@@ -59,68 +46,44 @@ const Products = () => {
           {...fadeUp}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Link
-            to="/register"
-            className="block group"
-          >
+          <Link to="/register" className="block group">
             <div
-              className="relative p-8 rounded-3xl border transition-all duration-300 overflow-hidden"
+              className="relative p-8 rounded-2xl border transition-all duration-300 overflow-hidden"
               style={{
-                background: "linear-gradient(to bottom, hsl(240 6% 8%), hsl(240 6% 3%))",
-                borderColor: "hsl(0 0% 100% / 0.15)",
+                background: "hsl(0 0% 4%)",
+                borderColor: "rgba(255,255,255,0.1)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.4)";
-                e.currentTarget.style.boxShadow = "0 0 40px hsl(0 0% 100% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.1)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "hsl(0 0% 100% / 0.15)";
-                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
               }}
             >
-              {/* Icon */}
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style={{
-                  background: "linear-gradient(135deg, hsl(250 80% 68% / 0.15), hsl(250 80% 68% / 0.05))",
-                  border: "1px solid hsl(250 80% 68% / 0.3)",
-                }}
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
               >
-                <StarLogo className="w-8 h-8" />
+                <StarLogo className="w-7 h-7" />
               </div>
 
-              {/* Title & Description */}
-              <h2
-                className="text-2xl lg:text-3xl font-semibold mb-3"
-                style={{ letterSpacing: "-0.02em", color: "hsl(0 0% 100%)" }}
-              >
-                SofIA
-              </h2>
-              <p
-                className="text-sm lg:text-base leading-relaxed mb-6"
-                style={{ color: "hsl(0 0% 50%)" }}
-              >
-                Our advanced artificial intelligence, designed to assist with conversations, 
+              <h2 className="text-2xl lg:text-3xl font-bold mb-3 tracking-[-0.02em]">SofIA</h2>
+              <p className="text-sm lg:text-base leading-relaxed mb-6" style={{ color: "#555" }}>
+                Our advanced artificial intelligence, designed to assist with conversations,
                 analysis and complex tasks with precision and agility.
               </p>
 
-              {/* Features */}
               <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(0 0% 60%)" }}>
-                  <MessageSquare className="w-4 h-4" style={{ color: "hsl(0 0% 70%)" }} />
+                <div className="flex items-center gap-2 text-xs" style={{ color: "#666" }}>
+                  <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
                   Smart chat
                 </div>
-                <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(0 0% 60%)" }}>
-                  <Zap className="w-4 h-4" style={{ color: "hsl(0 0% 70%)" }} />
+                <div className="flex items-center gap-2 text-xs" style={{ color: "#666" }}>
+                  <Zap className="w-4 h-4" strokeWidth={1.5} />
                   Fast responses
                 </div>
               </div>
 
-              {/* CTA */}
-              <div
-                className="inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1"
-                style={{ color: "hsl(0 0% 80%)" }}
-              >
+              <div className="inline-flex items-center text-sm font-medium transition-all duration-300 group-hover:translate-x-1" style={{ color: "#888" }}>
                 Get started
                 <span className="ml-2">→</span>
               </div>
@@ -130,23 +93,14 @@ const Products = () => {
       </main>
 
       {/* Footer */}
-      <footer
-        className="w-full border-t px-8 py-5 flex justify-between items-center"
-        style={{ borderColor: "hsl(0 0% 100% / 0.1)" }}
-      >
-        <span
-          className="text-[0.65rem] tracking-widest uppercase"
-          style={{ color: "hsl(0 0% 30%)" }}
-        >
+      <footer className="w-full border-t px-8 py-5 flex justify-between items-center" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <span className="text-[0.65rem] tracking-widest uppercase" style={{ color: "#333" }}>
           SynastrIA © {new Date().getFullYear()}
         </span>
         <div className="flex gap-6">
-          <Link
-            to="/register"
-            className="text-[0.65rem] tracking-widest uppercase transition-colors duration-300"
-            style={{ color: "hsl(0 0% 30%)", textDecoration: "none" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(0 0% 80%)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(0 0% 30%)")}
+          <Link to="/register" className="text-[0.65rem] tracking-widest uppercase transition-colors duration-200" style={{ color: "#444", textDecoration: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#fff"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#444"}
           >
             Sign Up
           </Link>
