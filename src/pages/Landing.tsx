@@ -239,7 +239,6 @@ const Landing = () => {
               muted
               playsInline
               className="w-full h-full object-cover"
-              style={{ filter: "grayscale(100%) brightness(1.1)" }}
             />
           </motion.div>
 
