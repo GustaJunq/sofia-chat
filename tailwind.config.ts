@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        sans: ["Satoshi", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
-        display: ["Inter", "-apple-system", "sans-serif"],
+        display: ["Satoshi", "Inter", "-apple-system", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
