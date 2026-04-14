@@ -21,7 +21,7 @@ const MODEL_META: Record<string, { displayName: string; avatar: string; color: s
     color: "hsl(0 0% 80%)",
   },
   "syn-v1-qwen": {
-    displayName: "SOF-V1.1-PENTEST",
+    displayName: "SOF-V1.1-QWEN",
     avatar: "/syn-v1-qwen.png",
     color: "hsl(0 0% 65%)",
   },
