@@ -5,18 +5,25 @@ import { ArrowRight, Bot, Cpu, Globe, Shield, Sparkles, Terminal, Zap } from "lu
 import StarLogo from "@/components/StarLogo";
 
 const Landing = () => {
+  const navigate = useNavigate();
   const cubeRef = useRef<HTMLVideoElement>(null);
   const iconRef = useRef<HTMLVideoElement>(null);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("sof_token");
+    if (token) {
+      navigate("/chats", { replace: true });
+      return;
+    }
+
     [cubeRef, iconRef].forEach((ref) => {
       if (ref.current) ref.current.play().catch(() => {});
     });
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [navigate]);
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
