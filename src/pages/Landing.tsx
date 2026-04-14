@@ -82,13 +82,7 @@ const Landing = () => {
 
       {/* ── Hero ── */}
       <section className="relative flex flex-col items-center justify-center min-h-[100vh] px-6 pt-24 pb-20 overflow-hidden">
-        {/* Subtle radial gradient */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.04), transparent)",
-          }}
-        />
+        {/* Subtle radial gradient removed */}
 
         <motion.div
           className="relative z-10 flex flex-col items-center text-center max-w-[900px]"
@@ -98,7 +92,7 @@ const Landing = () => {
         >
           {/* 3D Logo / Video */}
           <motion.div
-            className="w-[clamp(120px,30vw,200px)] aspect-square mb-10 rounded-2xl overflow-hidden"
+            className="w-[clamp(180px,40vw,280px)] aspect-square mb-10 rounded-2xl overflow-hidden"
             {...fadeUp}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
