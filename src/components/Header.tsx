@@ -12,6 +12,7 @@ const models = [
 const PLAN_ACCESS: Record<string, string[]> = {
   "syn-v1-free":  ["free", "paid"],
   "syn-v1-pro":   ["paid"],
+  "syn-v1-minimax": ["paid"],
 };
 
 interface HeaderProps {

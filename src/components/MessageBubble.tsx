@@ -20,9 +20,9 @@ const MODEL_META: Record<string, { displayName: string; avatar: string; color: s
     avatar: "/syn-v1-pro.png",
     color: "hsl(0 0% 80%)",
   },
-  "syn-v1-qwen": {
+  "syn-v1-minimax": {
     displayName: "SOF-V1.1-MINIMAX",
-    avatar: "/syn-v1-qwen.png",
+    avatar: "/syn-v1-minimax.png",
     color: "hsl(0 0% 65%)",
   },
   "syn-v1-llama": {
