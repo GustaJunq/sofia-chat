@@ -11,19 +11,21 @@ const Landing = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("sof_token");
-    if (token) {
-      navigate("/chats", { replace: true });
-      return;
-    }
-
     [cubeRef, iconRef].forEach((ref) => {
       if (ref.current) ref.current.play().catch(() => {});
     });
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [navigate]);
+  }, []);
+
+  const handleGetStarted = (e: React.MouseEvent) => {
+    const token = localStorage.getItem("sof_token");
+    if (token) {
+      e.preventDefault();
+      navigate("/chats");
+    }
+  };
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
@@ -74,6 +76,7 @@ const Landing = () => {
 
           <Link
             to="/register"
+            onClick={handleGetStarted}
             className="px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200"
             style={{
               background: "#fff",
@@ -142,6 +145,7 @@ const Landing = () => {
           >
             <Link
               to="/register"
+              onClick={handleGetStarted}
               className="inline-flex items-center gap-2 px-7 py-3 rounded-lg text-[14px] font-semibold transition-all duration-200"
               style={{ background: "#fff", color: "#000" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "#e0e0e0"; }}
@@ -280,6 +284,7 @@ const Landing = () => {
           </p>
           <Link
             to="/register"
+            onClick={handleGetStarted}
             className="inline-flex items-center gap-2 px-10 py-4 rounded-xl text-[16px] font-bold transition-all duration-300"
             style={{ background: "#fff", color: "#000" }}
             onMouseEnter={(e) => {
