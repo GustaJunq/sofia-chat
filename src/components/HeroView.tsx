@@ -21,7 +21,7 @@ const HeroView = ({ visible }: HeroViewProps) => {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="hero-glow" />
-        <StarLogo className="w-[100px] h-[100px] animate-star-pulse relative z-10" />
+        <StarLogo className="w-[100px] h-[100px] animate-star-pulse relative z-10" style={{ filter: "grayscale(100%) brightness(1.2)" }} />
       </motion.div>
     </div>
   );

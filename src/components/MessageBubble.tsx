@@ -7,33 +7,33 @@ import rehypeKatex from "rehype-katex";
 import { fetchTTS, getToken } from "@/lib/api";
 import { useProfile } from "@/hooks/useProfile";
 
-// ─── Model metadata (avatars in /public/) ─────────────────────────────────────
+// ─── Model metadata ─────────────────────────────────────────────────────────
 
 const MODEL_META: Record<string, { displayName: string; avatar: string; color: string }> = {
   "syn-v1-free": {
     displayName: "SYN-V1-FREE",
     avatar: "/syn-v1-free.png",
-    color: "hsl(220 60% 70%)",
+    color: "hsl(0 0% 60%)",
   },
   "syn-v1-pro": {
     displayName: "SYN-V1-PRO",
     avatar: "/syn-v1-pro.png",
-    color: "hsl(45 90% 60%)",
+    color: "hsl(0 0% 80%)",
   },
   "syn-v1-qwen": {
     displayName: "SYN-V1-QWEN",
     avatar: "/syn-v1-qwen.png",
-    color: "hsl(160 60% 55%)",
+    color: "hsl(0 0% 65%)",
   },
   "syn-v1-llama": {
     displayName: "SYN-V1-LLAMA",
     avatar: "/syn-v1-llama.png",
-    color: "hsl(280 60% 70%)",
+    color: "hsl(0 0% 70%)",
   },
   "syn-v1-kimi": {
     displayName: "SYN-V1-KIMI",
     avatar: "/syn-v1-kimi.png",
-    color: "hsl(0 60% 70%)",
+    color: "hsl(0 0% 55%)",
   },
 };
 
@@ -78,8 +78,8 @@ const ModelAvatar = ({ modelSlug }: { modelSlug: string }) => {
         height: 26,
         borderRadius: "50%",
         overflow: "hidden",
-        background: "hsl(var(--muted))",
-        border: `1px solid ${meta.color}40`,
+        background: "hsl(0 0% 10%)",
+        border: "1px solid rgba(255,255,255,0.1)",
         flexShrink: 0,
         display: "flex",
         alignItems: "center",
@@ -94,11 +94,10 @@ const ModelAvatar = ({ modelSlug }: { modelSlug: string }) => {
         <img
           src={meta.avatar}
           alt={meta.displayName}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%)" }}
           onError={() => setImgError(true)}
         />
       ) : (
-        // Fallback: first 2 chars of model name
         meta.displayName.slice(0, 2)
       )}
     </div>
@@ -179,22 +178,21 @@ const MessageBubble = ({
           {content && <span>{content}</span>}
         </div>
 
-        {/* User avatar */}
         <div
           style={{
             width: 26,
             height: 26,
             borderRadius: "50%",
             overflow: "hidden",
-            background: "hsl(var(--muted))",
-            border: "1px solid hsl(var(--border))",
+            background: "hsl(0 0% 10%)",
+            border: "1px solid rgba(255,255,255,0.1)",
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "0.65rem",
             fontWeight: 700,
-            color: "hsl(var(--muted-foreground))",
+            color: "#666",
             alignSelf: "flex-end",
             marginBottom: 2,
           }}
@@ -217,15 +215,7 @@ const MessageBubble = ({
   return (
     <div className="group msg-assistant-row">
       <div className="msg-assistant-content">
-        {/* Model header: avatar + name */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "7px",
-            marginBottom: "6px",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: "7px", marginBottom: "6px" }}>
           <ModelAvatar modelSlug={modelSlug} />
           <span
             style={{
@@ -233,7 +223,7 @@ const MessageBubble = ({
               fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
-              color: modelMeta.color,
+              color: "#666",
               fontWeight: 600,
               userSelect: "none",
             }}
@@ -275,20 +265,8 @@ const MessageBubble = ({
           </ReactMarkdown>
           {imageGenerated && (
             <div className="msg-generated-image-wrapper">
-              <img
-                src={imageGenerated}
-                alt="Imagem gerada"
-                className="msg-generated-image"
-                loading="lazy"
-              />
-              <a
-                href={imageGenerated}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="msg-generated-image-download"
-                title="Baixar imagem"
-              >
+              <img src={imageGenerated} alt="Imagem gerada" className="msg-generated-image" loading="lazy" />
+              <a href={imageGenerated} download target="_blank" rel="noopener noreferrer" className="msg-generated-image-download" title="Baixar imagem">
                 ↓ Baixar
               </a>
             </div>
@@ -299,7 +277,7 @@ const MessageBubble = ({
       {ttft_ms !== undefined && (
         <div style={{
           fontSize: "0.62rem",
-          color: "hsl(var(--muted-foreground))",
+          color: "#555",
           opacity: 0.5,
           marginTop: "4px",
           marginLeft: "33px",

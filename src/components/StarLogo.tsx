@@ -1,8 +1,9 @@
-const StarLogo = ({ className = "" }: { className?: string }) => (
+const StarLogo = ({ className = "", style }: { className?: string; style?: React.CSSProperties }) => (
   <img
     src="/logo.png"
     alt="Logo"
     className={className}
+    style={style}
   />
 );
 

@@ -15,14 +15,14 @@ const TypingIndicator = ({ status = "thinking" }: TypingIndicatorProps) => (
   >
     {status === "wikipedia" ? (
       <div className="flex items-center gap-2 py-2 px-1 text-muted-foreground text-[13px]">
-        <span className="inline-block w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+        <span className="inline-block w-2 h-2 rounded-full bg-white/40 animate-pulse" />
         Respondendo...
       </div>
     ) : (
       <div className="flex items-center gap-1.5 py-3 px-1">
-        <span className="w-2 h-2 rounded-full bg-primary typing-dot" />
-        <span className="w-2 h-2 rounded-full bg-primary typing-dot" />
-        <span className="w-2 h-2 rounded-full bg-primary typing-dot" />
+        <span className="w-2 h-2 rounded-full bg-white/60 typing-dot" />
+        <span className="w-2 h-2 rounded-full bg-white/60 typing-dot" />
+        <span className="w-2 h-2 rounded-full bg-white/60 typing-dot" />
       </div>
     )}
   </motion.div>
