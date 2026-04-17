@@ -69,14 +69,15 @@ const Maintenance = () => {
           </div>
 
           <h1 className="font-display font-bold text-5xl md:text-7xl lg:text-8xl tracking-[-0.04em] leading-[0.95] max-w-4xl mx-auto">
-            Estamos
+            Estamos atualizando
             <br />
-            <span className="text-foreground/40">aprimorando tudo.</span>
+            <span className="text-foreground/40">a plataforma.</span>
           </h1>
 
           <p className="mt-6 max-w-xl mx-auto text-base md:text-lg text-foreground/60 leading-relaxed">
-            Voltamos com novidades em <span className="text-foreground font-medium">1 de maio de 2026</span>.
-            Obrigado pela paciência enquanto construímos a próxima geração da plataforma.
+            Estamos fazendo melhorias para deixar tudo mais rápido e estável.
+            Voltamos no dia <span className="text-foreground font-medium">1 de maio de 2026</span>.
+            Obrigado pela paciência.
           </p>
         </div>
 
@@ -105,16 +106,18 @@ const Maintenance = () => {
           style={{ animationDelay: "240ms" }}
         >
           <a
-            href="mailto:contato@sof.app"
+            href="https://discord.gg/Fqy74AJvtZ"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors"
           >
-            Falar conosco
+            Falar com suporte
           </a>
           <a
             href="/"
             className="inline-flex items-center justify-center h-11 px-6 rounded-full border border-white/15 text-sm font-medium hover:bg-white/5 transition-colors"
           >
-            Voltar à home
+            Voltar para o início
           </a>
         </div>
       </section>
