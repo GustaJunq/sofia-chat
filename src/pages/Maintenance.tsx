@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StarLogo } from "@/components/StarLogo";
+import StarLogo from "@/components/StarLogo";
 
 const TARGET_DATE = new Date("2026-05-01T00:00:00");
 
