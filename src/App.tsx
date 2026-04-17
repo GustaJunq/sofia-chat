@@ -12,6 +12,7 @@ import SharedChat from "./pages/SharedChat";
 import Settings from "./pages/Settings";
 import Customization from "./pages/Customization";
 import NotFound from "./pages/NotFound";
+import Maintenance from "./pages/Maintenance";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,8 @@ const App = () => (
 
           {/* Public shared conversation view */}
           <Route path="/share/:shareId" element={<SharedChat />} />
+
+          <Route path="/maintenance" element={<Maintenance />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
