@@ -8,8 +8,23 @@ import StarLogo from "@/components/StarLogo";
 const EASE_OUT  = [0.23, 1, 0.32, 1] as const;   // strong ease-out — entries, UI
 const EASE_DRAWER = [0.32, 0.72, 0, 1] as const; // iOS-like — large reveals
 
+/* ─── Geist font preconnect + stylesheet ─── */
+const GEIST_URLS = [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap",
+  },
+];
+
 /* ─── Global keyframes injected once ─── */
 const GLOBAL_STYLES = `
+  /* Apply Geist across the entire landing */
+  #landing-root, #landing-root * {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
   @keyframes scrollBounce {
     0%, 100% { transform: translateY(0);   opacity: 0.4; }
     50%       { transform: translateY(4px); opacity: 0.9; }
@@ -57,8 +72,19 @@ const Landing = () => {
   const [scrolled, setScrolled] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
-  /* inject global keyframes once */
+  /* inject Geist font links + global keyframes once */
   useEffect(() => {
+    GEIST_URLS.forEach(({ rel, href, crossOrigin }) => {
+      const linkId = `geist-${href.slice(-12).replace(/\W/g, "")}`;
+      if (!document.getElementById(linkId)) {
+        const link = document.createElement("link");
+        link.id = linkId;
+        link.rel = rel;
+        link.href = href;
+        if (crossOrigin) link.crossOrigin = crossOrigin;
+        document.head.appendChild(link);
+      }
+    });
     const id = "landing-styles";
     if (!document.getElementById(id)) {
       const s = document.createElement("style");
@@ -106,7 +132,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#000", color: "#fff" }}>
+    <div id="landing-root" className="min-h-screen flex flex-col" style={{ background: "#000", color: "#fff" }}>
 
       {/* ── Navbar ── */}
       <nav
