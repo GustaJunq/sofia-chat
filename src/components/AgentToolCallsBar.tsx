@@ -1,4 +1,5 @@
 import { Terminal, Check, X, Loader2, Brain } from "lucide-react";
+import { motion } from "framer-motion";
 
 export type AgentToolName = "list_skills" | "run_skill" | "save_memory";
 
@@ -7,10 +8,10 @@ export interface AgentToolCallEntry {
   args: Record<string, unknown>;
   status: "running" | "done" | "error";
   summary?: string;
-  skillName?: string; // Nome da skill sendo executada (ex: web_search, run_command)
+  skillName?: string;
 }
 
-// ─── Config ────────────────────────────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────────────────
 
 const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; doneLabel: string; Icon: React.FC<{ className?: string }> }> = {
   list_skills: {
@@ -35,7 +36,7 @@ const TOOL_CONFIG: Record<AgentToolName, { label: string; runningLabel: string; 
 
 // ─── Single badge ──────────────────────────────────────────────────────────────
 
-function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
+function ToolBadge({ entry, index }: { entry: AgentToolCallEntry; index: number }) {
   const cfg = TOOL_CONFIG[entry.tool] ?? {
     label: entry.tool,
     runningLabel: entry.tool,
@@ -46,7 +47,6 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
   const isRunning = entry.status === "running";
   const isDone = entry.status === "done";
 
-  // Annotation (skill name or content)
   let annotation = "";
   if (entry.skillName) {
     annotation = entry.skillName;
@@ -58,7 +58,11 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
   }
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 4, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      // Stagger badges: 50ms apart — cascade feels natural
+      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1], delay: index * 0.05 }}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -71,7 +75,8 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
         background: isDone ? "hsl(var(--muted) / 0.4)" : "hsl(var(--muted) / 0.7)",
         border: `1px solid ${isRunning ? "hsl(var(--primary) / 0.35)" : "hsl(var(--border))"}`,
         color: isDone ? "hsl(var(--muted-foreground))" : "hsl(var(--foreground) / 0.85)",
-        transition: "all 0.25s ease",
+        // Specific transition for status change — background + border only
+        transition: "background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out",
         whiteSpace: "nowrap",
         maxWidth: "420px",
         overflow: "hidden",
@@ -104,11 +109,11 @@ function ToolBadge({ entry }: { entry: AgentToolCallEntry }) {
           {annotation}
         </span>
       )}
-    </div>
+    </motion.div>
   );
 }
 
-// ─── Export ────────────────────────────────────────────────────────────────────
+// ─── Export ───────────────────────────────────────────────────────────────────
 
 interface AgentToolCallsBarProps {
   toolCalls: AgentToolCallEntry[];
@@ -124,11 +129,11 @@ export default function AgentToolCallsBar({ toolCalls }: AgentToolCallsBarProps)
         flexWrap: "wrap",
         gap: "6px",
         marginBottom: "8px",
-        paddingLeft: "34px", // align with assistant bubble content
+        paddingLeft: "34px",
       }}
     >
       {toolCalls.map((entry, i) => (
-        <ToolBadge key={`${entry.tool}-${i}`} entry={entry} />
+        <ToolBadge key={`${entry.tool}-${i}`} entry={entry} index={i} />
       ))}
     </div>
   );

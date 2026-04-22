@@ -9,9 +9,10 @@ interface TypingIndicatorProps {
 const TypingIndicator = ({ status = "thinking" }: TypingIndicatorProps) => (
   <motion.div
     className="flex justify-start mb-3"
-    initial={{ opacity: 0, y: 8 }}
+    initial={{ opacity: 0, y: 6 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
+    // Faster entry + strong ease-out — indicator appears instantly responsive
+    transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
   >
     {status === "wikipedia" ? (
       <div className="flex items-center gap-2 py-2 px-1 text-muted-foreground text-[13px]">
