@@ -7,6 +7,7 @@ import { API_URL, getToken } from "@/lib/api";
 const SLASH_COMMANDS = [
   { command: "/imagine", description: "Generate an image with AI" },
   { command: "/file_manager", description: "Process or convert a file" },
+  { command: "/buildz", description: "Create a full React + Tailwind project" },
 ];
 
 interface SlashMenuProps {
