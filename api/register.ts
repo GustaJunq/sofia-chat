@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const API_URL = process.env.VITE_API_URL || "https://api.synastria.dev";
+const API_URL = process.env.VITE_API_URL || "https://sofia-api-p9na.onrender.com";
 const REGISTRATION_KEY = process.env.REGISTRATION_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
