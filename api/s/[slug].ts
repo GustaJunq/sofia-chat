@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const API_URL = process.env.VITE_API_URL || "https://sofia-api-z8nr.onrender.com";
+const API_URL = process.env.VITE_API_URL || "https://sofia-api-p9na.onrender.com";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { slug } = req.query;
