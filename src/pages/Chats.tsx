@@ -316,21 +316,13 @@ const Chats = () => {
       return;
     }
 
-    // ── File Manager & Buildz ──
+    // ── File Manager ──
     const isFileManager = text.trim().toLowerCase().startsWith("/file_manager");
-    const isBuildz = text.trim().toLowerCase().startsWith("/buildz");
 
-    if (isFileManager || isBuildz) {
-      const command = isBuildz
-        ? text.trim().replace(/^\/buildz\s*/i, "").trim() || "Create a modern React landing page"
-        : text.trim().replace(/^\/file_manager\s*/i, "").trim() || (fileName ? `Analyze and process the file: ${fileName}` : "Create a useful Python script");
+    if (isFileManager) {
+      const command = text.trim().replace(/^\/file_manager\s*/i, "").trim() || (fileName ? `Analyze and process the file: ${fileName}` : "Create a useful Python script");
 
-      const initialSteps = isBuildz ? [
-        { id: "classifying", label: "Analyzing project",  status: "running" as const },
-        { id: "generating",  label: "Structuring React project",    status: "pending" as const },
-        { id: "executing",   label: "Installing & Building",    status: "pending" as const },
-        { id: "uploading",   label: "Saving project zip",      status: "pending" as const },
-      ] : [
+      const initialSteps = [
         { id: "classifying", label: "Analyzing request",  status: "running" as const },
         { id: "generating",  label: "Generating code",    status: "pending" as const },
         { id: "executing",   label: "Checking syntax",    status: "pending" as const },
@@ -339,7 +331,7 @@ const Chats = () => {
 
       setMessages((prev) => [...prev, {
         role: "assistant",
-        content: isBuildz ? "🏗️ Building project with Buildz..." : "🖥️ Running on CLI...",
+        content: "🖥️ Running on CLI...",
         sandboxSteps: initialSteps,
         modelSlug: selectedModel,
       }]);
@@ -394,8 +386,6 @@ const Chats = () => {
             let successMessage = `✅ Done! **${result.title}**`;
             if (result.output_type === "html") {
               successMessage = `✅ Done! **${result.title}** — published on synastria.dev`;
-            } else if (isBuildz) {
-              successMessage = `✅ Project **${result.title}** built successfully! You can download the source code below.`;
             }
 
             updated[updated.length - 1] = {
